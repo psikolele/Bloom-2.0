@@ -37,9 +37,8 @@ export default function Dashboard() {
             {/* HEADER */}
             <header className="relative z-10 flex flex-col items-center justify-center mb-16 mt-8 animate-reveal">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg shadow-accent/20">
-                        {/* Simplified Bloom Logo representation */}
-                        <div className="w-6 h-6 bg-accent rounded-full animate-pulse"></div>
+                    <div className="relative">
+                        <img src="/logo.png" alt="Bloom AI" className="h-16 w-auto object-contain drop-shadow-[0_0_30px_rgba(255,107,53,0.5)] animate-[pulse_3s_infinite]" />
                     </div>
                     <h1 className="text-4xl md:text-5xl font-mono font-bold text-white tracking-tighter">
                         Bloom <span className="text-accent">2.0</span>
