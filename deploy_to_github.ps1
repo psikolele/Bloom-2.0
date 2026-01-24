@@ -16,7 +16,7 @@ if (Test-Path .git) {
     Write-Host "Git already initialized. Pushing to Bloom-2.0..." -ForegroundColor Green
     git add .
     git commit -m "Update Bloom 2.0 Integrated App"
-    git push origin main
+    git push origin HEAD
 } else {
     Write-Host "Initializing Bloom 2.0 Repository..." -ForegroundColor Green
     git init
