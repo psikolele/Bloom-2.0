@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MessageSquare, Briefcase, ExternalLink } from 'lucide-react';
 
@@ -28,9 +29,53 @@ const Card = ({ title, description, icon: Icon, path, delay }: { title: string, 
     );
 };
 
+const AnimatedLoader = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void/95 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-6">
+            <div className="relative">
+                <div className="absolute inset-0 animate-ping">
+                    <div className="w-24 h-24 bg-accent/20 rounded-full"></div>
+                </div>
+                <div className="relative animate-pulse">
+                    <img src="/icon.png" alt="Loading" className="w-24 h-24 object-contain drop-shadow-[0_0_40px_rgba(255,107,53,0.6)]" />
+                </div>
+            </div>
+
+            <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-accent to-purple-500 rounded-full animate-[loading_1.5s_ease-in-out_infinite]"></div>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <span className="text-white font-mono text-sm">Caricamento</span>
+                <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                </div>
+            </div>
+        </div>
+
+        <style>{`
+            @keyframes loading {
+                0% { transform: translateX(-100%); }
+                50% { transform: translateX(100%); }
+                100% { transform: translateX(100%); }
+            }
+        `}</style>
+    </div>
+);
+
 export default function Dashboard() {
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1500);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <div className="min-h-screen relative font-sans text-gray-200 overflow-x-hidden p-6 md:p-12 flex flex-col">
+            {isLoading && <AnimatedLoader />}
             <div className="ambient-light"></div>
             <div className="grid-overlay"></div>
 

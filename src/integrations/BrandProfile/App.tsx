@@ -13,6 +13,62 @@ const AVAILABLE_MODELS = [
 
 // --- COMPONENTS ---
 
+const AnimatedLoader = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void/95 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-6">
+            {/* Animated Logo */}
+            <div className="relative">
+                <div className="absolute inset-0 animate-ping">
+                    <div className="w-24 h-24 bg-accent/20 rounded-full"></div>
+                </div>
+                <div className="relative animate-pulse">
+                    <img src="/icon.png" alt="Loading" className="w-24 h-24 object-contain drop-shadow-[0_0_40px_rgba(255,107,53,0.6)]" />
+                </div>
+            </div>
+
+            {/* Loading Bar */}
+            <div className="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-accent to-purple-500 rounded-full animate-[loading_1.5s_ease-in-out_infinite]"></div>
+            </div>
+
+            {/* Loading Text */}
+            <div className="flex items-center gap-2">
+                <span className="text-white font-mono text-sm">Caricamento</span>
+                <div className="flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                </div>
+            </div>
+        </div>
+
+        <style>{`
+            @keyframes loading {
+                0% { transform: translateX(-100%); }
+                50% { transform: translateX(100%); }
+                100% { transform: translateX(100%); }
+            }
+        `}</style>
+    </div>
+);
+
+const BloomRedirectLoader = () => (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030303]">
+        <div className="relative w-32 h-32 flex items-center justify-center animate-[scaleUp_1s_ease-out]">
+            {/* Glow Ring - Full Disc */}
+            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#FF6B35_50%,#B349C1_60%,transparent_70%)] animate-[spin_1.5s_linear_infinite] blur-[8px] z-10"></div>
+            {/* Logo */}
+            <div className="relative z-20 transform scale-[1.55]">
+                <img src="/logo.png" alt="Loading" className="w-20 h-20 object-contain drop-shadow-[0_0_10px_rgba(255,107,53,0.8)]" />
+            </div>
+        </div>
+        <style>{`
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            @keyframes scaleUp { from { transform: scale(0); } to { transform: scale(1); } }
+        `}</style>
+    </div>
+);
+
 const ThinkingBot = () => (
     <div className="flex flex-col items-center justify-center py-12 animate-reveal">
         <div className="relative w-24 h-24 mb-6 animate-float">
@@ -163,10 +219,20 @@ export default function App() {
     const [webhookUrl, setWebhookUrl] = useState(import.meta.env.VITE_N8N_WEBHOOK_URL || "");
     const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].name);
     const [isConfigOpen, setIsConfigOpen] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true); // Added state
+    const [isRedirecting, setIsRedirecting] = useState(false); // Added state
 
     // Core inputs/outputs
     const [websiteUrl, setWebsiteUrl] = useState("");
     const [profileData, setProfileData] = useState<BrandProfileData | null>(null);
+
+    // Animazione di caricamento iniziale
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsInitialLoading(false);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Status states
     const [status, setStatus] = useState<"idle" | "generating" | "publishing" | "success" | "error">("idle");
@@ -260,8 +326,18 @@ export default function App() {
         setShowEditToast(false);
     };
 
+    const handleReturnToBloom = () => {
+        setIsRedirecting(true);
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2500);
+    };
+
     return (
         <div className="min-h-screen relative font-sans text-gray-200 pb-20 overflow-x-hidden">
+            {(isInitialLoading) && <AnimatedLoader />}
+            {isRedirecting && <BloomRedirectLoader />}
+
             <div className="ambient-light"></div>
             <div className="grid-overlay"></div>
 
@@ -279,13 +355,13 @@ export default function App() {
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div> System Online
                     </div>
 
-                    <a
-                        href="/"
+                    <button
+                        onClick={handleReturnToBloom}
                         className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full backdrop-blur-md text-gray-200 font-mono text-xs font-medium hover:bg-white/10 hover:border-white/20 transition-all hover:-translate-y-px hover:shadow-lg group"
                     >
                         <Icons.ArrowLeft width={14} height={14} className="group-hover:-translate-x-1 transition-transform" />
                         <span>Back to Hub</span>
-                    </a>
+                    </button>
                 </div>
             </nav>
 

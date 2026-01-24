@@ -117,12 +117,11 @@ const SuccessMessage = ({ onReset }: { onReset: () => void }) => (
 const BloomRedirectLoader = () => (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030303]">
         <div className="relative w-32 h-32 flex items-center justify-center animate-[scaleUp_1s_ease-out]">
-            {/* Glow Ring */}
-            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#FF6B35_50%,#B349C1_60%,transparent_70%)] animate-[spin_3s_linear_infinite] blur-[4px] z-10"></div>
-            <div className="absolute inset-[1px] bg-[#0A0A0A] rounded-full z-10"></div>
+            {/* Glow Ring - Full Disc */}
+            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#FF6B35_50%,#B349C1_60%,transparent_70%)] animate-[spin_1.5s_linear_infinite] blur-[8px] z-10"></div>
             {/* Logo */}
             <div className="relative z-20 transform scale-[1.55]">
-                <img src="/icon.png" alt="Loading" className="w-20 h-20 object-contain" />
+                <img src="/logo.png" alt="Loading" className="w-20 h-20 object-contain drop-shadow-[0_0_10px_rgba(255,107,53,0.8)]" />
             </div>
         </div>
         <style>{`
