@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from './components/Icons';
 import { SpotlightCard } from './components/SpotlightCard';
-import { Logo } from './components/Logo';
+// import { Logo } from './components/Logo'; // Removed as replaced by image assets
 
 // --- CONFIG ---
 // --- CONFIG ---
@@ -73,7 +73,7 @@ const AnimatedLoader = () => (
                     <div className="w-24 h-24 bg-accent/20 rounded-full"></div>
                 </div>
                 <div className="relative animate-pulse">
-                    <Logo size={96} className="drop-shadow-[0_0_40px_rgba(255,107,53,0.6)]" />
+                    <img src="/icon.png" alt="Loading" className="w-24 h-24 object-contain drop-shadow-[0_0_40px_rgba(255,107,53,0.6)]" />
                 </div>
             </div>
 
@@ -122,7 +122,7 @@ const BloomRedirectLoader = () => (
             <div className="absolute inset-[1px] bg-[#0A0A0A] rounded-full z-10"></div>
             {/* Logo */}
             <div className="relative z-20 transform scale-[1.55]">
-                <Logo size={80} />
+                <img src="/icon.png" alt="Loading" className="w-20 h-20 object-contain" />
             </div>
         </div>
         <style>{`
@@ -338,7 +338,7 @@ export default function App() {
     const handleReturnToBloom = () => {
         setIsRedirecting(true);
         setTimeout(() => {
-            window.location.href = 'https://bloom-ai-mu.vercel.app/';
+            window.location.href = '/';
         }, 2500);
     };
 
@@ -352,10 +352,9 @@ export default function App() {
 
             <nav className="relative z-50 px-6 py-6 w-full max-w-[90%] mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 flex items-center justify-center">
-                        <Logo size={48} className="drop-shadow-[0_0_20px_rgba(255,107,53,0.4)]" />
-                    </div>
-                    <span className="font-mono font-bold text-xl tracking-tighter text-white">MarketingFlow</span>
+                    <img src="/logo.png" alt="Bloom AI" className="h-10 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,107,53,0.4)]" />
+                    <div className="h-6 w-px bg-white/20 mx-2"></div>
+                    <span className="font-mono font-bold text-xl tracking-tighter text-white">SocialFlow</span>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -366,13 +365,10 @@ export default function App() {
 
                     <button
                         onClick={handleReturnToBloom}
-                        className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full backdrop-blur-md text-gray-200 font-mono text-xs font-medium hover:bg-white/10 hover:border-white/20 transition-all hover:-translate-y-px hover:shadow-lg group"
+                        className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full backdrop-blur-md text-gray-200 font-mono text-xs font-medium hover:bg-white/10 hover:border-white/20 transition-all hover:-translate-y-px hover:shadow-lg group"
                     >
-                        <div className="group-hover:scale-110 transition-transform duration-300">
-                            <Logo size={20} />
-                        </div>
-                        <span className="hidden sm:inline">Torna a Bloom AI</span>
-                        <span className="sm:hidden">Exit</span>
+                        <Icons.ArrowLeft width={14} height={14} className="group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Hub</span>
                     </button>
                 </div>
             </nav>

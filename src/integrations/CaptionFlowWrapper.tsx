@@ -7,7 +7,7 @@ export default function CaptionFlowWrapper() {
     return (
         <div className="w-full h-screen bg-void flex flex-col">
             {/* Floating Back Button */}
-            <div className="absolute top-4 left-4 z-50">
+            <div className="absolute top-4 right-4 z-50">
                 <button
                     onClick={() => navigate('/')}
                     className="flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/10 rounded-full transition-all text-sm font-mono group"

@@ -269,13 +269,23 @@ export default function App() {
 
             <nav className="relative z-50 px-6 py-6 w-full max-w-[90%] mx-auto flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-accent to-red-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,107,53,0.3)]">
-                        <span className="font-mono font-bold text-white text-xl">S</span>
-                    </div>
-                    <span className="font-mono font-bold text-xl tracking-tighter text-white">SocialFlow</span>
+                    <img src="/logo.png" alt="Bloom AI" className="h-10 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,107,53,0.4)]" />
+                    <div className="h-6 w-px bg-white/20 mx-2"></div>
+                    <span className="font-mono font-bold text-xl tracking-tighter text-white">BrandProfile</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono uppercase">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div> System Online
+
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono uppercase">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div> System Online
+                    </div>
+
+                    <a
+                        href="/"
+                        className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full backdrop-blur-md text-gray-200 font-mono text-xs font-medium hover:bg-white/10 hover:border-white/20 transition-all hover:-translate-y-px hover:shadow-lg group"
+                    >
+                        <Icons.ArrowLeft width={14} height={14} className="group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Hub</span>
+                    </a>
                 </div>
             </nav>
 
