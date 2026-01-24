@@ -26,7 +26,7 @@
     -[x] **Duplicate**: Re-import workflows as `_V.2`.
     -[x] **Update**: Fetch new Webhook URLs for V.2 workflows and update App config.
     -[x] **Refactor**: Switch `BrandProfile` from Google GenAI to OpenRouter.
-    -[x] **Refactor**: Switch `BrandProfile` from Google GenAI to OpenRouter.
+
     -[x] **Audit**: Check for missing workflows.
 
 -[x] UI Refinement
