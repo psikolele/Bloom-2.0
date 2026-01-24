@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# Bloom 2.0 - Integrated Automation Suite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bloom 2.0 is a unified Web Application that integrates **Caption Flow**, **Social Media Client**, and **Brand Profile** into a premium "Collector" Dashboard.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Hub Dashboard**: A central landing page to navigate between tools.
+- **Visual Integration**: Unified glassmorphism design and "Bloom" branding.
+- **Integrated Modules**:
+  1. **Caption Flow**: Legacy tool integrated via direct wrapper.
+  2. **Social Media Client**: Fully integrated React module.
+  3. **Brand Profile**: Fully integrated React module with AI capabilities (OpenRouter / Gemini 2.0).
+  4. **UI Refinements**: Standardized "Bloom" branding:
+     - **Loaders**: Unified `AnimatedLoader` and `BloomRedirectLoader` with fluid transitions.
+     - **Headers**: Standardized Navigation across all modules.
+     - **Fixes**: Removed duplicate menus and optimized animations.
 
-## React Compiler
+## 🛠️ Setup & Configuration
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js (v18+)
+- N8N Webhook URL (Automatically configured in V.2)
+- OpenRouter API Key
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Environment Variables
+You must configure the `.env` file in the root directory:
+```bash
+OPENROUTER_API_KEY=sk-or-v1-...
+VITE_N8N_WEBHOOK_URL=https://emanueleserra.app.n8n.cloud/webhook/...
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Installation
+```bash
+cd "Bloom 2.0"
+npm install
 ```
+
+### Running Locally
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) to view the Hub.
+
+## 📦 Building & Deployment
+
+### Build
+To create a production build:
+```bash
+npm run build
+```
+
+### Deploy to GitHub
+A script is provided to automate GitHub deployment:
+```powershell
+./deploy_to_github.ps1
+```
+This will initialize/push to the `Bloom-2.0` repository.
+
+## 🧩 Architecture
+
+The project is a **Vite + React** Single Page Application.
+- `src/pages/Dashboard.tsx`: Main Hub.
+- `src/integrations/`: Contains the source code of the integrated apps.
+  - `SocialMediaClient/`: Ported React App.
+  - `BrandProfile/`: Ported React App.
+  - `CaptionFlowWrapper.tsx`: Wrapper for the static Caption Flow app.
+- `public/caption-flow/`: Static assets for Caption Flow.
+
+Tailwind CSS v3 is configured to match the original "Bloom AI" theme (`bg-void`, `text-accent`).
