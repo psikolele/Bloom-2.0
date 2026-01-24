@@ -1,0 +1,388 @@
+{
+  "updatedAt": "2026-01-23T12:11:12.824Z",
+  "createdAt": "2026-01-17T22:07:57.444Z",
+  "id": "2WKzb93sJnfLO1Bv",
+  "name": "Bloom AI Registration",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "register",
+        "options": {},
+        "responseMode": "lastNode"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        368
+      ],
+      "webhookId": "register"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+          "mode": "list",
+          "cachedResultName": "Brand Profiles Database",
+          "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $json.body.username }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.body.email }}"
+            },
+            {
+              "key": "Caption Generated At|date"
+            },
+            {
+              "key": "Password|rich_text",
+              "textContent": "={{ $json.body.password }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-notion-page",
+      "name": "Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        368
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "jNP7bHIu6NZaobB0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success-field",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "message-field",
+              "name": "message",
+              "value": "User registered successfully",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-success-response",
+      "name": "Set Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1150,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1350,
+        368
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion": {
+      "main": [
+        [
+          {
+            "node": "Set Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Success Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "dynamic",
+    "executionOrder": "v0"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "25194d82-2fd0-4f7a-a615-b4aa0f6dcfea",
+  "activeVersionId": "25194d82-2fd0-4f7a-a615-b4aa0f6dcfea",
+  "versionCounter": 26,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-17T22:14:36.189Z",
+      "createdAt": "2026-01-17T22:14:36.189Z",
+      "role": "workflow:owner",
+      "workflowId": "2WKzb93sJnfLO1Bv",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-01-24T14:01:18.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-23",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-01-23T12:11:12.825Z",
+    "createdAt": "2026-01-23T12:11:12.825Z",
+    "versionId": "25194d82-2fd0-4f7a-a615-b4aa0f6dcfea",
+    "workflowId": "2WKzb93sJnfLO1Bv",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "register",
+          "options": {},
+          "responseMode": "lastNode"
+        },
+        "id": "webhook-trigger",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1.1,
+        "position": [
+          832,
+          368
+        ],
+        "webhookId": "register"
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+            "mode": "list",
+            "cachedResultName": "Brand Profiles Database",
+            "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+          },
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "Name|title",
+                "title": "={{ $json.body.username }}"
+              },
+              {
+                "key": "Email|email",
+                "emailValue": "={{ $json.body.email }}"
+              },
+              {
+                "key": "Caption Generated At|date"
+              },
+              {
+                "key": "Password|rich_text",
+                "textContent": "={{ $json.body.password }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "create-notion-page",
+        "name": "Notion",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.1,
+        "position": [
+          1040,
+          368
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "jNP7bHIu6NZaobB0",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "manual",
+          "duplicateItem": false,
+          "assignments": {
+            "assignments": [
+              {
+                "id": "success-field",
+                "name": "success",
+                "value": true,
+                "type": "boolean"
+              },
+              {
+                "id": "message-field",
+                "name": "message",
+                "value": "User registered successfully",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "set-success-response",
+        "name": "Set Success Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1150,
+          368
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {}
+        },
+        "id": "respond-to-webhook",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1350,
+          368
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Notion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Notion": {
+        "main": [
+          [
+            {
+              "node": "Set Success Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Success Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Emanule Serra",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-23T12:11:13.011Z",
+        "id": 128,
+        "workflowId": "2WKzb93sJnfLO1Bv",
+        "versionId": "25194d82-2fd0-4f7a-a615-b4aa0f6dcfea",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
+  }
+}

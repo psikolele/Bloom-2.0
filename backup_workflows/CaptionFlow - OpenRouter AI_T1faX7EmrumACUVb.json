@@ -1,0 +1,276 @@
+{
+  "updatedAt": "2026-01-22T23:20:22.000Z",
+  "createdAt": "2026-01-21T22:56:12.592Z",
+  "id": "T1faX7EmrumACUVb",
+  "name": "CaptionFlow - OpenRouter AI",
+  "description": null,
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caption-flow",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Caption Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        304
+      ],
+      "webhookId": "caption-flow-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const topic = $input.first().json.body.Topic || $input.first().json.body.idea || '';\nconst platform = $input.first().json.body.Platform || $input.first().json.body.social_platform || 'instagram';\nconst audience = $input.first().json.body.Audience || 'General Audience';\nconst voice = $input.first().json.body.Voice || 'Professional';\nconst timestamp = $input.first().json.body.timestamp || new Date().toISOString();\nconst source = $input.first().json.body.source || 'CaptionFlow';\n\nconst requestId = 'CF-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);\n\nconst platformNames = {\n  'instagram': 'Instagram',\n  'facebook': 'Facebook',\n  'linkedin': 'LinkedIn',\n  'tiktok': 'TikTok',\n  'twitter': 'X (Twitter)'\n};\n\nreturn [{\n  json: {\n    requestId: requestId,\n    topic: topic,\n    platform: platform,\n    platformName: platformNames[platform] || platform,\n    audience: audience,\n    voice: voice,\n    timestamp: timestamp,\n    source: source,\n    stato: 'In Elaborazione',\n    dataRicezione: new Date().toLocaleDateString('it-IT')\n  }\n}];"
+      },
+      "id": "process-data",
+      "name": "Elabora Dati Ricevuti",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const openRouterResponse = $input.first().json;\nconst previousData = $('Elabora Dati Ricevuti').first().json;\n\nlet caption = '';\nlet error = null;\n\ntry {\n  if (openRouterResponse.choices && openRouterResponse.choices[0]) {\n    caption = openRouterResponse.choices[0].message.content.trim();\n  } else if (openRouterResponse.error) {\n    error = openRouterResponse.error.message || 'Errore API OpenRouter';\n  }\n} catch (e) {\n  error = 'Errore nel parsing della risposta AI';\n}\n\nreturn [{\n  json: {\n    ...previousData,\n    caption: caption,\n    error: error,\n    stato: error ? 'Errore' : 'Completato',\n    model: 'google/gemini-pro',\n    tokensUsed: openRouterResponse.usage?.total_tokens || 0\n  }\n}];"
+      },
+      "id": "extract-caption",
+      "name": "Estrai Caption",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": {{ $json.error ? 'false' : 'true' }},\n  \"message\": \"{{ $json.error ? 'Errore nella generazione' : 'Caption generata con successo' }}\",\n  \"requestId\": \"{{ $json.requestId }}\",\n  \"caption\": \"{{ $json.caption }}\",\n  \"platform\": \"{{ $json.platformName }}\",\n  \"error\": {{ $json.error ? '\"' + $json.error + '\"' : 'null' }}\n}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-success",
+      "name": "Risposta con Caption",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        864,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## CaptionFlow - OpenRouter AI\n\nWorkflow per generare caption social con AI via OpenRouter.\n\n### Configurazione: COMPLETATA\n- Credenziale: OpenRouter API Key (collegata)\n- Modello: google/gemini-pro\n- Endpoint: /webhook/caption-flow\n\n### Credito: ~5$ (agg. 17/12/2025)",
+        "height": 320,
+        "width": 400,
+        "color": 6
+      },
+      "id": "instructions-note",
+      "name": "Istruzioni Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Flusso\n\n1. **Webhook** riceve richiesta\n2. **Elabora Dati** estrae e mappa i campi\n3. **OpenRouter** genera caption con Gemini Pro\n4. **Estrai Caption** processa la risposta AI\n5. **Risposta** invia caption al frontend",
+        "height": 240,
+        "width": 300,
+        "color": 4
+      },
+      "id": "flow-note",
+      "name": "Descrizione Flusso",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        352,
+        288
+      ],
+      "id": "d31eee43-22c2-4319-88a9-cf1a0430af04",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        480
+      ],
+      "id": "a0ec191a-2d41-4e91-a269-1d51a1733708",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "k5yt8BXWoDf12MAo",
+          "name": "OpenRouter account BLC v2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Caption Request": {
+      "main": [
+        [
+          {
+            "node": "Elabora Dati Ricevuti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elabora Dati Ricevuti": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estrai Caption": {
+      "main": [
+        [
+          {
+            "node": "Risposta con Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Estrai Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "370562de-9915-41e3-a326-01e79da11970",
+  "activeVersionId": null,
+  "versionCounter": 24,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-21T23:04:35.289Z",
+      "createdAt": "2026-01-21T23:04:35.289Z",
+      "role": "workflow:owner",
+      "workflowId": "T1faX7EmrumACUVb",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-01-24T14:01:18.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-23",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": null
+}

@@ -1,0 +1,330 @@
+{
+  "updatedAt": "2026-01-16T14:05:35.888Z",
+  "createdAt": "2026-01-15T21:48:47.276Z",
+  "id": "ZZ-ucA6GG-z6sW2c1UOPa",
+  "name": "CaptionFlow Webhook Receiver",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caption-flow",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "69725d7d-d1da-4e7c-be8b-e775a2fa93e0",
+      "name": "Webhook - Caption Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        320
+      ],
+      "webhookId": "caption-flow-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Estrai i dati dal webhook\nconst idea = $input.first().json.body.idea || '';\nconst socialPlatform = $input.first().json.body.social_platform || 'instagram';\nconst timestamp = $input.first().json.body.timestamp || new Date().toISOString();\nconst source = $input.first().json.body.source || 'CaptionFlow';\n\n// Genera un ID univoco per questa richiesta\nconst requestId = `CF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;\n\n// Mappa il nome della piattaforma social\nconst platformNames = {\n  'instagram': 'Instagram',\n  'facebook': 'Facebook',\n  'linkedin': 'LinkedIn',\n  'tiktok': 'TikTok',\n  'twitter': 'X (Twitter)'\n};\n\nreturn [{\n  json: {\n    requestId: requestId,\n    idea: idea,\n    socialPlatform: socialPlatform,\n    socialPlatformName: platformNames[socialPlatform] || socialPlatform,\n    timestamp: timestamp,\n    source: source,\n    stato: 'Da Elaborare',\n    dataRicezione: new Date().toLocaleDateString('it-IT')\n  }\n}];"
+      },
+      "id": "272d8974-aa4d-4684-ba86-85a9333f8dc3",
+      "name": "Elabora Dati Ricevuti",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "CaptionFlow Requests"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.requestId }}",
+            "Idea": "={{ $json.idea }}",
+            "Piattaforma": "={{ $json.socialPlatformName }}",
+            "Stato": "={{ $json.stato }}",
+            "Data Ricezione": "={{ $json.dataRicezione }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Source": "={{ $json.source }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Piattaforma",
+              "displayName": "Piattaforma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stato",
+              "displayName": "Stato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Data Ricezione",
+              "displayName": "Data Ricezione",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e3ef1d90-a822-4144-b0d9-b420c4407068",
+      "name": "Salva su Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        320
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Richiesta ricevuta con successo\",\n  \"requestId\": \"{{ $json.requestId }}\",\n  \"idea\": \"{{ $json.idea }}\",\n  \"platform\": \"{{ $json.socialPlatformName }}\"\n}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "678897f8-b37e-4ddc-832e-cc6e482605ec",
+      "name": "Risposta Successo",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## CaptionFlow Webhook Receiver\n\nQuesto workflow riceve le richieste dalla web app CaptionFlow e le salva su Google Sheets.\n\n### Configurazione:\n1. Sostituisci `YOUR_GOOGLE_SHEET_ID_HERE` con l'ID del tuo foglio\n2. Collega le credenziali Google Sheets\n3. Attiva il workflow e copia l'URL del webhook\n4. Incolla l'URL in `js/app.js` della web app",
+        "height": 280,
+        "width": 400,
+        "color": 6
+      },
+      "id": "90d08800-3f8e-48ae-b6ff-867b52160299",
+      "name": "Istruzioni Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Struttura Google Sheet\n\nCrea un foglio con queste colonne:\n\n| Colonna | Descrizione |\n|---------|-------------|\n| ID | ID univoco richiesta |\n| Idea | Testo inserito utente |\n| Piattaforma | Social selezionato |\n| Stato | Da Elaborare / Elaborato |\n| Data Ricezione | Data |\n| Timestamp | ISO timestamp |\n| Source | Provenienza |",
+        "height": 280,
+        "width": 350,
+        "color": 4
+      },
+      "id": "dedc3b06-0767-4dc5-a47c-6bc68ab026b4",
+      "name": "Struttura Sheet",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        432,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Caption Request": {
+      "main": [
+        [
+          {
+            "node": "Elabora Dati Ricevuti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elabora Dati Ricevuti": {
+      "main": [
+        [
+          {
+            "node": "Salva su Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva su Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Risposta Successo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "ba2b6ae1-8e5c-414d-bce5-96c53e417a42",
+  "activeVersionId": null,
+  "versionCounter": 4,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-01-16T14:05:14.382Z",
+      "createdAt": "2026-01-16T14:05:14.382Z",
+      "role": "workflow:owner",
+      "workflowId": "ZZ-ucA6GG-z6sW2c1UOPa",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-01-24T14:01:18.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-23",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [
+    {
+      "updatedAt": "2026-01-15T21:11:49.464Z",
+      "createdAt": "2026-01-15T21:11:49.464Z",
+      "id": "7GU9exE8a6yMf1Yo",
+      "name": "CaptionFlow"
+    },
+    {
+      "updatedAt": "2026-01-15T21:11:49.417Z",
+      "createdAt": "2026-01-15T21:11:49.417Z",
+      "id": "y0LByJyIZpVKUtrs",
+      "name": "Webhook"
+    },
+    {
+      "updatedAt": "2025-11-07T08:27:44.450Z",
+      "createdAt": "2025-11-07T08:27:44.450Z",
+      "id": "yDdOP1bFoRVdBivK",
+      "name": "Social"
+    }
+  ],
+  "activeVersion": null
+}

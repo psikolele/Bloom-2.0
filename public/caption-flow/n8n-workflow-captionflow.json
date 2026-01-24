@@ -1,0 +1,257 @@
+{
+  "name": "CaptionFlow Webhook Receiver",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caption-flow",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Caption Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        300
+      ],
+      "webhookId": "caption-flow-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Estrai i dati dal webhook\nconst idea = $input.first().json.body.idea || '';\nconst socialPlatform = $input.first().json.body.social_platform || 'instagram';\nconst timestamp = $input.first().json.body.timestamp || new Date().toISOString();\nconst source = $input.first().json.body.source || 'CaptionFlow';\n\n// Genera un ID univoco per questa richiesta\nconst requestId = `CF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;\n\n// Mappa il nome della piattaforma social\nconst platformNames = {\n  'instagram': 'Instagram',\n  'facebook': 'Facebook',\n  'linkedin': 'LinkedIn',\n  'tiktok': 'TikTok',\n  'twitter': 'X (Twitter)'\n};\n\nreturn [{\n  json: {\n    requestId: requestId,\n    idea: idea,\n    socialPlatform: socialPlatform,\n    socialPlatformName: platformNames[socialPlatform] || socialPlatform,\n    timestamp: timestamp,\n    source: source,\n    stato: 'Da Elaborare',\n    dataRicezione: new Date().toLocaleDateString('it-IT')\n  }\n}];"
+      },
+      "id": "process-data",
+      "name": "Elabora Dati Ricevuti",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        140,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "CaptionFlow Requests"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.requestId }}",
+            "Idea": "={{ $json.idea }}",
+            "Piattaforma": "={{ $json.socialPlatformName }}",
+            "Stato": "={{ $json.stato }}",
+            "Data Ricezione": "={{ $json.dataRicezione }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Source": "={{ $json.source }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Idea",
+              "displayName": "Idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Piattaforma",
+              "displayName": "Piattaforma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stato",
+              "displayName": "Stato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Data Ricezione",
+              "displayName": "Data Ricezione",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "google-sheets-append",
+      "name": "Salva su Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        380,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Richiesta ricevuta con successo\",\n  \"requestId\": \"{{ $json.requestId }}\",\n  \"idea\": \"{{ $json.idea }}\",\n  \"platform\": \"{{ $json.socialPlatformName }}\"\n}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-success",
+      "name": "Risposta Successo",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## CaptionFlow Webhook Receiver\n\nQuesto workflow riceve le richieste dalla web app CaptionFlow e le salva su Google Sheets.\n\n### Configurazione:\n1. Sostituisci `YOUR_GOOGLE_SHEET_ID_HERE` con l'ID del tuo foglio\n2. Collega le credenziali Google Sheets\n3. Attiva il workflow e copia l'URL del webhook\n4. Incolla l'URL in `js/app.js` della web app",
+        "height": 280,
+        "width": 400,
+        "color": 6
+      },
+      "id": "instructions-note",
+      "name": "Istruzioni Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Struttura Google Sheet\n\nCrea un foglio con queste colonne:\n\n| Colonna | Descrizione |\n|---------|-------------|\n| ID | ID univoco richiesta |\n| Idea | Testo inserito utente |\n| Piattaforma | Social selezionato |\n| Stato | Da Elaborare / Elaborato |\n| Data Ricezione | Data |\n| Timestamp | ISO timestamp |\n| Source | Provenienza |",
+        "height": 280,
+        "width": 350,
+        "color": 4
+      },
+      "id": "sheet-structure-note",
+      "name": "Struttura Sheet",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -20
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Caption Request": {
+      "main": [
+        [
+          {
+            "node": "Elabora Dati Ricevuti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elabora Dati Ricevuti": {
+      "main": [
+        [
+          {
+            "node": "Salva su Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva su Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Risposta Successo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "captionflow-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "captionflow-webhook"
+  },
+  "tags": [
+    {
+      "name": "CaptionFlow"
+    },
+    {
+      "name": "Webhook"
+    },
+    {
+      "name": "Social"
+    }
+  ]
+}

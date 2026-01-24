@@ -1,0 +1,2653 @@
+{
+  "updatedAt": "2026-01-23T11:41:02.752Z",
+  "createdAt": "2026-01-07T21:06:21.630Z",
+  "id": "PgkSjE3QNv3XhNXH",
+  "name": "Brand Profile compile Google Sheet",
+  "description": "Automazione Instagram completa: riceve Brand Profile via webhook, genera caption con GPT-4o e caption per immagini con Nano Banana Pro (KIe.ai). Supporta text-to-image e image-to-image con routing condizionale. Output su Google Sheets con aggiornamento stato pubblicazione.",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "94f98082-9ced-4244-b493-3d54d7328478",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1920,
+        -256
+      ],
+      "id": "fad2ac02-e898-403d-a877-545f9b25112b",
+      "name": "Webhook",
+      "webhookId": "94f98082-9ced-4244-b493-3d54d7328478"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://emanueleserra.app.n8n.cloud"
+            },
+            {
+              "name": "X-Title",
+              "value": "BLC Instagram Automation"
+            },
+            {
+              "name": "Content-Type"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"perplexity/sonar-pro\",\n  \"temperature\": 0.2,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Sei un analista di mercato con accesso al web. COMPITI:\\n\\n1. CLASSIFICA INDUSTRY (scegli UNA categoria):\\n- Artigianato\\n- Servizi\\n- Retail\\n- B2B\\n- Salute/Benessere\\n- Food & Beverage\\n- Fashion\\n- Tecnologia\\n- Immobiliare\\n- Altro\\n\\n2. INFERISCI TARGET:\\n- target_age: range et\u00e0 plausibile (es: '35-55 anni')\\n- target_job: ruolo/categoria professionale generica (es: 'Proprietari immobiliari', 'PMI', 'Manager', 'Professionisti')\\n\\n3. TROVA COMPETITOR REALI:\\n- USA WEB SEARCH per cercare business simili nella zona geografica specificata\\n- Competitor = business con STESSO servizio/prodotto, STESSA geografia\\n- NON confondere fornitori con competitor (es: iRobot \u00e8 fornitore, NON competitor di un centro assistenza)\\n- Verifica account Instagram REALI cercando sui social\\n- Se non trovi competitor verificabili \u2192 'Non trovato'\\n\\nOUTPUT (SOLO JSON, no markdown, no reasoning visibile):\\n{\\n  \\\"industry\\\": \\\"categoria_esatta\\\",\\n  \\\"confidence\\\": 0.85,\\n  \\\"reasoning\\\": \\\"Spiegazione breve classificazione\\\",\\n  \\\"target_age\\\": \\\"range et\u00e0 inferito\\\",\\n  \\\"target_job\\\": \\\"ruolo/categoria inferita\\\",\\n  \\\"target_reasoning\\\": \\\"Perch\u00e9 questo target\\\",\\n  \\\"competitor_1_name\\\": \\\"Nome REALE o 'Non trovato'\\\",\\n  \\\"competitor_1_instagram\\\": \\\"@handle REALE o 'Non trovato'\\\",\\n  \\\"competitor_1_reasoning\\\": \\\"Perch\u00e9 \u00e8 competitor diretto\\\",\\n  \\\"competitor_2_name\\\": \\\"Nome REALE o 'Non trovato'\\\",\\n  \\\"competitor_2_instagram\\\": \\\"@handle REALE o 'Non trovato'\\\",\\n  \\\"competitor_2_reasoning\\\": \\\"Perch\u00e9 \u00e8 competitor diretto\\\"\\n}\\n\\nREGOLE:\\n- industry = una delle 10 categorie esatte (case-sensitive)\\n- confidence 0.0-1.0\\n- USA WEB SEARCH attivamente per trovare competitor\\n- Verifica competitor siano DIRETTI (stesso business, stessa zona)\\n- Scrivi SOLO JSON valido, NO testo aggiuntivo\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analizza questo brand E cerca competitor reali online:\\n\\nNOME BRAND: {{ $json.brand_name }}\\nWEBSITE: {{ $json.website }}\\nGEOGRAFIA: {{ $json.target_geo }}\\nSTRATEGIA AZIENDALE: {{ $json.strategia_aziendale }}\\n\\nOFFERTA:\\n{{ $json.prodotti_formatted }}\\n\\nPAIN POINTS TARGET:\\n1. {{ $json.pain_point_1 }}\\n2. {{ $json.pain_point_2 }}\\n3. {{ $json.pain_point_3 }}\\n\\nKEYWORDS: {{ $json.keywords }}\\n\\nTASK:\\n1. Classifica industry basandoti su offerta e strategia\\n2. Inferisci target_age e target_job che hanno questi pain points\\n3. USA WEB SEARCH per trovare 2 competitor DIRETTI in {{ $json.target_geo }}\\n4. Cerca account Instagram REALI dei competitor verificando sui social\\n\\nIMPORTANTE:\\n- Se vedi brand fornitori (iRobot, Husqvarna, Bosch, ecc.) \u2192 NON sono competitor\\n- Competitor = centri assistenza, rivenditori locali, servizi simili nella stessa zona\\n- Rispondi SOLO con JSON, senza markdown o reasoning esterno\"\n    }\n  ]\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1840,
+        336
+      ],
+      "id": "ea5b8b1d-619f-44c9-b89b-f3d29dadc022",
+      "name": "Classify Industry with OpenRouter",
+      "retryOnFail": true,
+      "continueOnFail": true,
+      "notes": "\ud83e\udd16 Perplexity Sonar Reasoning con web search\n\u2705 Classifica Industry\n\u2705 Inferisci target_age/target_job\n\u2705 Trova competitor REALI con web search\n\u2705 Trova Instagram handle REALI\nCosto: ~$0.004 per brand"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: Parse Industry Classification\n// =========================================\n\nconst perplexityOutput = $input.first().json;\nconst originalData = $('Parse Pain Points Response').first().json;\n\n// Valori fallback\nlet industryData = {\n  industry: 'Servizi',\n  confidence: 0.5,\n  reasoning: 'Classificazione automatica non disponibile',\n  target_age: '25-55 anni',\n  target_job: 'Professionisti e privati',\n  target_reasoning: 'Target generico inferito da pain points',\n  competitor_1_name: 'Non trovato',\n  competitor_1_instagram: 'Non trovato',\n  competitor_1_reasoning: 'Nessun competitor identificato',\n  competitor_2_name: 'Non trovato',\n  competitor_2_instagram: 'Non trovato',\n  competitor_2_reasoning: 'Nessun competitor identificato'\n};\n\ntry {\n  let content;\n  \n  // Estrai content da struttura Perplexity via OpenRouter\n  if (perplexityOutput.choices && Array.isArray(perplexityOutput.choices)) {\n    const firstChoice = perplexityOutput.choices[0];\n    if (firstChoice && firstChoice.message && firstChoice.message.content) {\n      content = firstChoice.message.content;\n    }\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta Perplexity');\n  }\n  \n  console.log('=== RAW PERPLEXITY CONTENT ===');\n  console.log(content);\n  \n  // Pulisci markdown e parse JSON\n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  const parsed = JSON.parse(cleanContent);\n  \n  // Valida che tutti i campi richiesti esistano\n  const requiredFields = [\n    'industry', 'confidence', 'reasoning',\n    'target_age', 'target_job', 'target_reasoning',\n    'competitor_1_name', 'competitor_1_instagram', 'competitor_1_reasoning',\n    'competitor_2_name', 'competitor_2_instagram', 'competitor_2_reasoning'\n  ];\n  \n  const allFieldsPresent = requiredFields.every(field => parsed.hasOwnProperty(field));\n  \n  if (allFieldsPresent) {\n    industryData = parsed;\n    console.log('\u2705 Industry data estratti:', industryData);\n  } else {\n    console.warn('\u26a0\ufe0f Alcuni campi mancanti, merge parziale');\n    industryData = { ...industryData, ...parsed };\n  }\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing Perplexity output:', error.message);\n  console.log('\u26a0\ufe0f Uso fallback industry data');\n}\n\n// Merge con tutti i dati precedenti\nreturn [{\n  json: {\n    ...originalData,\n    industry: industryData.industry,\n    industry_confidence: industryData.confidence,\n    industry_reasoning: industryData.reasoning,\n    target_age: industryData.target_age,\n    target_job: industryData.target_job,\n    target_reasoning: industryData.target_reasoning,\n    competitor_1_name: industryData.competitor_1_name,\n    competitor_1_instagram: industryData.competitor_1_instagram,\n    competitor_1_reasoning: industryData.competitor_1_reasoning,\n    competitor_2_name: industryData.competitor_2_name,\n    competitor_2_instagram: industryData.competitor_2_instagram,\n    competitor_2_reasoning: industryData.competitor_2_reasoning\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1616,
+        336
+      ],
+      "id": "30a4d503-379a-432e-ad7f-b6212066ccfa",
+      "name": "Parse Industry Classification",
+      "notes": "\u2705 Parse risposta Perplexity\n\u2705 Valida categoria Industry\n\u2705 Fallback su 'Altro' se errore"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+          "mode": "list",
+          "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 96231752,
+          "mode": "list",
+          "cachedResultName": "Brand Profile",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=96231752"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -320,
+        336
+      ],
+      "id": "986e9846-b5eb-4c15-9f2b-78bf7dce5b8b",
+      "name": "Leggi Brand Profile",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: \"Prepara Dati GPT-4o\"\n// =========================================\n\nconst brandRows = $input.all();\n\n// Costruisci oggetto Brand Profile\nconst brandProfile = {};\nbrandRows.forEach(item => {\n  const campo = item.json.Campo;\n  const valore = item.json.Valore;\n  \n  if (campo && valore !== undefined && valore !== null && valore !== '') {\n    brandProfile[campo] = valore;\n  }\n});\n\nconsole.log('=== BRAND PROFILE ===');\nconsole.log('Brand:', brandProfile.brand_name);\nconsole.log('Settore:', brandProfile.settore);\n\n// Estrai keywords (comma-separated string)\nconst keywordsString = brandProfile.keywords || '';\nconst keywordsArray = keywordsString\n  .split(',')\n  .map(k => k.trim())\n  .filter(k => k.length > 0);\n\nif (keywordsArray.length === 0) {\n  throw new Error('\u26a0\ufe0f Nessuna keyword nel Brand Profile - Campo \"keywords\" vuoto');\n}\n\n// Seleziona keyword random\nconst randomKeyword = keywordsArray[Math.floor(Math.random() * keywordsArray.length)];\n\nconsole.log('=== KEYWORD SELECTION ===');\nconsole.log('Keywords disponibili:', keywordsArray.length);\nconsole.log('Keyword selezionata:', randomKeyword);\n\n// Genera Hook e Hashtag\nconst hookExample = `\ud83d\udca1 ${randomKeyword}: scopri come pu\u00f2 trasformare il tuo business`;\nconst hashtagsExample = `#${randomKeyword.replace(/\\s+/g, '')} #${brandProfile.settore.split(',')[0].trim().replace(/\\s+/g, '')} #business`;\n\n// Data pubblicazione (oggi + random 1-7 giorni)\nconst oggi = new Date();\noggi.setDate(oggi.getDate() + Math.floor(Math.random() * 7) + 1);\nconst dataPubblicazione = oggi.toISOString().split('T')[0];\n\nconsole.log('=== OUTPUT ===');\nconsole.log('Hook:', hookExample);\nconsole.log('Hashtags:', hashtagsExample);\nconsole.log('Data pubblicazione:', dataPubblicazione);\n\n// Output per GPT-4o\nreturn [{\n  json: {\n    'Keyword Focus': randomKeyword,\n    'Note': `Hook: ${hookExample}\\nHashtag: ${hashtagsExample}`,\n    'Data': dataPubblicazione,\n    'Image Prompt (Banana)': '',\n    brandProfile: brandProfile\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        336
+      ],
+      "id": "97d524c5-f1e3-46d1-b29f-d949d54149b5",
+      "name": "Prepara Dati GPT-4o"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Sei un copywriter esperto di Instagram per {{ $json.brandProfile.brand_name }}.\n\nBRAND CONTEXT:\n- Settore: {{ $json.brandProfile.settore }}\n- Target: {{ $json.brandProfile.target_job }} ({{ $json.brandProfile.target_age }})\n- Geografia: {{ $json.brandProfile.target_geo }}\n- Tone of voice: {{ $json.brandProfile.tone_voice }}\n\nPAIN POINTS del target:\n1. {{ $json.brandProfile.pain_point_1 }}\n2. {{ $json.brandProfile.pain_point_2 }}\n3. {{ $json.brandProfile.pain_point_3 }}\n\nVALUE PROPOSITION:\n{{ $json.brandProfile.value_prop }}\n\nVINCOLI TECNICI:\n- Emoji massimi: {{ $json.brandProfile.max_emoji }}\n- Lunghezza: {{ $json.brandProfile.post_length_min }}-{{ $json.brandProfile.post_length_max }} caratteri NETTI\n- NO hashtag (gestiti separatamente)\n\nFORMATTAZIONE:\n- Testo continuo, no line breaks multipli\n- Emoji distribuiti strategicamente\n- Massimo 3 paragrafi\n\nIl tuo compito \u00e8 creare UNA caption completa per Instagram che:\n- Sia un testo fluido e continuo\n- Usi {{ $json.brandProfile.max_emoji }} emoji\n- Rispetti ESATTAMENTE i limiti di lunghezza\n- Mantenga il tone: {{ $json.brandProfile.tone_voice }}\n\nIMPORTANTE: Fornisci SOLO il testo della caption, pronto per Instagram.",
+              "role": "system"
+            },
+            {
+              "content": "=KEYWORD FOCUS: {{ $json['Keyword Focus'] }}\n\nNOTE STRATEGICHE:\n{{ $json.Note }}\n\nDATA DI PUBBLICAZIONE: {{ $json.Data }}\n\nCrea una caption Instagram che:\n1. Utilizzi l'hook suggerito nelle note\n2. Sviluppi il tema della keyword focus\n3. Risolva uno dei pain point del target\n4. Mantenga il tone of voice del brand\n5. Sia ottimizzata per engagement\n6. Rispetti i vincoli di lunghezza ed emoji\n\nFornisci SOLO il testo pronto per Instagram (NO hashtag, NO markdown)."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        192,
+        384
+      ],
+      "id": "dc2550d8-da5f-4574-bf74-e8acab53bc46",
+      "name": "Genera Caption",
+      "credentials": {
+        "openAiApi": {
+          "id": "VctzpFiLCyKXxSXD",
+          "name": "OpenAi serra.emanuele09"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: \"Parse Output GPT-4o\"\n// =========================================\n\n// Prende output GPT-4o\nconst gptOutput = $input.first().json;\n\n// Prende dati originali dal nodo \"Prepara Dati GPT-4o\"\nconst originalData = $('Prepara Dati GPT-4o').first().json;\n\nconsole.log('=== DEBUG ===');\nconsole.log('Keyword Focus:', originalData['Keyword Focus']);\n\n// Estrae caption (gestisce vari formati di risposta OpenAI)\nlet captionText;\nif (gptOutput.message && gptOutput.message.content) {\n  captionText = gptOutput.message.content;\n} else if (typeof gptOutput === 'string') {\n  captionText = gptOutput;\n} else if (gptOutput.content) {\n  captionText = gptOutput.content;\n} else if (gptOutput.choices && gptOutput.choices[0]) {\n  captionText = gptOutput.choices[0].message.content;\n} else {\n  throw new Error(`Output GPT-4o non riconosciuto. Tipo: ${typeof gptOutput}`);\n}\n\nif (!captionText || captionText.trim() === '') {\n  throw new Error('GPT-4o ha restituito una caption vuota');\n}\n\nconsole.log('=== CAPTION ESTRATTA ===');\nconsole.log('Lunghezza:', captionText.length);\n\n// Estrae hook dalle note\nlet hookText = '';\nif (originalData.Note && originalData.Note.includes('Hook:')) {\n  const hookMatch = originalData.Note.match(/Hook:\\s*(.+?)(?:\\n|$)/);\n  if (hookMatch && hookMatch[1]) {\n    hookText = hookMatch[1].trim();\n  }\n}\n\n// Estrae hashtag dalle note\nlet hashtagText = '';\nif (originalData.Note && originalData.Note.includes('Hashtag:')) {\n  const hashtagMatch = originalData.Note.match(/Hashtag:\\s*(.+?)(?:\\n|$)/);\n  if (hashtagMatch && hashtagMatch[1]) {\n    hashtagText = hashtagMatch[1].trim();\n  }\n}\n\n// Data italiana\nconst dataLavorazione = new Date().toLocaleDateString('it-IT', {\n  day: '2-digit',\n  month: '2-digit',\n  year: 'numeric'\n});\n\nconsole.log('=== DATI ESTRATTI ===');\nconsole.log('Hook:', hookText);\nconsole.log('Hashtags:', hashtagText);\n\n// Output per Google Sheets\nreturn [{\n  json: {\n    \"Text to start\": originalData['Keyword Focus'],\n    \"Stato\": \"Da revisionare\",\n    \"Priorit\u00e0\": \"P0\",\n    \"Proprietario\": \"AI Bot\",\n    \"Hook AI\": hookText,\n    \"Hashtag AI\": hashtagText,\n    \"Testo completo\": captionText.trim(),\n    \"Data di lavorazione AI\": dataLavorazione,\n    \"Data di pubblicazione\": originalData.Data,\n    \"Image Prompt (Banana)\": originalData['Image Prompt (Banana)'] || '',\n    \"Link Immagine\": ''\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1840,
+        960
+      ],
+      "id": "70817a61-1b55-4805-82b0-84c2c9bab21c",
+      "name": "Parse Output GPT-4o"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+          "mode": "list",
+          "cachedResultName": "BLC_Text to Instagram N8N Workflow"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1054660267,
+          "mode": "list",
+          "cachedResultName": "Text to IG",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Text to start": "={{ $json[\"Text to start\"] }}",
+            "Stato": "={{ $json.Stato }}",
+            "Priorit\u00e0": "={{ $json[\"Priorit\u00e0\"] }}",
+            "Proprietario": "={{ $json.Proprietario }}",
+            "Hook AI": "={{ $json[\"Hook AI\"] }}",
+            "Hashtag AI": "={{ $json[\"Hashtag AI\"] }}",
+            "Testo completo": "={{ $json[\"Testo completo\"] }}",
+            "Data di lavorazione AI": "={{ $json[\"Data di lavorazione AI\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Text to start",
+              "displayName": "Text to start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stato",
+              "displayName": "Stato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priorit\u00e0",
+              "displayName": "Priorit\u00e0",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Proprietario",
+              "displayName": "Proprietario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hook AI",
+              "displayName": "Hook AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hashtag AI",
+              "displayName": "Hashtag AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Testo completo",
+              "displayName": "Testo completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Data di lavorazione AI",
+              "displayName": "Data di lavorazione AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1200,
+        960
+      ],
+      "id": "4fb32c4d-b6a9-4158-9ff1-86cb7a57a324",
+      "name": "Scrivi su Text to IG",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        960
+      ],
+      "id": "c683f6fa-bca3-4e11-b228-daee873c26b5",
+      "name": "Wait",
+      "webhookId": "c3331239-2026-4b78-a1fa-3f8af2e41b46"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb4f58ae-8b91-4e17-99bb-f0d19a77fe93",
+              "leftValue": "={{ $json.Stato }}",
+              "rightValue": "Da Pubblicare",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        960
+      ],
+      "id": "b6608999-aa5f-4511-9042-aadcec79c6d2",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "fromEmail": "didattica.blc@gmail.com",
+        "toEmail": "serra.emanuele09@gmail.com",
+        "subject": "=\ud83d\udd14 Nuovo post Instagram da revisionare - {{ $json[\"Text to start\"] }}",
+        "html": "=<h2>Nuovo post pronto per revisione</h2>\n<p><strong>Keyword:</strong> {{ $json[\"Text to start\"] }}</p>\n<p><strong>Caption:</strong></p>\n<p>{{ $json[\"Testo completo\"] }}</p>\n<p><strong>Hook:</strong> {{ $json[\"Hook AI\"] }}</p>\n<p><strong>Hashtag:</strong> {{ $json[\"Hashtag AI\"] }}</p>\n<hr>\n<p>\u23f0 <strong>Hai 4 ore per revisionare.</strong> Se non visualizzerai il foglio \"Text  to IG\" lo stato passer\u00e0 \"Da Revisionare\" a \"Da Pubblicare\", e verr\u00e0 pubblicato automaticamente sui canali social.</p>\n<p><a href=\"https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267\">Apri Google Sheets</a></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -976,
+        960
+      ],
+      "id": "ac57ec16-baf3-4d61-b4a7-c0875d222ad9",
+      "name": "Check Mail Text IG",
+      "webhookId": "cfb3f7ec-30d2-4e0e-8c86-a0d7267df022",
+      "credentials": {
+        "smtp": {
+          "id": "iLJkWtSaPdG2wKn7",
+          "name": "SMTP Gmail Didattica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+          "mode": "list",
+          "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1054660267,
+          "mode": "list",
+          "cachedResultName": "Text to IG",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Testo completo",
+              "lookupValue": "={{ $('Parse Output GPT-4o').item.json[\"Testo completo\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -528,
+        960
+      ],
+      "id": "8d81ba34-d9f5-447d-9975-595631fa2159",
+      "name": "Read Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KMVQhwwHBLGDO7FJ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KMVQhwwHBLGDO7FJ",
+          "cachedResultName": "Progetti \u2014 Text and Image Reference for FootEasy"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        864
+      ],
+      "id": "ce4413b9-4a2f-4a58-8144-0ecdcb6841f1",
+      "name": "Call 'Text and Image Reference for FootEasy'"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+          "mode": "list",
+          "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1054660267,
+          "mode": "list",
+          "cachedResultName": "Text to IG",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Testo completo": "={{ $json[\"Testo completo\"] }}",
+            "Stato": "Da Pubblicare"
+          },
+          "matchingColumns": [
+            "Testo completo"
+          ],
+          "schema": [
+            {
+              "id": "Stato",
+              "displayName": "Stato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Testo completo",
+              "displayName": "Testo completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        1056
+      ],
+      "id": "0af59325-de53-4906-a1ea-b92ad66a0a36",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KMVQhwwHBLGDO7FJ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KMVQhwwHBLGDO7FJ",
+          "cachedResultName": "Progetti \u2014 Text and Image Reference for FootEasy"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        1056
+      ],
+      "id": "c1d5408f-3e05-47aa-bf61-d52bc4f67862",
+      "name": "Call 'Text and Image Reference for FootEasy'1"
+    },
+    {
+      "parameters": {
+        "resource": "database",
+        "databaseId": {
+          "__rl": true,
+          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+          "mode": "list",
+          "cachedResultName": "Brand Profiles Database",
+          "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -768,
+        336
+      ],
+      "id": "579cd2a3-f17c-4fd6-8fdd-7791ad7db017",
+      "name": "Get a database",
+      "credentials": {
+        "notionApi": {
+          "id": "jNP7bHIu6NZaobB0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+          "mode": "list",
+          "cachedResultName": "Brand Profiles Database",
+          "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+        },
+        "title": "={{ $json.brand_name }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Industry",
+              "selectValue": "={{ $json.classified_industry }}"
+            },
+            {
+              "key": "Status",
+              "selectValue": "Lead"
+            },
+            {
+              "key": "Website",
+              "urlValue": "={{ $json.website }}"
+            },
+            {
+              "key": "Instagram"
+            },
+            {
+              "key": "Target Age"
+            },
+            {
+              "key": "Target Job"
+            },
+            {
+              "key": "Target Geo"
+            },
+            {
+              "key": "Tone Voice"
+            },
+            {
+              "key": "Pain Point 1"
+            },
+            {
+              "key": "Pain Point 2"
+            },
+            {
+              "key": "Pain Point 3"
+            },
+            {
+              "key": "Value Proposition"
+            },
+            {
+              "key": "Competitor 1 Name"
+            },
+            {
+              "key": "Competitor 1 Instagram",
+              "urlValue": "={{ $json.competitor_1_instagram }}"
+            },
+            {
+              "key": "Competitor 2 Name"
+            },
+            {
+              "key": "Competitor 2 Instagram",
+              "urlValue": "={{ $json.competitor_2_instagram }}"
+            },
+            {
+              "key": "Keywords"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -544,
+        336
+      ],
+      "id": "fdffcd4a-b5d0-4a38-94d5-4327ab5c56a2",
+      "name": "Scrivi Notion Brand Profiles",
+      "credentials": {
+        "notionApi": {
+          "id": "jNP7bHIu6NZaobB0",
+          "name": "Notion account"
+        }
+      },
+      "notes": "\u270d\ufe0f Scrive brand profile su Notion DB\n\u2705 Campi: Industry, Status, Website, Target, Pain Points, Competitor\n\u2705 Dual-write: Google Sheets (legacy) + Notion (nuovo)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: Parse & Validate Payload\n// =========================================\n\nconst input = $input.first().json.body;\n\n// Validazione campi obbligatori\nconst required = ['nome_azienda', 'sito_web', 'strategia_aziendale', 'prodotti'];\nconst missing = required.filter(field => !input[field] || input[field] === '');\n\nif (missing.length > 0) {\n  throw new Error(`\u274c Campi obbligatori mancanti: ${missing.join(', ')}`);\n}\n\nif (!Array.isArray(input.prodotti) || input.prodotti.length === 0) {\n  throw new Error('\u274c Nessun prodotto fornito nell\\'array prodotti[]');\n}\n\n// Estrazione target_geo da indirizzo\nlet target_geo = 'Non specificato';\nif (input.indirizzo) {\n  const swissMatch = input.indirizzo.match(/CH-\\d+\\s+(\\w+)/);\n  if (swissMatch) {\n    target_geo = `Svizzera, ${swissMatch[1]}`;\n  } else if (input.indirizzo.includes('CH')) {\n    target_geo = 'Svizzera';\n  }\n}\n\nconsole.log('=== PAYLOAD PARSED ===');\nconsole.log('Brand:', input.nome_azienda);\nconsole.log('Prodotti:', input.prodotti.length);\nconsole.log('Target Geo estratto:', target_geo);\n\n// Output standardizzato\nreturn [{\n  json: {\n    brand_name: input.nome_azienda,\n    website: input.sito_web,\n    indirizzo: input.indirizzo || '',\n    telefono: input.numero_telefono || '',\n    social_links: {\n      facebook: input.link_facebook || '',\n      instagram: input.link_instagram || '',\n      linkedin: input.link_linkedin || '',\n      altri: input.altri_link || ''\n    },\n    strategia_aziendale: input.strategia_aziendale,\n    tipologia_comunicazione: input.tipologia_comunicazione || 'Informativo',\n    social_platforms: input.social_platforms || ['Instagram'],\n    target_geo: target_geo,\n    prodotti: input.prodotti.map(p => ({\n      id: p.id,\n      nome: p.nome,\n      descrizione: p.descrizione,\n      competitor_links: [\n        p.link_competitor_1,\n        p.link_competitor_2,\n        p.link_competitor_3\n      ].filter(l => l && l !== '')\n    })),\n    timestamp: input.timestamp || new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1696,
+        -256
+      ],
+      "id": "9a784b00-6f58-4941-8ea2-181ff57f7902",
+      "name": "Parse and Validate Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Sei un esperto di keyword extraction per marketing digitale B2C e B2B.\n\nTASK: Estrai 8-12 keyword SEO-friendly da contenuti aziendali (prodotti, servizi, value proposition).\n\nREGOLE:\n- Keyword singole o bi-gram (max 3 parole)\n- Includi: categoria business, benefici principali, localit\u00e0 geografica\n- Escludi: stopwords generiche (\"il\", \"di\", \"per\"), brand name\n- Priorit\u00e0: termini che il target userebbe per cercare questa soluzione\n\nESEMPI:\n- E-commerce abbigliamento \u2192 [\"moda sostenibile\", \"consegna rapida\", \"Milano\"]\n- Consulenza IT \u2192 [\"cybersecurity PMI\", \"cloud migration\", \"Roma\"]\n- Servizio locale \u2192 [\"manutenzione caldaie\", \"pronto intervento\", \"Canton Ticino\"]\n- SaaS \u2192 [\"gestionale cloud\", \"automazione fatture\", \"PMI Italia\"]\n\nOUTPUT: Array JSON di stringhe, NO markdown, NO spiegazioni.\nFormato: [\"keyword1\", \"keyword2\", ...]"
+            },
+            {
+              "content": "=BRAND: {{ $json.brand_name }}\nWEBSITE: {{ $json.website }}\nGEOGRAFIA TARGET: {{ $json.target_geo }}\nSTRATEGIA AZIENDALE: {{ $json.strategia_aziendale }}\nTIPOLOGIA COMUNICAZIONE: {{ $json.tipologia_comunicazione }}\n\nESTRAI 8-12 keyword SEO per content marketing che:\n1. Rappresentano il core business descritto nella strategia aziendale\n2. Includono benefici chiave per il target\n3. Sono rilevanti per la geografia indicata\n4. Sono utilizzabili per post sui social media\n\nRispondi SOLO con array JSON, nessun altro testo."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "instructions": "Use low temperature (0.3) for consistent, focused output. Prefer common, high-volume keywords over creative variations.",
+          "maxTokens": 300
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        -256
+      ],
+      "id": "d8066a47-d6b1-4f7c-88fa-4ef8cf5c09e3",
+      "name": "Extract Keywords from Products",
+      "credentials": {
+        "openAiApi": {
+          "id": "jPc5G1JGDGpU5unG",
+          "name": "OpenAi BLC Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: Parse Keywords Response\n// =========================================\n\nconst aiOutput = $input.first().json;\nconst originalData = $('Parse and Validate Webhook').first().json;\n\nconsole.log('=== DEBUG originalData ===');\nconsole.log(JSON.stringify(originalData, null, 2));\n\nlet keywords = [];\n\ntry {\n  let content;\n  \n  if (aiOutput.output && Array.isArray(aiOutput.output) && aiOutput.output[0]) {\n    const firstOutput = aiOutput.output[0];\n    if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content[0]) {\n      content = firstOutput.content[0].text;\n    }\n  } else if (aiOutput.message && aiOutput.message.content) {\n    content = aiOutput.message.content;\n  } else if (aiOutput.choices && aiOutput.choices[0]) {\n    content = aiOutput.choices[0].message.content;\n  } else {\n    throw new Error('Formato risposta OpenAI non riconosciuto');\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta');\n  }\n  \n  console.log('=== RAW CONTENT ===');\n  console.log(content);\n  \n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  keywords = JSON.parse(cleanContent);\n  \n  if (!Array.isArray(keywords) || keywords.length === 0) {\n    throw new Error('Keywords non \u00e8 un array valido');\n  }\n  \n  console.log('\u2705 Keywords estratte:', keywords.length);\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing keywords:', error.message);\n  \n  keywords = [\n    originalData.brand_name || 'servizi professionali',\n    originalData.target_geo || 'Italia'\n  ].filter(k => k);\n  \n  console.log('\u26a0\ufe0f Uso keywords fallback');\n}\n\n// Formatta prodotti per prompt AI successivi\nlet prodottiFormattati = '';\nif (originalData.prodotti && Array.isArray(originalData.prodotti)) {\n  prodottiFormattati = originalData.prodotti\n    .map(p => `- ${p.nome}: ${p.descrizione}`)\n    .join('\\n');\n}\n\nconsole.log('=== PRODOTTI FORMATTATI ===');\nconsole.log(prodottiFormattati);\n\n// UN SOLO RETURN - merge completo con tutti i campi\nreturn [{\n  json: {\n    ...originalData,\n    keywords: keywords,\n    prodotti_formatted: prodottiFormattati\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        -256
+      ],
+      "id": "114816cb-bdc1-4915-b51a-c3b02d95c3c5",
+      "name": "Parse Keyword Response"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Sei un copywriter esperto in value proposition per B2C e B2B.\n\nPAIN POINT = problema specifico, frustrazione o bisogno insoddisfatto che l'offerta aziendale risolve.\n\nIDENTIFICA 3 pain points distinti analizzando:\n- Descrizioni prodotti/servizi\n- Strategia aziendale dichiarata\n- Contesto di mercato\n\nCATEGORIE PAIN POINT (scegli mix appropriato):\n- OPERATIVO: inefficienza, complessit\u00e0 processo, mancanza strumenti\n- EMOTIVO: stress, incertezza, paura di sbagliare, frustrazione\n- ECONOMICO: costi elevati, sprechi, tempo perso\n- SOCIALE: reputazione, status, riconoscimento\n- FISICO: fatica, disagio, rischi salute/sicurezza\n\nREGOLE OUTPUT:\n- Max 80 caratteri per pain point\n- Linguaggio specifico (NO genericit\u00e0 tipo \"problemi vari\")\n- Orientato al target (usa \"tu\" implicito o contesto professionale)\n\nOUTPUT: JSON senza markdown\n{\n  \"pain_point_1\": \"Descrizione problema specifico\",\n  \"pain_point_2\": \"Descrizione problema specifico\",\n  \"pain_point_3\": \"Descrizione problema specifico\"\n}"
+            },
+            {
+              "content": "=BRAND: {{ $json.brand_name }}\nSETTORE: {{ $json.strategia_aziendale }}\nTARGET GEOGRAFICO: {{ $json.target_geo }}\nTIPO COMUNICAZIONE: {{ $json.tipologia_comunicazione }}\n\nKEYWORDS IDENTIFICATE:\n{{ $json.keywords }}\n\nANALISI RICHIESTA:\nBasandoti sulla strategia aziendale e sulle keyword estratte, identifica 3 pain points SPECIFICI che questa offerta risolve per il target.\n\nUsa linguaggio appropriato al tipo di comunicazione ({{ $json.tipologia_comunicazione }}).\n\nESEMPI CONTESTUALI:\n- Servizio locale \u2192 \"Attesa settimane per intervento tecnico\" (operativo)\n- SaaS \u2192 \"Perdita dati da fogli Excel manuali\" (economico)\n- E-commerce \u2192 \"Difficolt\u00e0 trovare taglie vestiti online\" (emotivo)\n- Consulenza \u2192 \"Sanzioni normative per non conformit\u00e0 GDPR\" (economico)\n\nRispondi SOLO con JSON valido:\n{\n  \"pain_point_1\": \"Descrizione problema 1 (max 80 caratteri)\",\n  \"pain_point_2\": \"Descrizione problema 2 (max 80 caratteri)\",\n  \"pain_point_3\": \"Descrizione problema 3 (max 80 caratteri)\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        -256
+      ],
+      "id": "1e73affc-5012-4bf2-830b-0052424ba67c",
+      "name": "Extract Pain Points from Products",
+      "credentials": {
+        "openAiApi": {
+          "id": "VctzpFiLCyKXxSXD",
+          "name": "OpenAi serra.emanuele09"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: Parse Pain Points Response\n// =========================================\n\nconst aiOutput = $input.first().json;\nconst originalData = $('Parse Keyword Response').first().json;\n\nlet painPoints = {\n  pain_point_1: 'Gestione inefficiente di processi manuali',\n  pain_point_2: 'Perdita di tempo in attivit\u00e0 ripetitive',\n  pain_point_3: 'Costi elevati di manutenzione'\n};\n\ntry {\n  let content;\n  \n  if (aiOutput.output && Array.isArray(aiOutput.output) && aiOutput.output[0]) {\n    // Formato N8N \"Message a Model\"\n    const firstOutput = aiOutput.output[0];\n    if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content[0]) {\n      content = firstOutput.content[0].text;\n    }\n  } else if (aiOutput.message && aiOutput.message.content) {\n    content = aiOutput.message.content;\n  } else if (aiOutput.choices && aiOutput.choices[0]) {\n    content = aiOutput.choices[0].message.content;\n  } else {\n    throw new Error('Formato risposta OpenAI non riconosciuto');\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta');\n  }\n  \n  console.log('=== RAW PAIN POINTS CONTENT ===');\n  console.log(content);\n  \n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  const parsed = JSON.parse(cleanContent);\n  \n  if (parsed.pain_point_1 && parsed.pain_point_2 && parsed.pain_point_3) {\n    painPoints = parsed;\n    console.log('\u2705 Pain points estratti:', painPoints);\n  } else {\n    console.warn('\u26a0\ufe0f Pain points incompleti, uso fallback');\n  }\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing pain points:', error.message);\n  console.log('\u26a0\ufe0f Uso pain points fallback');\n}\n\n// Merge con dati precedenti\nreturn [{\n  json: {\n    ...originalData,\n    pain_point_1: painPoints.pain_point_1,\n    pain_point_2: painPoints.pain_point_2,\n    pain_point_3: painPoints.pain_point_3\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -160
+      ],
+      "id": "0d5fc390-79bd-40af-a32e-0c2566197626",
+      "name": "Parse Pain Points Response"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d6ea025f-6dc8-4cc0-9e87-e30f3e002717",
+              "leftValue": "={{ $json.social_links.instagram }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1472,
+        -256
+      ],
+      "id": "c64e269d-7cf9-48e5-9c1d-8af754779de1",
+      "name": "Check Instagram Link (IF)"
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={ $json.brand_name }} {{ $json.target_geo }} instagram"
+            },
+            {
+              "name": "api_key",
+              "value": "69b312bfb96b2475591346ef37c7a8878f393d6d123921c6089443443dbccf0e"
+            },
+            {
+              "name": "num",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1232,
+        -416
+      ],
+      "id": "e6cc3d58-63be-45a5-aec0-e2c119203a78",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: Parse SerpAPI & Merge Instagram\n// =========================================\n\nconst input = $input.first().json;\nlet originalData;\nlet serpResults = null;\n\n// Determina se arriva da SerpAPI o direttamente da IF\nconst isSerpAPIResult = input.organic_results !== undefined;\n\nif (isSerpAPIResult) {\n  // Branch TRUE: risultati da SerpAPI\n  serpResults = input;\n  originalData = $('Parse and Validate Webhook').first().json;\n  console.log('\ud83d\udce1 Dati da SerpAPI (Instagram cercato)');\n} else {\n  // Branch FALSE: dati dal webhook passati da IF\n  originalData = input;\n  console.log('\u2705 Dati da webhook (Instagram gi\u00e0 presente)');\n}\n\nlet instagramLink = originalData.social_links?.instagram || '';\nlet instagramHandle = '';\nlet instagramSource = 'not_found';\n\n// CASO 1: Processa risultati SerpAPI (branch TRUE)\nif (isSerpAPIResult && serpResults) {\n  try {\n    console.log('=== SERP API RESULTS ===');\n    \n    if (serpResults.organic_results && Array.isArray(serpResults.organic_results)) {\n      \n      // Cerca primo risultato instagram.com\n      const instagramResult = serpResults.organic_results.find(result => {\n        return result.link && result.link.includes('instagram.com');\n      });\n      \n      if (instagramResult && instagramResult.link) {\n        instagramLink = instagramResult.link;\n        instagramSource = 'serpapi_search';\n        \n        // Estrai handle da URL\n        const handleMatch = instagramResult.link.match(/instagram\\.com\\/([^\\/\\?]+)/);\n        if (handleMatch && handleMatch[1]) {\n          instagramHandle = '@' + handleMatch[1];\n        }\n        \n        console.log('\u2705 Instagram trovato:', instagramLink);\n        console.log('\u2705 Handle:', instagramHandle);\n      } else {\n        console.warn('\u26a0\ufe0f Nessun risultato Instagram in SerpAPI');\n      }\n    }\n  } catch (error) {\n    console.error('\u26a0\ufe0f Errore parsing SerpAPI:', error.message);\n  }\n}\n\n// CASO 2: Instagram gi\u00e0 presente dal webhook (branch FALSE)\nif (!isSerpAPIResult && instagramLink) {\n  instagramSource = 'webhook_original';\n  \n  // Estrai handle da link esistente\n  if (instagramLink.includes('instagram.com')) {\n    const handleMatch = instagramLink.match(/instagram\\.com\\/([^\\/\\?]+)/);\n    if (handleMatch && handleMatch[1]) {\n      instagramHandle = '@' + handleMatch[1];\n    }\n  }\n  \n  console.log('\u2139\ufe0f Instagram da webhook:', instagramLink);\n  console.log('\u2139\ufe0f Handle estratto:', instagramHandle);\n}\n\n// Output unificato per entrambi i branch\nreturn [{\n  json: {\n    ...originalData,\n    social_links: {\n      ...originalData.social_links,\n      instagram: instagramLink\n    },\n    instagram_handle: instagramHandle,\n    instagram_source: instagramSource\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        -256
+      ],
+      "id": "f659e434-cdf0-4ea6-8b28-a278afb2c910",
+      "name": "Parse SerpAPI & Merge IG"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Sei un brand strategist esperto in comunicazione social multipiattaforma.\n\nCOMPITO:\nAnalizza il brand e inferisci il TONE OF VOICE ottimale per Instagram e Facebook, considerando:\n- Industry di appartenenza\n- Target demografico e professionale\n- Tipologia di comunicazione desiderata (Informativo, Promozionale, Educativo, Istituzionale)\n- Pain points del target\n\nTONE OF VOICE = combinazione di:\n- REGISTRO: formale/informale/colloquiale\n- ATTITUDINE: professionale/friendly/empatico/tecnico/aspirazionale\n- ENERGIA: alta/media/calma\n- PRONOME: tu/voi/Lei (dipende da target e contesto culturale)\n\nDIFFERENZIAZIONE PIATTAFORME:\n- INSTAGRAM: pi\u00f9 visual, emotivo, storytelling, conversazionale\n- FACEBOOK: pi\u00f9 informativo, community-oriented, pu\u00f2 essere pi\u00f9 corporate\n\nOUTPUT (SOLO JSON, no markdown):\n{\n  \"tone_instagram\": \"Descrizione tone of voice Instagram (max 120 caratteri)\",\n  \"tone_facebook\": \"Descrizione tone of voice Facebook (max 120 caratteri)\",\n  \"reasoning\": \"Perch\u00e9 questi tone sono appropriati per questo brand/target\",\n  \"pronoun_suggested\": \"tu/voi/Lei\",\n  \"energy_level\": \"alta/media/calma\"\n}\n\nESEMPI TONE:\n- Servizi locali B2C: \"Amichevole e diretto, usa 'tu', energia media, focus su praticit\u00e0\"\n- Tech B2B: \"Professionale ma accessibile, usa 'voi', focus su competenza\"\n- Wellness: \"Empatico e aspirazionale, usa 'tu', energia calma, focus su benessere\"\n- Retail fashion: \"Energico e trendy, usa 'tu', focus su stile e personalit\u00e0\"\n\nREGOLE:\n- Tone deve essere SPECIFICO per l'industry, non generico\n- Considera contesto geografico (es: Svizzera italiana = pi\u00f9 formale di social USA)\n- Adatta energia ai pain points (es: problemi stressanti \u2192 tone empatico e rassicurante)"
+            },
+            {
+              "content": "=Analizza questo brand e inferisci tone of voice ottimale per Instagram e Facebook:\n\nBRAND: {{ $json.brand_name }}\nINDUSTRY: {{ $json.industry }}\nCONFIDENCE: {{ $json.industry_confidence }}\n\nTARGET:\n- Et\u00e0: {{ $json.target_age }}\n- Profilo: {{ $json.target_job }}\n- Reasoning: {{ $json.target_reasoning }}\n\nGEOGRAFIA: {{ $json.target_geo }}\n\nSTRATEGIA AZIENDALE: {{ $json.strategia_aziendale }}\n\nTIPOLOGIA COMUNICAZIONE: {{ $json.tipologia_comunicazione }}\n\nPAIN POINTS TARGET:\n1. {{ $json.pain_point_1 }}\n2. {{ $json.pain_point_2 }}\n3. {{ $json.pain_point_3 }}\n\nKEYWORDS CORE: {{ $json.keywords }}\n\nTASK:\n1. Considera che il target ha questi pain points \u2192 tone deve essere appropriato (es: rassicurante se pain emotivi, tecnico se pain operativi)\n2. Adatta tone al contesto geografico ({{ $json.target_geo }})\n3. Differenzia Instagram (pi\u00f9 storytelling/emotivo) da Facebook (pi\u00f9 informativo/community)\n4. Considera tipologia comunicazione: {{ $json.tipologia_comunicazione }}\n\nRispondi SOLO con JSON, no markdown."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -1456,
+        336
+      ],
+      "id": "cb2465e8-d186-4f1b-9bad-5b58a3932ef3",
+      "name": "Tone of Voice",
+      "credentials": {
+        "openAiApi": {
+          "id": "jPc5G1JGDGpU5unG",
+          "name": "OpenAi BLC Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =========================================\n// NODO: Parse Tone of Voice Response\n// =========================================\n\nconst aiOutput = $input.first().json;\nconst originalData = $('Parse Industry Classification').first().json;\n\n// Valori fallback\nlet toneData = {\n  tone_instagram: 'Amichevole e diretto, usa \"tu\", focus su praticit\u00e0',\n  tone_facebook: 'Professionale e informativo, usa \"voi\", focus su competenza',\n  reasoning: 'Tone generico applicato',\n  pronoun_suggested: 'tu',\n  energy_level: 'media'\n};\n\ntry {\n  let content;\n  \n  // Estrai content da struttura OpenAI\n  if (aiOutput.output && Array.isArray(aiOutput.output) && aiOutput.output[0]) {\n    const firstOutput = aiOutput.output[0];\n    if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content[0]) {\n      content = firstOutput.content[0].text;\n    }\n  } else if (aiOutput.message && aiOutput.message.content) {\n    content = aiOutput.message.content;\n  } else if (aiOutput.choices && aiOutput.choices[0]) {\n    content = aiOutput.choices[0].message.content;\n  } else {\n    throw new Error('Formato risposta OpenAI non riconosciuto');\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta');\n  }\n  \n  console.log('=== RAW TONE CONTENT ===');\n  console.log(content);\n  \n  // Pulisci markdown e parse JSON\n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  const parsed = JSON.parse(cleanContent);\n  \n  // Valida campi\n  const requiredFields = [\n    'tone_instagram',\n    'tone_facebook',\n    'reasoning',\n    'pronoun_suggested',\n    'energy_level'\n  ];\n  \n  const allFieldsPresent = requiredFields.every(field => parsed.hasOwnProperty(field));\n  \n  if (allFieldsPresent) {\n    toneData = parsed;\n    console.log('\u2705 Tone data estratti:', toneData);\n  } else {\n    console.warn('\u26a0\ufe0f Alcuni campi mancanti, merge parziale');\n    toneData = { ...toneData, ...parsed };\n  }\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing tone output:', error.message);\n  console.log('\u26a0\ufe0f Uso tone fallback');\n}\n\n// Merge con tutti i dati precedenti\nreturn [{\n  json: {\n    ...originalData,\n    tone_instagram: toneData.tone_instagram,\n    tone_facebook: toneData.tone_facebook,\n    tone_reasoning: toneData.reasoning,\n    pronoun_suggested: toneData.pronoun_suggested,\n    energy_level: toneData.energy_level\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        336
+      ],
+      "id": "ba9134d3-fbc4-4a6e-8502-8314c2063de5",
+      "name": "Parse Tone of Voice"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse and Validate Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Industry with OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Parse Industry Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Industry Classification": {
+      "main": [
+        [
+          {
+            "node": "Tone of Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leggi Brand Profile": {
+      "main": [
+        [
+          {
+            "node": "Prepara Dati GPT-4o",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Dati GPT-4o": {
+      "main": [
+        [
+          {
+            "node": "Genera Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Genera Caption": {
+      "main": [
+        [
+          {
+            "node": "Parse Output GPT-4o",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Output GPT-4o": {
+      "main": [
+        [
+          {
+            "node": "Scrivi su Text to IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrivi su Text to IG": {
+      "main": [
+        [
+          {
+            "node": "Check Mail Text IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Read Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Mail Text IG": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Status": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Call 'Text and Image Reference for FootEasy'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Call 'Text and Image Reference for FootEasy'1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a database": {
+      "main": [
+        [
+          {
+            "node": "Scrivi Notion Brand Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrivi Notion Brand Profiles": {
+      "main": [
+        [
+          {
+            "node": "Leggi Brand Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Validate Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check Instagram Link (IF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Keywords from Products": {
+      "main": [
+        [
+          {
+            "node": "Parse Keyword Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Keyword Response": {
+      "main": [
+        [
+          {
+            "node": "Extract Pain Points from Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Pain Points from Products": {
+      "main": [
+        [
+          {
+            "node": "Parse Pain Points Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Pain Points Response": {
+      "main": [
+        [
+          {
+            "node": "Classify Industry with OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Instagram Link (IF)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse SerpAPI & Merge IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Parse SerpAPI & Merge IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse SerpAPI & Merge IG": {
+      "main": [
+        [
+          {
+            "node": "Extract Keywords from Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tone of Voice": {
+      "main": [
+        [
+          {
+            "node": "Parse Tone of Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Tone of Voice": {
+      "main": [
+        [
+          {
+            "node": "Get a database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true
+  },
+  "staticData": {
+    "node:Update Row Every Day": {
+      "documentId": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+      "sheetId": 0,
+      "lastRevision": 669,
+      "lastRevisionLink": "https://docs.google.com/spreadsheets/export?id=1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU&revision=669&exportFormat=xlsx"
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "emanueleserra.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+            "content-length": "1110",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "87.0.66.117",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IT",
+            "cf-ray": "9b9abaaf05cd0e42-MXP",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://social-media-client-sooty-ten.vercel.app",
+            "priority": "u=1, i",
+            "referer": "https://social-media-client-sooty-ten.vercel.app/",
+            "sec-ch-ua": "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "87.0.66.117, 162.158.130.112",
+            "x-forwarded-host": "emanueleserra.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-16-6f778b7769-6vgpr",
+            "x-is-trusted": "yes",
+            "x-real-ip": "87.0.66.117"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "nome_azienda": "Clinica del Robot",
+            "sito_web": "https://robotdagiardino.ch/",
+            "indirizzo": "Via cantonale 2 CH-6917 Barbengo",
+            "numero_telefono": "091 2108997",
+            "link_facebook": "",
+            "link_instagram": "",
+            "link_linkedin": "",
+            "altri_link": "",
+            "strategia_aziendale": "Il primo centro specializzato in Canton Ticino per la cura e la manutenzione dei tuoi robot da giardino e degli spazi verdi",
+            "tipologia_comunicazione": "Promozionale",
+            "social_platforms": [
+              "Instagram",
+              "Facebook"
+            ],
+            "prodotti": [
+              {
+                "id": "1767697322791",
+                "nome": "Installazione Robot da Giardino",
+                "descrizione": "Stanco di sudare sette camicie ogni volta che l\u2019erba del tuo giardino ricresce? Butta il tuo vecchio decespugliatore e scegli uno dei nostri robot per la manutenzione del taglio. Un prodotto moderno, efficiente, compatto, programmato dai nostri esperti per lavorare al meglio nel tuo spazio verde. Dimentica la fatica, il caldo, l\u2019erba da smaltire: sono tutti problemi che puoi lasciarti alle spalle una volta che il robot sar\u00e0 in funzione.",
+                "link_competitor_1": "",
+                "link_competitor_2": "",
+                "link_competitor_3": ""
+              }
+            ],
+            "timestamp": "2026-01-06T11:03:31.351Z"
+          },
+          "webhookUrl": "https://emanueleserra.app.n8n.cloud/webhook/ce8cd3db-560e-4d51-b39b-9ea2e5d3b64a",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Parse Industry Classification": [
+      {
+        "json": {
+          "brand_name": "Clinica del Robot",
+          "website": "https://robotdagiardino.ch/",
+          "indirizzo": "Via cantonale 2 CH-6917 Barbengo",
+          "telefono": "091 2108997",
+          "social_links": {
+            "facebook": "",
+            "instagram": "",
+            "linkedin": "",
+            "altri": ""
+          },
+          "strategia_aziendale": "Il primo centro specializzato in Canton Ticino per la cura e la manutenzione dei tuoi robot da giardino e degli spazi verdi",
+          "tipologia_comunicazione": "Promozionale",
+          "social_platforms": [
+            "Instagram",
+            "Facebook"
+          ],
+          "target_geo": "Svizzera, Barbengo",
+          "prodotti": [
+            {
+              "id": "1767697322791",
+              "nome": "Installazione Robot da Giardino",
+              "descrizione": "Stanco di sudare sette camicie ogni volta che l\u2019erba del tuo giardino ricresce? Butta il tuo vecchio decespugliatore e scegli uno dei nostri robot per la manutenzione del taglio. Un prodotto moderno, efficiente, compatto, programmato dai nostri esperti per lavorare al meglio nel tuo spazio verde. Dimentica la fatica, il caldo, l\u2019erba da smaltire: sono tutti problemi che puoi lasciarti alle spalle una volta che il robot sar\u00e0 in funzione.",
+              "competitor_links": []
+            }
+          ],
+          "timestamp": "2026-01-06T11:03:31.351Z",
+          "keywords": [
+            "manutenzione robot da giardino",
+            "cura spazi verdi",
+            "assistenza robot Ticino",
+            "riparazione robot giardino",
+            "Centri assistenza Barbengo",
+            "prestazioni robot giardino",
+            "servizi giardinaggio automatico",
+            "ottimizzazione giardini",
+            "robot tagliaerba Svizzera",
+            "manutenzione spazi verdi",
+            "specialisti robot giardino",
+            "cura giardini canton Ticino"
+          ],
+          "prodotti_formatted": "- Installazione Robot da Giardino: Stanco di sudare sette camicie ogni volta che l\u2019erba del tuo giardino ricresce? Butta il tuo vecchio decespugliatore e scegli uno dei nostri robot per la manutenzione del taglio. Un prodotto moderno, efficiente, compatto, programmato dai nostri esperti per lavorare al meglio nel tuo spazio verde. Dimentica la fatica, il caldo, l\u2019erba da smaltire: sono tutti problemi che puoi lasciarti alle spalle una volta che il robot sar\u00e0 in funzione.",
+          "pain_point_1": "Interventi lenti e complicati per la manutenzione dei robot",
+          "pain_point_2": "Difficolt\u00e0 a trovare esperti per riparazioni locali immediate",
+          "pain_point_3": "Costi elevati per manutenzione non specializzata nel Canton Ticino",
+          "industry": "Servizi",
+          "industry_confidence": 0.95,
+          "industry_reasoning": "Centro specializzato in manutenzione, riparazione e installazione di robot da giardino, quindi servizi post-vendita per spazi verdi",
+          "target_age": "35-65 anni",
+          "target_job": "Proprietari di case con giardino",
+          "target_reasoning": "Target con pain points su manutenzione lenta, esperti locali e costi elevati: proprietari adulti di giardini residenziali nel Canton Ticino che possiedono robot da giardino",
+          "competitor_1_name": "Non trovato",
+          "competitor_1_instagram": "Non trovato",
+          "competitor_1_reasoning": "Nessun centro assistenza/manutenzione robot da giardino specializzato trovato a Barbengo o Canton Ticino nei risultati di ricerca",
+          "competitor_2_name": "Non trovato",
+          "competitor_2_instagram": "Non trovato",
+          "competitor_2_reasoning": "Risultati mostrano solo rivenditori/fornitori di robot (OBI, Manser, Husqvarna), non competitor diretti di servizi di cura/manutenzione locali"
+        }
+      }
+    ]
+  },
+  "versionId": "a1f33247-d2ed-4f9c-81ab-2fda1b22e6fe",
+  "activeVersionId": "a1f33247-d2ed-4f9c-81ab-2fda1b22e6fe",
+  "versionCounter": 136,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-07T21:06:21.637Z",
+      "createdAt": "2026-01-07T21:06:21.637Z",
+      "role": "workflow:owner",
+      "workflowId": "PgkSjE3QNv3XhNXH",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-01-24T14:01:18.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-01-23",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [
+    {
+      "updatedAt": "2025-10-06T23:35:30.847Z",
+      "createdAt": "2025-10-06T23:35:30.847Z",
+      "id": "HTaqmAfQAxjfyDtO",
+      "name": "AI"
+    },
+    {
+      "updatedAt": "2025-12-13T21:46:23.115Z",
+      "createdAt": "2025-12-13T21:46:23.115Z",
+      "id": "JCVWe4mQulp5kjN6",
+      "name": "instagram-automation"
+    },
+    {
+      "updatedAt": "2025-12-13T21:46:40.719Z",
+      "createdAt": "2025-12-13T21:46:40.719Z",
+      "id": "PUjESHAi7MJ6zKDr",
+      "name": "ai-content"
+    },
+    {
+      "updatedAt": "2025-11-28T20:42:38.923Z",
+      "createdAt": "2025-11-28T20:42:38.923Z",
+      "id": "toA0pH2gwX57UxWi",
+      "name": "Arca 24"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-01-16T14:02:59.000Z",
+    "createdAt": "2026-01-16T12:33:46.401Z",
+    "versionId": "a1f33247-d2ed-4f9c-81ab-2fda1b22e6fe",
+    "workflowId": "PgkSjE3QNv3XhNXH",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "94f98082-9ced-4244-b493-3d54d7328478",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "name": "Access-Control-Allow-Methods",
+                  "value": "POST, OPTIONS"
+                },
+                {
+                  "name": "Access-Control-Allow-Headers",
+                  "value": "Content-Type"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -1920,
+          -256
+        ],
+        "id": "fad2ac02-e898-403d-a877-545f9b25112b",
+        "name": "Webhook",
+        "webhookId": "94f98082-9ced-4244-b493-3d54d7328478"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://openrouter.ai/api/v1/chat/completions",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer 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"
+              },
+              {
+                "name": "HTTP-Referer",
+                "value": "https://emanueleserra.app.n8n.cloud"
+              },
+              {
+                "name": "X-Title",
+                "value": "BLC Instagram Automation"
+              },
+              {
+                "name": "Content-Type"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"perplexity/sonar-pro\",\n  \"temperature\": 0.2,\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Sei un analista di mercato con accesso al web. COMPITI:\\n\\n1. CLASSIFICA INDUSTRY (scegli UNA categoria):\\n- Artigianato\\n- Servizi\\n- Retail\\n- B2B\\n- Salute/Benessere\\n- Food & Beverage\\n- Fashion\\n- Tecnologia\\n- Immobiliare\\n- Altro\\n\\n2. INFERISCI TARGET:\\n- target_age: range et\u00e0 plausibile (es: '35-55 anni')\\n- target_job: ruolo/categoria professionale generica (es: 'Proprietari immobiliari', 'PMI', 'Manager', 'Professionisti')\\n\\n3. TROVA COMPETITOR REALI:\\n- USA WEB SEARCH per cercare business simili nella zona geografica specificata\\n- Competitor = business con STESSO servizio/prodotto, STESSA geografia\\n- NON confondere fornitori con competitor (es: iRobot \u00e8 fornitore, NON competitor di un centro assistenza)\\n- Verifica account Instagram REALI cercando sui social\\n- Se non trovi competitor verificabili \u2192 'Non trovato'\\n\\nOUTPUT (SOLO JSON, no markdown, no reasoning visibile):\\n{\\n  \\\"industry\\\": \\\"categoria_esatta\\\",\\n  \\\"confidence\\\": 0.85,\\n  \\\"reasoning\\\": \\\"Spiegazione breve classificazione\\\",\\n  \\\"target_age\\\": \\\"range et\u00e0 inferito\\\",\\n  \\\"target_job\\\": \\\"ruolo/categoria inferita\\\",\\n  \\\"target_reasoning\\\": \\\"Perch\u00e9 questo target\\\",\\n  \\\"competitor_1_name\\\": \\\"Nome REALE o 'Non trovato'\\\",\\n  \\\"competitor_1_instagram\\\": \\\"@handle REALE o 'Non trovato'\\\",\\n  \\\"competitor_1_reasoning\\\": \\\"Perch\u00e9 \u00e8 competitor diretto\\\",\\n  \\\"competitor_2_name\\\": \\\"Nome REALE o 'Non trovato'\\\",\\n  \\\"competitor_2_instagram\\\": \\\"@handle REALE o 'Non trovato'\\\",\\n  \\\"competitor_2_reasoning\\\": \\\"Perch\u00e9 \u00e8 competitor diretto\\\"\\n}\\n\\nREGOLE:\\n- industry = una delle 10 categorie esatte (case-sensitive)\\n- confidence 0.0-1.0\\n- USA WEB SEARCH attivamente per trovare competitor\\n- Verifica competitor siano DIRETTI (stesso business, stessa zona)\\n- Scrivi SOLO JSON valido, NO testo aggiuntivo\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analizza questo brand E cerca competitor reali online:\\n\\nNOME BRAND: {{ $json.brand_name }}\\nWEBSITE: {{ $json.website }}\\nGEOGRAFIA: {{ $json.target_geo }}\\nSTRATEGIA AZIENDALE: {{ $json.strategia_aziendale }}\\n\\nOFFERTA:\\n{{ $json.prodotti_formatted }}\\n\\nPAIN POINTS TARGET:\\n1. {{ $json.pain_point_1 }}\\n2. {{ $json.pain_point_2 }}\\n3. {{ $json.pain_point_3 }}\\n\\nKEYWORDS: {{ $json.keywords }}\\n\\nTASK:\\n1. Classifica industry basandoti su offerta e strategia\\n2. Inferisci target_age e target_job che hanno questi pain points\\n3. USA WEB SEARCH per trovare 2 competitor DIRETTI in {{ $json.target_geo }}\\n4. Cerca account Instagram REALI dei competitor verificando sui social\\n\\nIMPORTANTE:\\n- Se vedi brand fornitori (iRobot, Husqvarna, Bosch, ecc.) \u2192 NON sono competitor\\n- Competitor = centri assistenza, rivenditori locali, servizi simili nella stessa zona\\n- Rispondi SOLO con JSON, senza markdown o reasoning esterno\"\n    }\n  ]\n}",
+          "options": {
+            "timeout": 60000
+          }
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -1840,
+          336
+        ],
+        "id": "ea5b8b1d-619f-44c9-b89b-f3d29dadc022",
+        "name": "Classify Industry with OpenRouter",
+        "retryOnFail": true,
+        "continueOnFail": true,
+        "notes": "\ud83e\udd16 Perplexity Sonar Reasoning con web search\n\u2705 Classifica Industry\n\u2705 Inferisci target_age/target_job\n\u2705 Trova competitor REALI con web search\n\u2705 Trova Instagram handle REALI\nCosto: ~$0.004 per brand"
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: Parse Industry Classification\n// =========================================\n\nconst perplexityOutput = $input.first().json;\nconst originalData = $('Parse Pain Points Response').first().json;\n\n// Valori fallback\nlet industryData = {\n  industry: 'Servizi',\n  confidence: 0.5,\n  reasoning: 'Classificazione automatica non disponibile',\n  target_age: '25-55 anni',\n  target_job: 'Professionisti e privati',\n  target_reasoning: 'Target generico inferito da pain points',\n  competitor_1_name: 'Non trovato',\n  competitor_1_instagram: 'Non trovato',\n  competitor_1_reasoning: 'Nessun competitor identificato',\n  competitor_2_name: 'Non trovato',\n  competitor_2_instagram: 'Non trovato',\n  competitor_2_reasoning: 'Nessun competitor identificato'\n};\n\ntry {\n  let content;\n  \n  // Estrai content da struttura Perplexity via OpenRouter\n  if (perplexityOutput.choices && Array.isArray(perplexityOutput.choices)) {\n    const firstChoice = perplexityOutput.choices[0];\n    if (firstChoice && firstChoice.message && firstChoice.message.content) {\n      content = firstChoice.message.content;\n    }\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta Perplexity');\n  }\n  \n  console.log('=== RAW PERPLEXITY CONTENT ===');\n  console.log(content);\n  \n  // Pulisci markdown e parse JSON\n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  const parsed = JSON.parse(cleanContent);\n  \n  // Valida che tutti i campi richiesti esistano\n  const requiredFields = [\n    'industry', 'confidence', 'reasoning',\n    'target_age', 'target_job', 'target_reasoning',\n    'competitor_1_name', 'competitor_1_instagram', 'competitor_1_reasoning',\n    'competitor_2_name', 'competitor_2_instagram', 'competitor_2_reasoning'\n  ];\n  \n  const allFieldsPresent = requiredFields.every(field => parsed.hasOwnProperty(field));\n  \n  if (allFieldsPresent) {\n    industryData = parsed;\n    console.log('\u2705 Industry data estratti:', industryData);\n  } else {\n    console.warn('\u26a0\ufe0f Alcuni campi mancanti, merge parziale');\n    industryData = { ...industryData, ...parsed };\n  }\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing Perplexity output:', error.message);\n  console.log('\u26a0\ufe0f Uso fallback industry data');\n}\n\n// Merge con tutti i dati precedenti\nreturn [{\n  json: {\n    ...originalData,\n    industry: industryData.industry,\n    industry_confidence: industryData.confidence,\n    industry_reasoning: industryData.reasoning,\n    target_age: industryData.target_age,\n    target_job: industryData.target_job,\n    target_reasoning: industryData.target_reasoning,\n    competitor_1_name: industryData.competitor_1_name,\n    competitor_1_instagram: industryData.competitor_1_instagram,\n    competitor_1_reasoning: industryData.competitor_1_reasoning,\n    competitor_2_name: industryData.competitor_2_name,\n    competitor_2_instagram: industryData.competitor_2_instagram,\n    competitor_2_reasoning: industryData.competitor_2_reasoning\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1616,
+          336
+        ],
+        "id": "30a4d503-379a-432e-ad7f-b6212066ccfa",
+        "name": "Parse Industry Classification",
+        "notes": "\u2705 Parse risposta Perplexity\n\u2705 Valida categoria Industry\n\u2705 Fallback su 'Altro' se errore"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+            "mode": "list",
+            "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 96231752,
+            "mode": "list",
+            "cachedResultName": "Brand Profile",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=96231752"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -320,
+          336
+        ],
+        "id": "986e9846-b5eb-4c15-9f2b-78bf7dce5b8b",
+        "name": "Leggi Brand Profile",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: \"Prepara Dati GPT-4o\"\n// =========================================\n\nconst brandRows = $input.all();\n\n// Costruisci oggetto Brand Profile\nconst brandProfile = {};\nbrandRows.forEach(item => {\n  const campo = item.json.Campo;\n  const valore = item.json.Valore;\n  \n  if (campo && valore !== undefined && valore !== null && valore !== '') {\n    brandProfile[campo] = valore;\n  }\n});\n\nconsole.log('=== BRAND PROFILE ===');\nconsole.log('Brand:', brandProfile.brand_name);\nconsole.log('Settore:', brandProfile.settore);\n\n// Estrai keywords (comma-separated string)\nconst keywordsString = brandProfile.keywords || '';\nconst keywordsArray = keywordsString\n  .split(',')\n  .map(k => k.trim())\n  .filter(k => k.length > 0);\n\nif (keywordsArray.length === 0) {\n  throw new Error('\u26a0\ufe0f Nessuna keyword nel Brand Profile - Campo \"keywords\" vuoto');\n}\n\n// Seleziona keyword random\nconst randomKeyword = keywordsArray[Math.floor(Math.random() * keywordsArray.length)];\n\nconsole.log('=== KEYWORD SELECTION ===');\nconsole.log('Keywords disponibili:', keywordsArray.length);\nconsole.log('Keyword selezionata:', randomKeyword);\n\n// Genera Hook e Hashtag\nconst hookExample = `\ud83d\udca1 ${randomKeyword}: scopri come pu\u00f2 trasformare il tuo business`;\nconst hashtagsExample = `#${randomKeyword.replace(/\\s+/g, '')} #${brandProfile.settore.split(',')[0].trim().replace(/\\s+/g, '')} #business`;\n\n// Data pubblicazione (oggi + random 1-7 giorni)\nconst oggi = new Date();\noggi.setDate(oggi.getDate() + Math.floor(Math.random() * 7) + 1);\nconst dataPubblicazione = oggi.toISOString().split('T')[0];\n\nconsole.log('=== OUTPUT ===');\nconsole.log('Hook:', hookExample);\nconsole.log('Hashtags:', hashtagsExample);\nconsole.log('Data pubblicazione:', dataPubblicazione);\n\n// Output per GPT-4o\nreturn [{\n  json: {\n    'Keyword Focus': randomKeyword,\n    'Note': `Hook: ${hookExample}\\nHashtag: ${hashtagsExample}`,\n    'Data': dataPubblicazione,\n    'Image Prompt (Banana)': '',\n    brandProfile: brandProfile\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -96,
+          336
+        ],
+        "id": "97d524c5-f1e3-46d1-b29f-d949d54149b5",
+        "name": "Prepara Dati GPT-4o"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o",
+            "mode": "list",
+            "cachedResultName": "GPT-4O"
+          },
+          "messages": {
+            "values": [
+              {
+                "content": "=Sei un copywriter esperto di Instagram per {{ $json.brandProfile.brand_name }}.\n\nBRAND CONTEXT:\n- Settore: {{ $json.brandProfile.settore }}\n- Target: {{ $json.brandProfile.target_job }} ({{ $json.brandProfile.target_age }})\n- Geografia: {{ $json.brandProfile.target_geo }}\n- Tone of voice: {{ $json.brandProfile.tone_voice }}\n\nPAIN POINTS del target:\n1. {{ $json.brandProfile.pain_point_1 }}\n2. {{ $json.brandProfile.pain_point_2 }}\n3. {{ $json.brandProfile.pain_point_3 }}\n\nVALUE PROPOSITION:\n{{ $json.brandProfile.value_prop }}\n\nVINCOLI TECNICI:\n- Emoji massimi: {{ $json.brandProfile.max_emoji }}\n- Lunghezza: {{ $json.brandProfile.post_length_min }}-{{ $json.brandProfile.post_length_max }} caratteri NETTI\n- NO hashtag (gestiti separatamente)\n\nFORMATTAZIONE:\n- Testo continuo, no line breaks multipli\n- Emoji distribuiti strategicamente\n- Massimo 3 paragrafi\n\nIl tuo compito \u00e8 creare UNA caption completa per Instagram che:\n- Sia un testo fluido e continuo\n- Usi {{ $json.brandProfile.max_emoji }} emoji\n- Rispetti ESATTAMENTE i limiti di lunghezza\n- Mantenga il tone: {{ $json.brandProfile.tone_voice }}\n\nIMPORTANTE: Fornisci SOLO il testo della caption, pronto per Instagram.",
+                "role": "system"
+              },
+              {
+                "content": "=KEYWORD FOCUS: {{ $json['Keyword Focus'] }}\n\nNOTE STRATEGICHE:\n{{ $json.Note }}\n\nDATA DI PUBBLICAZIONE: {{ $json.Data }}\n\nCrea una caption Instagram che:\n1. Utilizzi l'hook suggerito nelle note\n2. Sviluppi il tema della keyword focus\n3. Risolva uno dei pain point del target\n4. Mantenga il tone of voice del brand\n5. Sia ottimizzata per engagement\n6. Rispetti i vincoli di lunghezza ed emoji\n\nFornisci SOLO il testo pronto per Instagram (NO hashtag, NO markdown)."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 1.8,
+        "position": [
+          192,
+          384
+        ],
+        "id": "dc2550d8-da5f-4574-bf74-e8acab53bc46",
+        "name": "Genera Caption",
+        "credentials": {
+          "openAiApi": {
+            "id": "VctzpFiLCyKXxSXD",
+            "name": "OpenAi serra.emanuele09"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: \"Parse Output GPT-4o\"\n// =========================================\n\n// Prende output GPT-4o\nconst gptOutput = $input.first().json;\n\n// Prende dati originali dal nodo \"Prepara Dati GPT-4o\"\nconst originalData = $('Prepara Dati GPT-4o').first().json;\n\nconsole.log('=== DEBUG ===');\nconsole.log('Keyword Focus:', originalData['Keyword Focus']);\n\n// Estrae caption (gestisce vari formati di risposta OpenAI)\nlet captionText;\nif (gptOutput.message && gptOutput.message.content) {\n  captionText = gptOutput.message.content;\n} else if (typeof gptOutput === 'string') {\n  captionText = gptOutput;\n} else if (gptOutput.content) {\n  captionText = gptOutput.content;\n} else if (gptOutput.choices && gptOutput.choices[0]) {\n  captionText = gptOutput.choices[0].message.content;\n} else {\n  throw new Error(`Output GPT-4o non riconosciuto. Tipo: ${typeof gptOutput}`);\n}\n\nif (!captionText || captionText.trim() === '') {\n  throw new Error('GPT-4o ha restituito una caption vuota');\n}\n\nconsole.log('=== CAPTION ESTRATTA ===');\nconsole.log('Lunghezza:', captionText.length);\n\n// Estrae hook dalle note\nlet hookText = '';\nif (originalData.Note && originalData.Note.includes('Hook:')) {\n  const hookMatch = originalData.Note.match(/Hook:\\s*(.+?)(?:\\n|$)/);\n  if (hookMatch && hookMatch[1]) {\n    hookText = hookMatch[1].trim();\n  }\n}\n\n// Estrae hashtag dalle note\nlet hashtagText = '';\nif (originalData.Note && originalData.Note.includes('Hashtag:')) {\n  const hashtagMatch = originalData.Note.match(/Hashtag:\\s*(.+?)(?:\\n|$)/);\n  if (hashtagMatch && hashtagMatch[1]) {\n    hashtagText = hashtagMatch[1].trim();\n  }\n}\n\n// Data italiana\nconst dataLavorazione = new Date().toLocaleDateString('it-IT', {\n  day: '2-digit',\n  month: '2-digit',\n  year: 'numeric'\n});\n\nconsole.log('=== DATI ESTRATTI ===');\nconsole.log('Hook:', hookText);\nconsole.log('Hashtags:', hashtagText);\n\n// Output per Google Sheets\nreturn [{\n  json: {\n    \"Text to start\": originalData['Keyword Focus'],\n    \"Stato\": \"Da revisionare\",\n    \"Priorit\u00e0\": \"P0\",\n    \"Proprietario\": \"AI Bot\",\n    \"Hook AI\": hookText,\n    \"Hashtag AI\": hashtagText,\n    \"Testo completo\": captionText.trim(),\n    \"Data di lavorazione AI\": dataLavorazione,\n    \"Data di pubblicazione\": originalData.Data,\n    \"Image Prompt (Banana)\": originalData['Image Prompt (Banana)'] || '',\n    \"Link Immagine\": ''\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1840,
+          960
+        ],
+        "id": "70817a61-1b55-4805-82b0-84c2c9bab21c",
+        "name": "Parse Output GPT-4o"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+            "mode": "list",
+            "cachedResultName": "BLC_Text to Instagram N8N Workflow"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1054660267,
+            "mode": "list",
+            "cachedResultName": "Text to IG",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Text to start": "={{ $json[\"Text to start\"] }}",
+              "Stato": "={{ $json.Stato }}",
+              "Priorit\u00e0": "={{ $json[\"Priorit\u00e0\"] }}",
+              "Proprietario": "={{ $json.Proprietario }}",
+              "Hook AI": "={{ $json[\"Hook AI\"] }}",
+              "Hashtag AI": "={{ $json[\"Hashtag AI\"] }}",
+              "Testo completo": "={{ $json[\"Testo completo\"] }}",
+              "Data di lavorazione AI": "={{ $json[\"Data di lavorazione AI\"] }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Text to start",
+                "displayName": "Text to start",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Stato",
+                "displayName": "Stato",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Priorit\u00e0",
+                "displayName": "Priorit\u00e0",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Proprietario",
+                "displayName": "Proprietario",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Hook AI",
+                "displayName": "Hook AI",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Hashtag AI",
+                "displayName": "Hashtag AI",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Testo completo",
+                "displayName": "Testo completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Data di lavorazione AI",
+                "displayName": "Data di lavorazione AI",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -1200,
+          960
+        ],
+        "id": "4fb32c4d-b6a9-4158-9ff1-86cb7a57a324",
+        "name": "Scrivi su Text to IG",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 1,
+          "unit": "minutes"
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -752,
+          960
+        ],
+        "id": "c683f6fa-bca3-4e11-b228-daee873c26b5",
+        "name": "Wait",
+        "webhookId": "c3331239-2026-4b78-a1fa-3f8af2e41b46"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "fb4f58ae-8b91-4e17-99bb-f0d19a77fe93",
+                "leftValue": "={{ $json.Stato }}",
+                "rightValue": "Da Pubblicare",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -304,
+          960
+        ],
+        "id": "b6608999-aa5f-4511-9042-aadcec79c6d2",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "fromEmail": "didattica.blc@gmail.com",
+          "toEmail": "serra.emanuele09@gmail.com",
+          "subject": "=\ud83d\udd14 Nuovo post Instagram da revisionare - {{ $json[\"Text to start\"] }}",
+          "html": "=<h2>Nuovo post pronto per revisione</h2>\n<p><strong>Keyword:</strong> {{ $json[\"Text to start\"] }}</p>\n<p><strong>Caption:</strong></p>\n<p>{{ $json[\"Testo completo\"] }}</p>\n<p><strong>Hook:</strong> {{ $json[\"Hook AI\"] }}</p>\n<p><strong>Hashtag:</strong> {{ $json[\"Hashtag AI\"] }}</p>\n<hr>\n<p>\u23f0 <strong>Hai 4 ore per revisionare.</strong> Se non visualizzerai il foglio \"Text  to IG\" lo stato passer\u00e0 \"Da Revisionare\" a \"Da Pubblicare\", e verr\u00e0 pubblicato automaticamente sui canali social.</p>\n<p><a href=\"https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267\">Apri Google Sheets</a></p>",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          -976,
+          960
+        ],
+        "id": "ac57ec16-baf3-4d61-b4a7-c0875d222ad9",
+        "name": "Check Mail Text IG",
+        "webhookId": "cfb3f7ec-30d2-4e0e-8c86-a0d7267df022",
+        "credentials": {
+          "smtp": {
+            "id": "iLJkWtSaPdG2wKn7",
+            "name": "SMTP Gmail Didattica"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+            "mode": "list",
+            "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1054660267,
+            "mode": "list",
+            "cachedResultName": "Text to IG",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "Testo completo",
+                "lookupValue": "={{ $('Parse Output GPT-4o').item.json[\"Testo completo\"] }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -528,
+          960
+        ],
+        "id": "8d81ba34-d9f5-447d-9975-595631fa2159",
+        "name": "Read Status",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "KMVQhwwHBLGDO7FJ",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/KMVQhwwHBLGDO7FJ",
+            "cachedResultName": "Progetti \u2014 Text and Image Reference for FootEasy"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {}
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          -80,
+          864
+        ],
+        "id": "ce4413b9-4a2f-4a58-8144-0ecdcb6841f1",
+        "name": "Call 'Text and Image Reference for FootEasy'"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+            "mode": "list",
+            "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1054660267,
+            "mode": "list",
+            "cachedResultName": "Text to IG",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=1054660267"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Testo completo": "={{ $json[\"Testo completo\"] }}",
+              "Stato": "Da Pubblicare"
+            },
+            "matchingColumns": [
+              "Testo completo"
+            ],
+            "schema": [
+              {
+                "id": "Stato",
+                "displayName": "Stato",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Testo completo",
+                "displayName": "Testo completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -80,
+          1056
+        ],
+        "id": "0af59325-de53-4906-a1ea-b92ad66a0a36",
+        "name": "Update row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "KMVQhwwHBLGDO7FJ",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/KMVQhwwHBLGDO7FJ",
+            "cachedResultName": "Progetti \u2014 Text and Image Reference for FootEasy"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {}
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.3,
+        "position": [
+          144,
+          1056
+        ],
+        "id": "c1d5408f-3e05-47aa-bf61-d52bc4f67862",
+        "name": "Call 'Text and Image Reference for FootEasy'1"
+      },
+      {
+        "parameters": {
+          "resource": "database",
+          "databaseId": {
+            "__rl": true,
+            "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+            "mode": "list",
+            "cachedResultName": "Brand Profiles Database",
+            "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+          }
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          -768,
+          336
+        ],
+        "id": "579cd2a3-f17c-4fd6-8fdd-7791ad7db017",
+        "name": "Get a database",
+        "credentials": {
+          "notionApi": {
+            "id": "jNP7bHIu6NZaobB0",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
+          "databaseId": {
+            "__rl": true,
+            "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+            "mode": "list",
+            "cachedResultName": "Brand Profiles Database",
+            "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+          },
+          "title": "={{ $json.brand_name }}",
+          "propertiesUi": {
+            "propertyValues": [
+              {
+                "key": "Industry",
+                "selectValue": "={{ $json.classified_industry }}"
+              },
+              {
+                "key": "Status",
+                "selectValue": "Lead"
+              },
+              {
+                "key": "Website",
+                "urlValue": "={{ $json.website }}"
+              },
+              {
+                "key": "Instagram"
+              },
+              {
+                "key": "Target Age"
+              },
+              {
+                "key": "Target Job"
+              },
+              {
+                "key": "Target Geo"
+              },
+              {
+                "key": "Tone Voice"
+              },
+              {
+                "key": "Pain Point 1"
+              },
+              {
+                "key": "Pain Point 2"
+              },
+              {
+                "key": "Pain Point 3"
+              },
+              {
+                "key": "Value Proposition"
+              },
+              {
+                "key": "Competitor 1 Name"
+              },
+              {
+                "key": "Competitor 1 Instagram",
+                "urlValue": "={{ $json.competitor_1_instagram }}"
+              },
+              {
+                "key": "Competitor 2 Name"
+              },
+              {
+                "key": "Competitor 2 Instagram",
+                "urlValue": "={{ $json.competitor_2_instagram }}"
+              },
+              {
+                "key": "Keywords"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.2,
+        "position": [
+          -544,
+          336
+        ],
+        "id": "fdffcd4a-b5d0-4a38-94d5-4327ab5c56a2",
+        "name": "Scrivi Notion Brand Profiles",
+        "credentials": {
+          "notionApi": {
+            "id": "jNP7bHIu6NZaobB0",
+            "name": "Notion account"
+          }
+        },
+        "notes": "\u270d\ufe0f Scrive brand profile su Notion DB\n\u2705 Campi: Industry, Status, Website, Target, Pain Points, Competitor\n\u2705 Dual-write: Google Sheets (legacy) + Notion (nuovo)"
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: Parse & Validate Payload\n// =========================================\n\nconst input = $input.first().json.body;\n\n// Validazione campi obbligatori\nconst required = ['nome_azienda', 'sito_web', 'strategia_aziendale', 'prodotti'];\nconst missing = required.filter(field => !input[field] || input[field] === '');\n\nif (missing.length > 0) {\n  throw new Error(`\u274c Campi obbligatori mancanti: ${missing.join(', ')}`);\n}\n\nif (!Array.isArray(input.prodotti) || input.prodotti.length === 0) {\n  throw new Error('\u274c Nessun prodotto fornito nell\\'array prodotti[]');\n}\n\n// Estrazione target_geo da indirizzo\nlet target_geo = 'Non specificato';\nif (input.indirizzo) {\n  const swissMatch = input.indirizzo.match(/CH-\\d+\\s+(\\w+)/);\n  if (swissMatch) {\n    target_geo = `Svizzera, ${swissMatch[1]}`;\n  } else if (input.indirizzo.includes('CH')) {\n    target_geo = 'Svizzera';\n  }\n}\n\nconsole.log('=== PAYLOAD PARSED ===');\nconsole.log('Brand:', input.nome_azienda);\nconsole.log('Prodotti:', input.prodotti.length);\nconsole.log('Target Geo estratto:', target_geo);\n\n// Output standardizzato\nreturn [{\n  json: {\n    brand_name: input.nome_azienda,\n    website: input.sito_web,\n    indirizzo: input.indirizzo || '',\n    telefono: input.numero_telefono || '',\n    social_links: {\n      facebook: input.link_facebook || '',\n      instagram: input.link_instagram || '',\n      linkedin: input.link_linkedin || '',\n      altri: input.altri_link || ''\n    },\n    strategia_aziendale: input.strategia_aziendale,\n    tipologia_comunicazione: input.tipologia_comunicazione || 'Informativo',\n    social_platforms: input.social_platforms || ['Instagram'],\n    target_geo: target_geo,\n    prodotti: input.prodotti.map(p => ({\n      id: p.id,\n      nome: p.nome,\n      descrizione: p.descrizione,\n      competitor_links: [\n        p.link_competitor_1,\n        p.link_competitor_2,\n        p.link_competitor_3\n      ].filter(l => l && l !== '')\n    })),\n    timestamp: input.timestamp || new Date().toISOString()\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1696,
+          -256
+        ],
+        "id": "9a784b00-6f58-4941-8ea2-181ff57f7902",
+        "name": "Parse and Validate Webhook"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-MINI"
+          },
+          "responses": {
+            "values": [
+              {
+                "role": "system",
+                "content": "=Sei un esperto di keyword extraction per marketing digitale B2C e B2B.\n\nTASK: Estrai 8-12 keyword SEO-friendly da contenuti aziendali (prodotti, servizi, value proposition).\n\nREGOLE:\n- Keyword singole o bi-gram (max 3 parole)\n- Includi: categoria business, benefici principali, localit\u00e0 geografica\n- Escludi: stopwords generiche (\"il\", \"di\", \"per\"), brand name\n- Priorit\u00e0: termini che il target userebbe per cercare questa soluzione\n\nESEMPI:\n- E-commerce abbigliamento \u2192 [\"moda sostenibile\", \"consegna rapida\", \"Milano\"]\n- Consulenza IT \u2192 [\"cybersecurity PMI\", \"cloud migration\", \"Roma\"]\n- Servizio locale \u2192 [\"manutenzione caldaie\", \"pronto intervento\", \"Canton Ticino\"]\n- SaaS \u2192 [\"gestionale cloud\", \"automazione fatture\", \"PMI Italia\"]\n\nOUTPUT: Array JSON di stringhe, NO markdown, NO spiegazioni.\nFormato: [\"keyword1\", \"keyword2\", ...]"
+              },
+              {
+                "content": "=BRAND: {{ $json.brand_name }}\nWEBSITE: {{ $json.website }}\nGEOGRAFIA TARGET: {{ $json.target_geo }}\nSTRATEGIA AZIENDALE: {{ $json.strategia_aziendale }}\nTIPOLOGIA COMUNICAZIONE: {{ $json.tipologia_comunicazione }}\n\nESTRAI 8-12 keyword SEO per content marketing che:\n1. Rappresentano il core business descritto nella strategia aziendale\n2. Includono benefici chiave per il target\n3. Sono rilevanti per la geografia indicata\n4. Sono utilizzabili per post sui social media\n\nRispondi SOLO con array JSON, nessun altro testo."
+              }
+            ]
+          },
+          "builtInTools": {},
+          "options": {
+            "instructions": "Use low temperature (0.3) for consistent, focused output. Prefer common, high-volume keywords over creative variations.",
+            "maxTokens": 300
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 2,
+        "position": [
+          -800,
+          -256
+        ],
+        "id": "d8066a47-d6b1-4f7c-88fa-4ef8cf5c09e3",
+        "name": "Extract Keywords from Products",
+        "credentials": {
+          "openAiApi": {
+            "id": "jPc5G1JGDGpU5unG",
+            "name": "OpenAi BLC Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: Parse Keywords Response\n// =========================================\n\nconst aiOutput = $input.first().json;\nconst originalData = $('Parse and Validate Webhook').first().json;\n\nconsole.log('=== DEBUG originalData ===');\nconsole.log(JSON.stringify(originalData, null, 2));\n\nlet keywords = [];\n\ntry {\n  let content;\n  \n  if (aiOutput.output && Array.isArray(aiOutput.output) && aiOutput.output[0]) {\n    const firstOutput = aiOutput.output[0];\n    if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content[0]) {\n      content = firstOutput.content[0].text;\n    }\n  } else if (aiOutput.message && aiOutput.message.content) {\n    content = aiOutput.message.content;\n  } else if (aiOutput.choices && aiOutput.choices[0]) {\n    content = aiOutput.choices[0].message.content;\n  } else {\n    throw new Error('Formato risposta OpenAI non riconosciuto');\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta');\n  }\n  \n  console.log('=== RAW CONTENT ===');\n  console.log(content);\n  \n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  keywords = JSON.parse(cleanContent);\n  \n  if (!Array.isArray(keywords) || keywords.length === 0) {\n    throw new Error('Keywords non \u00e8 un array valido');\n  }\n  \n  console.log('\u2705 Keywords estratte:', keywords.length);\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing keywords:', error.message);\n  \n  keywords = [\n    originalData.brand_name || 'servizi professionali',\n    originalData.target_geo || 'Italia'\n  ].filter(k => k);\n  \n  console.log('\u26a0\ufe0f Uso keywords fallback');\n}\n\n// Formatta prodotti per prompt AI successivi\nlet prodottiFormattati = '';\nif (originalData.prodotti && Array.isArray(originalData.prodotti)) {\n  prodottiFormattati = originalData.prodotti\n    .map(p => `- ${p.nome}: ${p.descrizione}`)\n    .join('\\n');\n}\n\nconsole.log('=== PRODOTTI FORMATTATI ===');\nconsole.log(prodottiFormattati);\n\n// UN SOLO RETURN - merge completo con tutti i campi\nreturn [{\n  json: {\n    ...originalData,\n    keywords: keywords,\n    prodotti_formatted: prodottiFormattati\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -448,
+          -256
+        ],
+        "id": "114816cb-bdc1-4915-b51a-c3b02d95c3c5",
+        "name": "Parse Keyword Response"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-MINI"
+          },
+          "responses": {
+            "values": [
+              {
+                "role": "system",
+                "content": "=Sei un copywriter esperto in value proposition per B2C e B2B.\n\nPAIN POINT = problema specifico, frustrazione o bisogno insoddisfatto che l'offerta aziendale risolve.\n\nIDENTIFICA 3 pain points distinti analizzando:\n- Descrizioni prodotti/servizi\n- Strategia aziendale dichiarata\n- Contesto di mercato\n\nCATEGORIE PAIN POINT (scegli mix appropriato):\n- OPERATIVO: inefficienza, complessit\u00e0 processo, mancanza strumenti\n- EMOTIVO: stress, incertezza, paura di sbagliare, frustrazione\n- ECONOMICO: costi elevati, sprechi, tempo perso\n- SOCIALE: reputazione, status, riconoscimento\n- FISICO: fatica, disagio, rischi salute/sicurezza\n\nREGOLE OUTPUT:\n- Max 80 caratteri per pain point\n- Linguaggio specifico (NO genericit\u00e0 tipo \"problemi vari\")\n- Orientato al target (usa \"tu\" implicito o contesto professionale)\n\nOUTPUT: JSON senza markdown\n{\n  \"pain_point_1\": \"Descrizione problema specifico\",\n  \"pain_point_2\": \"Descrizione problema specifico\",\n  \"pain_point_3\": \"Descrizione problema specifico\"\n}"
+              },
+              {
+                "content": "=BRAND: {{ $json.brand_name }}\nSETTORE: {{ $json.strategia_aziendale }}\nTARGET GEOGRAFICO: {{ $json.target_geo }}\nTIPO COMUNICAZIONE: {{ $json.tipologia_comunicazione }}\n\nKEYWORDS IDENTIFICATE:\n{{ $json.keywords }}\n\nANALISI RICHIESTA:\nBasandoti sulla strategia aziendale e sulle keyword estratte, identifica 3 pain points SPECIFICI che questa offerta risolve per il target.\n\nUsa linguaggio appropriato al tipo di comunicazione ({{ $json.tipologia_comunicazione }}).\n\nESEMPI CONTESTUALI:\n- Servizio locale \u2192 \"Attesa settimane per intervento tecnico\" (operativo)\n- SaaS \u2192 \"Perdita dati da fogli Excel manuali\" (economico)\n- E-commerce \u2192 \"Difficolt\u00e0 trovare taglie vestiti online\" (emotivo)\n- Consulenza \u2192 \"Sanzioni normative per non conformit\u00e0 GDPR\" (economico)\n\nRispondi SOLO con JSON valido:\n{\n  \"pain_point_1\": \"Descrizione problema 1 (max 80 caratteri)\",\n  \"pain_point_2\": \"Descrizione problema 2 (max 80 caratteri)\",\n  \"pain_point_3\": \"Descrizione problema 3 (max 80 caratteri)\"\n}"
+              }
+            ]
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 2,
+        "position": [
+          -224,
+          -256
+        ],
+        "id": "1e73affc-5012-4bf2-830b-0052424ba67c",
+        "name": "Extract Pain Points from Products",
+        "credentials": {
+          "openAiApi": {
+            "id": "VctzpFiLCyKXxSXD",
+            "name": "OpenAi serra.emanuele09"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: Parse Pain Points Response\n// =========================================\n\nconst aiOutput = $input.first().json;\nconst originalData = $('Parse Keyword Response').first().json;\n\nlet painPoints = {\n  pain_point_1: 'Gestione inefficiente di processi manuali',\n  pain_point_2: 'Perdita di tempo in attivit\u00e0 ripetitive',\n  pain_point_3: 'Costi elevati di manutenzione'\n};\n\ntry {\n  let content;\n  \n  if (aiOutput.output && Array.isArray(aiOutput.output) && aiOutput.output[0]) {\n    // Formato N8N \"Message a Model\"\n    const firstOutput = aiOutput.output[0];\n    if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content[0]) {\n      content = firstOutput.content[0].text;\n    }\n  } else if (aiOutput.message && aiOutput.message.content) {\n    content = aiOutput.message.content;\n  } else if (aiOutput.choices && aiOutput.choices[0]) {\n    content = aiOutput.choices[0].message.content;\n  } else {\n    throw new Error('Formato risposta OpenAI non riconosciuto');\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta');\n  }\n  \n  console.log('=== RAW PAIN POINTS CONTENT ===');\n  console.log(content);\n  \n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  const parsed = JSON.parse(cleanContent);\n  \n  if (parsed.pain_point_1 && parsed.pain_point_2 && parsed.pain_point_3) {\n    painPoints = parsed;\n    console.log('\u2705 Pain points estratti:', painPoints);\n  } else {\n    console.warn('\u26a0\ufe0f Pain points incompleti, uso fallback');\n  }\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing pain points:', error.message);\n  console.log('\u26a0\ufe0f Uso pain points fallback');\n}\n\n// Merge con dati precedenti\nreturn [{\n  json: {\n    ...originalData,\n    pain_point_1: painPoints.pain_point_1,\n    pain_point_2: painPoints.pain_point_2,\n    pain_point_3: painPoints.pain_point_3\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          160,
+          -160
+        ],
+        "id": "0d5fc390-79bd-40af-a32e-0c2566197626",
+        "name": "Parse Pain Points Response"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "d6ea025f-6dc8-4cc0-9e87-e30f3e002717",
+                "leftValue": "={{ $json.social_links.instagram }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "empty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -1472,
+          -256
+        ],
+        "id": "c64e269d-7cf9-48e5-9c1d-8af754779de1",
+        "name": "Check Instagram Link (IF)"
+      },
+      {
+        "parameters": {
+          "url": "=https://serpapi.com/search.json",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "engine",
+                "value": "google"
+              },
+              {
+                "name": "q",
+                "value": "={ $json.brand_name }} {{ $json.target_geo }} instagram"
+              },
+              {
+                "name": "api_key",
+                "value": "69b312bfb96b2475591346ef37c7a8878f393d6d123921c6089443443dbccf0e"
+              },
+              {
+                "name": "num",
+                "value": "5"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          -1232,
+          -416
+        ],
+        "id": "e6cc3d58-63be-45a5-aec0-e2c119203a78",
+        "name": "HTTP Request"
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: Parse SerpAPI & Merge Instagram\n// =========================================\n\nconst input = $input.first().json;\nlet originalData;\nlet serpResults = null;\n\n// Determina se arriva da SerpAPI o direttamente da IF\nconst isSerpAPIResult = input.organic_results !== undefined;\n\nif (isSerpAPIResult) {\n  // Branch TRUE: risultati da SerpAPI\n  serpResults = input;\n  originalData = $('Parse and Validate Webhook').first().json;\n  console.log('\ud83d\udce1 Dati da SerpAPI (Instagram cercato)');\n} else {\n  // Branch FALSE: dati dal webhook passati da IF\n  originalData = input;\n  console.log('\u2705 Dati da webhook (Instagram gi\u00e0 presente)');\n}\n\nlet instagramLink = originalData.social_links?.instagram || '';\nlet instagramHandle = '';\nlet instagramSource = 'not_found';\n\n// CASO 1: Processa risultati SerpAPI (branch TRUE)\nif (isSerpAPIResult && serpResults) {\n  try {\n    console.log('=== SERP API RESULTS ===');\n    \n    if (serpResults.organic_results && Array.isArray(serpResults.organic_results)) {\n      \n      // Cerca primo risultato instagram.com\n      const instagramResult = serpResults.organic_results.find(result => {\n        return result.link && result.link.includes('instagram.com');\n      });\n      \n      if (instagramResult && instagramResult.link) {\n        instagramLink = instagramResult.link;\n        instagramSource = 'serpapi_search';\n        \n        // Estrai handle da URL\n        const handleMatch = instagramResult.link.match(/instagram\\.com\\/([^\\/\\?]+)/);\n        if (handleMatch && handleMatch[1]) {\n          instagramHandle = '@' + handleMatch[1];\n        }\n        \n        console.log('\u2705 Instagram trovato:', instagramLink);\n        console.log('\u2705 Handle:', instagramHandle);\n      } else {\n        console.warn('\u26a0\ufe0f Nessun risultato Instagram in SerpAPI');\n      }\n    }\n  } catch (error) {\n    console.error('\u26a0\ufe0f Errore parsing SerpAPI:', error.message);\n  }\n}\n\n// CASO 2: Instagram gi\u00e0 presente dal webhook (branch FALSE)\nif (!isSerpAPIResult && instagramLink) {\n  instagramSource = 'webhook_original';\n  \n  // Estrai handle da link esistente\n  if (instagramLink.includes('instagram.com')) {\n    const handleMatch = instagramLink.match(/instagram\\.com\\/([^\\/\\?]+)/);\n    if (handleMatch && handleMatch[1]) {\n      instagramHandle = '@' + handleMatch[1];\n    }\n  }\n  \n  console.log('\u2139\ufe0f Instagram da webhook:', instagramLink);\n  console.log('\u2139\ufe0f Handle estratto:', instagramHandle);\n}\n\n// Output unificato per entrambi i branch\nreturn [{\n  json: {\n    ...originalData,\n    social_links: {\n      ...originalData.social_links,\n      instagram: instagramLink\n    },\n    instagram_handle: instagramHandle,\n    instagram_source: instagramSource\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1024,
+          -256
+        ],
+        "id": "f659e434-cdf0-4ea6-8b28-a278afb2c910",
+        "name": "Parse SerpAPI & Merge IG"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list",
+            "cachedResultName": "GPT-4O-MINI"
+          },
+          "responses": {
+            "values": [
+              {
+                "role": "system",
+                "content": "Sei un brand strategist esperto in comunicazione social multipiattaforma.\n\nCOMPITO:\nAnalizza il brand e inferisci il TONE OF VOICE ottimale per Instagram e Facebook, considerando:\n- Industry di appartenenza\n- Target demografico e professionale\n- Tipologia di comunicazione desiderata (Informativo, Promozionale, Educativo, Istituzionale)\n- Pain points del target\n\nTONE OF VOICE = combinazione di:\n- REGISTRO: formale/informale/colloquiale\n- ATTITUDINE: professionale/friendly/empatico/tecnico/aspirazionale\n- ENERGIA: alta/media/calma\n- PRONOME: tu/voi/Lei (dipende da target e contesto culturale)\n\nDIFFERENZIAZIONE PIATTAFORME:\n- INSTAGRAM: pi\u00f9 visual, emotivo, storytelling, conversazionale\n- FACEBOOK: pi\u00f9 informativo, community-oriented, pu\u00f2 essere pi\u00f9 corporate\n\nOUTPUT (SOLO JSON, no markdown):\n{\n  \"tone_instagram\": \"Descrizione tone of voice Instagram (max 120 caratteri)\",\n  \"tone_facebook\": \"Descrizione tone of voice Facebook (max 120 caratteri)\",\n  \"reasoning\": \"Perch\u00e9 questi tone sono appropriati per questo brand/target\",\n  \"pronoun_suggested\": \"tu/voi/Lei\",\n  \"energy_level\": \"alta/media/calma\"\n}\n\nESEMPI TONE:\n- Servizi locali B2C: \"Amichevole e diretto, usa 'tu', energia media, focus su praticit\u00e0\"\n- Tech B2B: \"Professionale ma accessibile, usa 'voi', focus su competenza\"\n- Wellness: \"Empatico e aspirazionale, usa 'tu', energia calma, focus su benessere\"\n- Retail fashion: \"Energico e trendy, usa 'tu', focus su stile e personalit\u00e0\"\n\nREGOLE:\n- Tone deve essere SPECIFICO per l'industry, non generico\n- Considera contesto geografico (es: Svizzera italiana = pi\u00f9 formale di social USA)\n- Adatta energia ai pain points (es: problemi stressanti \u2192 tone empatico e rassicurante)"
+              },
+              {
+                "content": "=Analizza questo brand e inferisci tone of voice ottimale per Instagram e Facebook:\n\nBRAND: {{ $json.brand_name }}\nINDUSTRY: {{ $json.industry }}\nCONFIDENCE: {{ $json.industry_confidence }}\n\nTARGET:\n- Et\u00e0: {{ $json.target_age }}\n- Profilo: {{ $json.target_job }}\n- Reasoning: {{ $json.target_reasoning }}\n\nGEOGRAFIA: {{ $json.target_geo }}\n\nSTRATEGIA AZIENDALE: {{ $json.strategia_aziendale }}\n\nTIPOLOGIA COMUNICAZIONE: {{ $json.tipologia_comunicazione }}\n\nPAIN POINTS TARGET:\n1. {{ $json.pain_point_1 }}\n2. {{ $json.pain_point_2 }}\n3. {{ $json.pain_point_3 }}\n\nKEYWORDS CORE: {{ $json.keywords }}\n\nTASK:\n1. Considera che il target ha questi pain points \u2192 tone deve essere appropriato (es: rassicurante se pain emotivi, tecnico se pain operativi)\n2. Adatta tone al contesto geografico ({{ $json.target_geo }})\n3. Differenzia Instagram (pi\u00f9 storytelling/emotivo) da Facebook (pi\u00f9 informativo/community)\n4. Considera tipologia comunicazione: {{ $json.tipologia_comunicazione }}\n\nRispondi SOLO con JSON, no markdown."
+              }
+            ]
+          },
+          "builtInTools": {},
+          "options": {
+            "maxTokens": 500,
+            "temperature": 0.3
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.openAi",
+        "typeVersion": 2,
+        "position": [
+          -1456,
+          336
+        ],
+        "id": "cb2465e8-d186-4f1b-9bad-5b58a3932ef3",
+        "name": "Tone of Voice",
+        "credentials": {
+          "openAiApi": {
+            "id": "jPc5G1JGDGpU5unG",
+            "name": "OpenAi BLC Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// =========================================\n// NODO: Parse Tone of Voice Response\n// =========================================\n\nconst aiOutput = $input.first().json;\nconst originalData = $('Parse Industry Classification').first().json;\n\n// Valori fallback\nlet toneData = {\n  tone_instagram: 'Amichevole e diretto, usa \"tu\", focus su praticit\u00e0',\n  tone_facebook: 'Professionale e informativo, usa \"voi\", focus su competenza',\n  reasoning: 'Tone generico applicato',\n  pronoun_suggested: 'tu',\n  energy_level: 'media'\n};\n\ntry {\n  let content;\n  \n  // Estrai content da struttura OpenAI\n  if (aiOutput.output && Array.isArray(aiOutput.output) && aiOutput.output[0]) {\n    const firstOutput = aiOutput.output[0];\n    if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content[0]) {\n      content = firstOutput.content[0].text;\n    }\n  } else if (aiOutput.message && aiOutput.message.content) {\n    content = aiOutput.message.content;\n  } else if (aiOutput.choices && aiOutput.choices[0]) {\n    content = aiOutput.choices[0].message.content;\n  } else {\n    throw new Error('Formato risposta OpenAI non riconosciuto');\n  }\n  \n  if (!content) {\n    throw new Error('Nessun content trovato nella risposta');\n  }\n  \n  console.log('=== RAW TONE CONTENT ===');\n  console.log(content);\n  \n  // Pulisci markdown e parse JSON\n  const cleanContent = content\n    .replace(/```json\\s*/gi, '')\n    .replace(/```\\s*/g, '')\n    .trim();\n  \n  const parsed = JSON.parse(cleanContent);\n  \n  // Valida campi\n  const requiredFields = [\n    'tone_instagram',\n    'tone_facebook',\n    'reasoning',\n    'pronoun_suggested',\n    'energy_level'\n  ];\n  \n  const allFieldsPresent = requiredFields.every(field => parsed.hasOwnProperty(field));\n  \n  if (allFieldsPresent) {\n    toneData = parsed;\n    console.log('\u2705 Tone data estratti:', toneData);\n  } else {\n    console.warn('\u26a0\ufe0f Alcuni campi mancanti, merge parziale');\n    toneData = { ...toneData, ...parsed };\n  }\n  \n} catch (error) {\n  console.error('\u26a0\ufe0f Errore parsing tone output:', error.message);\n  console.log('\u26a0\ufe0f Uso tone fallback');\n}\n\n// Merge con tutti i dati precedenti\nreturn [{\n  json: {\n    ...originalData,\n    tone_instagram: toneData.tone_instagram,\n    tone_facebook: toneData.tone_facebook,\n    tone_reasoning: toneData.reasoning,\n    pronoun_suggested: toneData.pronoun_suggested,\n    energy_level: toneData.energy_level\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1104,
+          336
+        ],
+        "id": "ba9134d3-fbc4-4a6e-8502-8314c2063de5",
+        "name": "Parse Tone of Voice"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Parse and Validate Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Classify Industry with OpenRouter": {
+        "main": [
+          [
+            {
+              "node": "Parse Industry Classification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Industry Classification": {
+        "main": [
+          [
+            {
+              "node": "Tone of Voice",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Leggi Brand Profile": {
+        "main": [
+          [
+            {
+              "node": "Prepara Dati GPT-4o",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepara Dati GPT-4o": {
+        "main": [
+          [
+            {
+              "node": "Genera Caption",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Genera Caption": {
+        "main": [
+          [
+            {
+              "node": "Parse Output GPT-4o",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Output GPT-4o": {
+        "main": [
+          [
+            {
+              "node": "Scrivi su Text to IG",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrivi su Text to IG": {
+        "main": [
+          [
+            {
+              "node": "Check Mail Text IG",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "Read Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Mail Text IG": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read Status": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Call 'Text and Image Reference for FootEasy'",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Call 'Text and Image Reference for FootEasy'1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get a database": {
+        "main": [
+          [
+            {
+              "node": "Scrivi Notion Brand Profiles",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrivi Notion Brand Profiles": {
+        "main": [
+          [
+            {
+              "node": "Leggi Brand Profile",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse and Validate Webhook": {
+        "main": [
+          [
+            {
+              "node": "Check Instagram Link (IF)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Keywords from Products": {
+        "main": [
+          [
+            {
+              "node": "Parse Keyword Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Keyword Response": {
+        "main": [
+          [
+            {
+              "node": "Extract Pain Points from Products",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Pain Points from Products": {
+        "main": [
+          [
+            {
+              "node": "Parse Pain Points Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Pain Points Response": {
+        "main": [
+          [
+            {
+              "node": "Classify Industry with OpenRouter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Instagram Link (IF)": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Parse SerpAPI & Merge IG",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Parse SerpAPI & Merge IG",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse SerpAPI & Merge IG": {
+        "main": [
+          [
+            {
+              "node": "Extract Keywords from Products",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Tone of Voice": {
+        "main": [
+          [
+            {
+              "node": "Parse Tone of Voice",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Tone of Voice": {
+        "main": [
+          [
+            {
+              "node": "Get a database",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Emanule Serra",
+    "name": "Version 2.0",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-01-16T14:02:59.275Z",
+        "id": 20,
+        "workflowId": "PgkSjE3QNv3XhNXH",
+        "versionId": "a1f33247-d2ed-4f9c-81ab-2fda1b22e6fe",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
+  }
+}
