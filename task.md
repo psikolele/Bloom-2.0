@@ -20,7 +20,7 @@
     -[x] Verify GitHub connection/integration if applicable to the app's logic (Deployment Script Created).
     -[x] Create `walkthrough.md`.
 
--[ ] OpenRouter Migration & N8N V.2
+-[x] OpenRouter Migration & N8N V.2
     -[x] **Research**: Best OpenRouter models for Web Scraping/Analysis (Brainstorming).
     -[x] **Backup**: Export all current Bloom workflows to `Bloom 2.0/backup_workflows`.
     -[x] **Duplicate**: Re-import workflows as `_V.2`.
