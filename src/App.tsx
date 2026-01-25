@@ -1,29 +1,57 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 import CaptionFlowWrapper from './integrations/CaptionFlowWrapper';
 
 // Import integrated apps
-// Note: These need to be exported as default components from their respective files
 import SocialMediaClientApp from './integrations/SocialMediaClient/App';
 import BrandProfileApp from './integrations/BrandProfile/App';
+
+import React from 'react';
+
+// Auth Guard Component
+const RequireAuth = ({ children }: { children: React.ReactElement }) => {
+  const location = useLocation();
+  const isAuthenticated = localStorage.getItem('bloom_user') !== null;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
+
         {/* Hub Dashboard */}
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={
+          <RequireAuth>
+            <Dashboard />
+          </RequireAuth>
+        } />
 
         {/* Integrated Apps */}
-        {/* Caption Flow - Iframe Wrapper */}
-        <Route path="/caption-flow" element={<CaptionFlowWrapper />} />
+        <Route path="/caption-flow" element={
+          <RequireAuth>
+            <CaptionFlowWrapper />
+          </RequireAuth>
+        } />
 
-        {/* Social Media Client - Full App Route */}
-        {/* using /* to allow sub-routes if defined in the child app, though usually single page */}
-        <Route path="/social-media/*" element={<SocialMediaClientApp />} />
+        <Route path="/social-media/*" element={
+          <RequireAuth>
+            <SocialMediaClientApp />
+          </RequireAuth>
+        } />
 
-        {/* Brand Profile - Full App Route */}
-        <Route path="/brand-profile/*" element={<BrandProfileApp />} />
+        <Route path="/brand-profile/*" element={
+          <RequireAuth>
+            <BrandProfileApp />
+          </RequireAuth>
+        } />
 
         {/* Catch all redirect to dashboard */}
         <Route path="*" element={<Navigate to="/" replace />} />

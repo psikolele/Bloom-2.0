@@ -1,6 +1,6 @@
 // import { Type } from "@google/genai"; // Removed as unused with OpenRouter implementation
 
-const apiKey = process.env.OPENROUTER_API_KEY || '';
+const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || '';
 const siteName = "Bloom 2.0";
 const siteUrl = "http://localhost:5173"; // Or your deployed URL
 

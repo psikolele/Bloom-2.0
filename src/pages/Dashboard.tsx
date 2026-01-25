@@ -118,7 +118,7 @@ export default function Dashboard() {
             </main>
 
             <footer className="relative z-10 mt-auto pt-20 text-center text-xs text-gray-600 font-mono">
-                <p>Bloom Ecosystem v2.0 • Antigravity Module</p>
+                <p>Bloom Ecosystem 2.0 • Created by BLC • Update version 25.01_08.35</p>
             </footer>
         </div>
     );
