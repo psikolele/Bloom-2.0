@@ -6,7 +6,9 @@
                 "httpMethod": "POST",
                 "path": "ai-proxy",
                 "responseMode": "responseNode",
-                "options": {}
+                "options": {
+                    "allowedOrigins": "*"
+                }
             },
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1,
@@ -14,8 +16,8 @@
                 0,
                 0
             ],
-            "id": "webhook-start",
-            "name": "Webhook (POST /ai-proxy)"
+            "id": "webhook-post",
+            "name": "Webhook (POST)"
         },
         {
             "parameters": {
@@ -50,7 +52,7 @@
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 3,
             "position": [
-                220,
+                250,
                 0
             ],
             "id": "http-openrouter",
@@ -60,12 +62,25 @@
             "parameters": {
                 "respondWith": "json",
                 "responseBody": "={{ $json }}",
-                "options": {}
+                "options": {
+                    "responseHeaders": {
+                        "entries": [
+                            {
+                                "name": "Access-Control-Allow-Origin",
+                                "value": "*"
+                            },
+                            {
+                                "name": "Access-Control-Allow-Headers",
+                                "value": "Content-Type, X-Source, Authorization"
+                            }
+                        ]
+                    }
+                }
             },
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                440,
+                500,
                 0
             ],
             "id": "respond-success",
@@ -73,7 +88,7 @@
         }
     ],
     "connections": {
-        "Webhook (POST /ai-proxy)": {
+        "Webhook (POST)": {
             "main": [
                 [
                     {

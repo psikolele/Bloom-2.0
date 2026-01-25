@@ -18,7 +18,6 @@ HEADERS = {
 def main():
     print("🚀 Deploying Bloom AI Proxy Workflow to N8N...")
 
-    # 1. Read Workflow JSON
     try:
         with open(WORKFLOW_FILE, 'r') as f:
             workflow_data = json.load(f)
@@ -26,28 +25,21 @@ def main():
         print(f"❌ Failed to read workflow file: {e}")
         return
 
-    # 2. Inject API Key
+    # Inject API Key
     print("🔑 Injecting OpenRouter API Key...")
     nodes = workflow_data['nodes']
-    key_injected = False
     for node in nodes:
         if node['name'] == "Call OpenRouter":
             params = node['parameters']['headerParameters']['parameters']
             for param in params:
                 if param['name'] == "Authorization":
                     param['value'] = f"Bearer {OPENROUTER_KEY}"
-                    key_injected = True
                     print("   -> Key injected into 'Call OpenRouter' node.")
     
-    if not key_injected:
-        print("⚠️ Warning: Could not find 'Authorization' param in 'Call OpenRouter' node.")
-
-    # 3. Check if workflow already exists to update it, or create new
-    # We'll search by name "Bloom AI Proxy"
+    # Check existing
     existing_id = None
     try:
         res = requests.get(f"{N8N_BASE_URL}/workflows", headers=HEADERS)
-        res.raise_for_status()
         workflows = res.json()['data']
         for w in workflows:
             if w['name'] == "Bloom AI Proxy":
@@ -57,13 +49,13 @@ def main():
     except Exception as e:
         print(f"⚠️ Error listing workflows: {e}")
 
-    # 4. Create or Update - TRY 1
-    # Remove 'active' from payload for creation, activate later
+    # Create or Update
     payload = {
         "name": "Bloom AI Proxy",
         "nodes": nodes,
         "connections": workflow_data['connections'],
-        "settings": {} 
+        "settings": {}
+        # "active": True  <-- Removed to avoid read-only error on update
     }
 
     try:
@@ -75,29 +67,15 @@ def main():
             res = requests.post(f"{N8N_BASE_URL}/workflows", headers=HEADERS, json=payload)
         
         if not res.ok:
-            print(f"   [!] Status Code: {res.status_code}")
-            print(f"   [!] Response: {res.text}")
+            print(f"   [!] Error {res.status_code}: {res.text}")
             res.raise_for_status()
 
         result = res.json()
         new_id = result['id']
-        print(f"✅ Workflow Created/Updated! ID: {new_id}")
-
-        # 5. Activate
-        print(f"   -> Activating workflow {new_id}...")
-        res_act = requests.post(f"{N8N_BASE_URL}/workflows/{new_id}/activate", headers=HEADERS)
-        if not res_act.ok:
-             print(f"   [!] Activation Failed: {res_act.text}")
-        else:
-             print("   -> Activated.")
-
-        # 6. Webhook
-        print("\n🎉 Webhook URL Construction:")
-        prod_url = "https://emanueleserra.app.n8n.cloud/webhook/ai-proxy"
-        print(f"   Production URL: {prod_url}")
+        print(f"✅ Workflow Deployed! ID: {new_id}")
         
     except Exception as e:
-        print(f"❌ Deploy failed exception: {e}")
+        print(f"❌ Deploy failed: {e}")
 
 if __name__ == "__main__":
     main()
