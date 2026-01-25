@@ -50,15 +50,12 @@ async function scrapeWebsite(url: string): Promise<string> {
  * Calls OpenRouter Chat Completion API
  */
 async function callOpenRouter(model: string, messages: any[], schema?: any) {
-    // Use N8N Proxy to protect API Keys
-    const proxyUrl = import.meta.env.VITE_N8N_AI_PROXY_URL;
-
-    if (!proxyUrl) {
-        throw new Error("Manca URL Proxy N8N (VITE_N8N_AI_PROXY_URL).");
-    }
+    // Use Vercel Serverless Function (Secure Proxy)
+    // When running locally, this will fail unless 'vercel dev' is used.
+    // In production, it points to /api/generate relative to the domain.
+    const proxyUrl = "/api/generate";
 
     // Default to Gemini Pro via OpenRouter
-    // Mapping specific Bloom model names to OpenRouter Model IDs
     let orModel = model;
 
     // Updated Model Mapping (Jan 2026)
@@ -67,7 +64,7 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
     else if (model.includes('pro')) orModel = 'google/gemini-2.0-pro-exp-02-05:free';
     else orModel = 'google/gemini-2.0-flash-001'; // Fallback
 
-    console.log(`🤖 Calling AI via N8N Proxy... (${orModel})`);
+    console.log(`🤖 Calling AI via Vercel Function... (${orModel})`);
 
     const payload: any = {
         model: orModel,
@@ -82,7 +79,7 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
         payload.response_format = { type: "json_object" };
     }
 
-    // Call N8N Webhook instead of OpenRouter directly
+    // Call Local API Route
     const response = await fetch(proxyUrl, {
         method: "POST",
         headers: {
@@ -93,18 +90,21 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
     });
 
     if (!response.ok) {
-        const errText = await response.text();
-        console.error("❌ N8N Proxy Error:", errText);
+        let errText = await response.text();
+        try {
+            const errJson = JSON.parse(errText);
+            if (errJson.error) errText = typeof errJson.error === 'string' ? errJson.error : JSON.stringify(errJson.error);
+        } catch (e) { }
+
+        console.error("❌ API Proxy Error:", errText);
         throw new Error(`AI Proxy Error (${response.status}): ${errText}`);
     }
 
-    // N8N returns the direct OpenRouter response JSON (because of 'Respond to Webhook' node)
     const data = await response.json();
 
-    // Validate response structure
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         console.error("Invalid AI Response:", data);
-        throw new Error("Risposta AI non valida (struttura inattesa da N8N).");
+        throw new Error("Risposta AI non valida (struttura inattesa).");
     }
 
     return data.choices[0].message.content;
