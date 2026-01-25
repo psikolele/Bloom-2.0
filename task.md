@@ -35,3 +35,5 @@
     -[x] **Integration**: Apply standardized header/loader to CaptionFlow, SocialClient, BrandProfile.
     -[x] **Fix**: Resolve duplicate menu in CaptionFlow.
     -[x] **Polish**: Standardize Loaders and Transitions (Fluid animation, no masks).
+    -[x] **Fix**: Brand Profile Jina AI protocol error (400).
+    -[x] **UI**: Loader updated to show only icon with glow effect.
