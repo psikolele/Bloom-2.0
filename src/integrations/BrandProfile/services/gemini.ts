@@ -1,6 +1,9 @@
 // import { Type } from "@google/genai"; // Removed as unused with OpenRouter implementation
 
-const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || '';
+const apiKeyRaw = import.meta.env.VITE_OPENROUTER_API_KEY || '';
+const apiKey = apiKeyRaw.trim(); // Ensure no whitespace
+console.log(`🔑 OpenRouter Key Loaded: ${apiKey ? (apiKey.substring(0, 10) + '...') : 'Missing'}`);
+
 const siteName = "Bloom 2.0";
 const siteUrl = "http://localhost:5173"; // Or your deployed URL
 

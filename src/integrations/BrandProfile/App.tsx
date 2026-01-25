@@ -222,8 +222,24 @@ export default function App() {
     const [webhookUrl, setWebhookUrl] = useState(import.meta.env.VITE_N8N_WEBHOOK_URL || "");
     const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].name);
     const [isConfigOpen, setIsConfigOpen] = useState(false);
-    const [isInitialLoading, setIsInitialLoading] = useState(true); // Added state
-    const [isRedirecting, setIsRedirecting] = useState(false); // Added state
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [isRedirecting, setIsRedirecting] = useState(false);
+
+    // Admin Check
+    const [isAdmin, setIsAdmin] = useState(false);
+    useEffect(() => {
+        const userStr = localStorage.getItem('bloom_user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                const username = (user.username || '').toLowerCase();
+                // Simple admin check based on known users or 'admin' prefix
+                if (username === 'admin' || username === 'emanuele' || username.startsWith('admin_')) {
+                    setIsAdmin(true);
+                }
+            } catch (e) { console.error("Error parsing user", e); }
+        }
+    }, []);
 
     // Core inputs/outputs
     const [websiteUrl, setWebsiteUrl] = useState("");
@@ -384,46 +400,50 @@ export default function App() {
                 <SpotlightCard className="p-6 md:p-8 transition-all duration-700 animate-[reveal_1s_ease-out_0.2s_both] overflow-hidden flex flex-col h-auto">
                     <div className="flex justify-between items-start mb-6 px-2">
                         <div><h2 className="text-lg font-bold text-white font-mono">Strategy Studio</h2></div>
-                        <button onClick={() => setIsConfigOpen(!isConfigOpen)} className={`p-2.5 rounded-xl transition-all border ${isConfigOpen ? 'bg-accent text-white border-accent' : 'bg-white/5 text-gray-400 border-transparent hover:text-white'}`}>
-                            <Icons.Settings width={18} height={18} />
-                        </button>
+                        {isAdmin && (
+                            <button onClick={() => setIsConfigOpen(!isConfigOpen)} className={`p-2.5 rounded-xl transition-all border ${isConfigOpen ? 'bg-accent text-white border-accent' : 'bg-white/5 text-gray-400 border-transparent hover:text-white'}`}>
+                                <Icons.Settings width={18} height={18} />
+                            </button>
+                        )}
                     </div>
 
                     {/* CONFIG PANEL */}
-                    <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isConfigOpen ? 'max-h-[600px] mb-8 opacity-100' : 'max-h-0 opacity-0'}`}>
-                        <div className="grid gap-4 bg-black/40 p-6 rounded-2xl border border-white/5 mx-2 shadow-inner">
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-gray-500 uppercase">Webhook Endpoint</label>
-                                        <input type="text" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} className="w-full tech-input px-4 py-2.5 rounded-lg text-sm font-mono" />
+                    {isAdmin && (
+                        <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isConfigOpen ? 'max-h-[600px] mb-8 opacity-100' : 'max-h-0 opacity-0'}`}>
+                            <div className="grid gap-4 bg-black/40 p-6 rounded-2xl border border-white/5 mx-2 shadow-inner">
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div className="space-y-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase">Webhook Endpoint</label>
+                                            <input type="text" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} className="w-full tech-input px-4 py-2.5 rounded-lg text-sm font-mono" />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-gray-500 uppercase">Seleziona Modello AI</label>
-                                        <div className="flex gap-2">
-                                            <select
-                                                value={selectedModel}
-                                                onChange={e => setSelectedModel(e.target.value)}
-                                                className="w-full tech-input px-4 py-2.5 rounded-lg text-sm font-mono bg-[#0a0a0a] text-white"
-                                            >
-                                                {AVAILABLE_MODELS.map((m, i) => (
-                                                    <option
-                                                        key={i}
-                                                        value={m.name}
-                                                        className="bg-[#0a0a0a] text-white hover:bg-accent py-3"
-                                                    >
-                                                        {m.displayName}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                    <div className="space-y-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase">Seleziona Modello AI</label>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    value={selectedModel}
+                                                    onChange={e => setSelectedModel(e.target.value)}
+                                                    className="w-full tech-input px-4 py-2.5 rounded-lg text-sm font-mono bg-[#0a0a0a] text-white"
+                                                >
+                                                    {AVAILABLE_MODELS.map((m, i) => (
+                                                        <option
+                                                            key={i}
+                                                            value={m.name}
+                                                            className="bg-[#0a0a0a] text-white hover:bg-accent py-3"
+                                                        >
+                                                            {m.displayName}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* MAIN INPUT */}
                     <div className="flex flex-col gap-6 relative min-h-[400px]">
