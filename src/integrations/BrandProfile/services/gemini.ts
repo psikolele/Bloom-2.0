@@ -4,7 +4,7 @@ const apiKeyRaw = import.meta.env.VITE_OPENROUTER_API_KEY || '';
 const apiKey = apiKeyRaw.trim(); // Ensure no whitespace
 console.log(`🔑 OpenRouter Key Loaded: ${apiKey ? (apiKey.substring(0, 10) + '...') : 'Missing'}`);
 
-const siteName = "Bloom 2.0";
+// siteName removed as unused in Proxy mode
 // URL now handled dynamically using window.location.origin
 
 /**
@@ -50,12 +50,12 @@ async function scrapeWebsite(url: string): Promise<string> {
  * Calls OpenRouter Chat Completion API
  */
 async function callOpenRouter(model: string, messages: any[], schema?: any) {
-    if (!apiKey) {
-        throw new Error("API Key mancante (process.env.OPENROUTER_API_KEY).");
-    }
+    // Use N8N Proxy to protect API Keys
+    const proxyUrl = import.meta.env.VITE_N8N_AI_PROXY_URL;
 
-    // Aggressively sanitize the key - remove any non-visible characters
-    const cleanKey = apiKey.replace(/[\s\n\r"']/g, '').trim();
+    if (!proxyUrl) {
+        throw new Error("Manca URL Proxy N8N (VITE_N8N_AI_PROXY_URL).");
+    }
 
     // Default to Gemini Pro via OpenRouter
     // Mapping specific Bloom model names to OpenRouter Model IDs
@@ -67,16 +67,13 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
     else if (model.includes('pro')) orModel = 'google/gemini-2.0-pro-exp-02-05:free';
     else orModel = 'google/gemini-2.0-flash-001'; // Fallback
 
-    console.log(`🤖 Calling OpenRouter with model: ${orModel}`);
-    console.log(`🔑 Key used (santized): ${cleanKey.substring(0, 5)}...${cleanKey.substring(cleanKey.length - 4)}`);
+    console.log(`🤖 Calling AI via N8N Proxy... (${orModel})`);
 
     const payload: any = {
         model: orModel,
         messages: messages,
         temperature: 0.7,
-        // Optional: provider routing to ensure stability
         provider: {
-            // order: ["Google", "DeepInfra", "Hyperbolic"],
             allow_fallbacks: true
         }
     };
@@ -85,36 +82,31 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
         payload.response_format = { type: "json_object" };
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    // Call N8N Webhook instead of OpenRouter directly
+    const response = await fetch(proxyUrl, {
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${cleanKey}`,
-            "HTTP-Referer": window.location.origin, // Use current origin
-            "X-Title": siteName,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-Source": "Bloom-Frontend"
         },
         body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
         const errText = await response.text();
-        let errObj;
-        try { errObj = JSON.parse(errText); } catch (e) { }
-
-        console.error("❌ OpenRouter API Error Details:", errText);
-
-        // Specific handling for common 401
-        if (response.status === 401) {
-            const msg = errObj?.error?.message || errText;
-            if (msg.includes("User not found")) {
-                throw new Error("API Key non valida o Account OpenRouter non trovato. Controlla la tua chiave API.");
-            }
-        }
-
-        throw new Error(`OpenRouter Error (${response.status}): ${errObj?.error?.message || errText}`);
+        console.error("❌ N8N Proxy Error:", errText);
+        throw new Error(`AI Proxy Error (${response.status}): ${errText}`);
     }
 
+    // N8N returns the direct OpenRouter response JSON (because of 'Respond to Webhook' node)
     const data = await response.json();
+
+    // Validate response structure
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error("Invalid AI Response:", data);
+        throw new Error("Risposta AI non valida (struttura inattesa da N8N).");
+    }
+
     return data.choices[0].message.content;
 }
 

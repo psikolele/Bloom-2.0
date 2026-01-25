@@ -1,0 +1,99 @@
+{
+    "name": "Bloom AI Proxy",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "ai-proxy",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ],
+            "id": "webhook-start",
+            "name": "Webhook (POST /ai-proxy)"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "Bearer YOUR_OPENROUTER_KEY_HERE"
+                        },
+                        {
+                            "name": "HTTP-Referer",
+                            "value": "https://bloom-dashboard.com"
+                        },
+                        {
+                            "name": "X-Title",
+                            "value": "Bloom 2.0"
+                        },
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ $json.body }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                220,
+                0
+            ],
+            "id": "http-openrouter",
+            "name": "Call OpenRouter"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                440,
+                0
+            ],
+            "id": "respond-success",
+            "name": "Respond to Frontend"
+        }
+    ],
+    "connections": {
+        "Webhook (POST /ai-proxy)": {
+            "main": [
+                [
+                    {
+                        "node": "Call OpenRouter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Call OpenRouter": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Frontend",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
