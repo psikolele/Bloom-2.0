@@ -19,11 +19,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2. Validate API Key (Server-side environment variable)
-    const apiKey = process.env.VITE_OPENROUTER_API_KEY;
-    // Note: In Vercel, standard env vars are accessed via process.env. 
-    // VITE_ prefixed vars are exposed to browser, but we can also read them here if set in Project Settings.
-    // Ideally, for security, use a non-VITE prefixed var like OPENROUTER_API_KEY in Vercel Dashboard, 
-    // but for now we rely on the existing one which is cleaner than N8N.
+    // Using standard OPENROUTER_API_KEY to avoid exposing it to the browser (no VITE_ prefix)
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.VITE_OPENROUTER_API_KEY;
 
     if (!apiKey) {
         return res.status(500).json({ error: 'Server Configuration Error: Missing API Key' });
