@@ -65,6 +65,11 @@ const AnimatedLoader = () => (
     </div>
 );
 
+const handleLogout = () => {
+    localStorage.removeItem('bloom_user');
+    window.location.reload(); // Force reload to trigger AuthGuard or clear state
+};
+
 export default function Dashboard() {
     const [isLoading, setIsLoading] = React.useState(true);
 
@@ -80,7 +85,7 @@ export default function Dashboard() {
             <div className="grid-overlay"></div>
 
             {/* HEADER */}
-            <header className="relative z-10 flex flex-col items-center justify-center mb-16 mt-8 animate-reveal">
+            <header className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center justify-center mb-16 mt-8 animate-reveal">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="relative">
                         <img src="/logo.png" alt="Bloom AI" className="h-16 w-auto object-contain drop-shadow-[0_0_30px_rgba(255,107,53,0.5)] animate-[pulse_3s_infinite]" />
@@ -89,7 +94,19 @@ export default function Dashboard() {
                         Bloom <span className="text-accent">2.0</span>
                     </h1>
                 </div>
+
                 <p className="text-gray-400 font-mono text-sm tracking-wide uppercase">Integrated Automation Suite</p>
+
+                <button
+                    onClick={handleLogout}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-mono text-gray-500 hover:text-white border border-transparent hover:border-white/10 rounded-full transition-all flex items-center gap-2 group"
+                    title="Logout"
+                >
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">LOGOUT</span>
+                    <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-red-500/20 group-hover:border-red-500/30 group-hover:text-red-400 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                    </div>
+                </button>
             </header>
 
             {/* MAIN GRID */}
