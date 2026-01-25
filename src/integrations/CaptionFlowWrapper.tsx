@@ -40,17 +40,17 @@ const AnimatedLoader = () => (
 
 const BloomRedirectLoader = () => (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030303]">
-        <div className="relative w-32 h-32 flex items-center justify-center animate-[scaleUp_1s_ease-out]">
+        <div className="relative w-32 h-32 flex items-center justify-center animate-[scaleUp_0.6s_ease-out]">
             {/* Glow Ring - Full Disc */}
-            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#FF6B35_50%,#B349C1_60%,transparent_70%)] animate-[spin_1.5s_linear_infinite] blur-[8px] z-10"></div>
+            <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#FF6B35_50%,#B349C1_60%,transparent_70%)] animate-[spin_1.5s_linear_infinite] blur-[15px] z-10 opacity-80"></div>
             {/* Logo */}
-            <div className="relative z-20 transform scale-[1.55]">
-                <img src="/logo.png" alt="Loading" className="w-20 h-20 object-contain drop-shadow-[0_0_10px_rgba(255,107,53,0.8)]" />
+            <div className="relative z-20 transform scale-[1.2]">
+                <img src="/icon.png" alt="Loading" className="w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(255,107,53,0.9)]" />
             </div>
         </div>
         <style>{`
             @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-            @keyframes scaleUp { from { transform: scale(0); } to { transform: scale(1); } }
+            @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         `}</style>
     </div>
 );

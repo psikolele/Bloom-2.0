@@ -13,7 +13,12 @@ async function scrapeWebsite(url: string): Promise<string> {
         console.log(`🌐 Scraping content from: ${url}`);
 
         // Use Jina AI Reader - free service that returns clean markdown
-        const jinaUrl = `https://r.jina.ai/${url}`;
+        let targetUrl = url;
+        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+            targetUrl = 'https://' + targetUrl;
+        }
+
+        const jinaUrl = `https://r.jina.ai/${targetUrl}`;
         const response = await fetch(jinaUrl, {
             headers: {
                 'Accept': 'text/plain',
