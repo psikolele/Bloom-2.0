@@ -242,7 +242,7 @@ function handleReturnToBloom() {
 
   // Simulate loading delay then redirect
   setTimeout(() => {
-    window.location.href = 'https://bloom-ai-mu.vercel.app/';
+    window.location.href = '/';
   }, 2500);
 }
 
