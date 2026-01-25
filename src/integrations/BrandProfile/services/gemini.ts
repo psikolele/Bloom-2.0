@@ -5,7 +5,7 @@ const apiKey = apiKeyRaw.trim(); // Ensure no whitespace
 console.log(`🔑 OpenRouter Key Loaded: ${apiKey ? (apiKey.substring(0, 10) + '...') : 'Missing'}`);
 
 const siteName = "Bloom 2.0";
-const siteUrl = "http://localhost:5173"; // Or your deployed URL
+// URL now handled dynamically using window.location.origin
 
 /**
  * Scrapes website content using Jina AI Reader API (free service)
@@ -54,38 +54,42 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
         throw new Error("API Key mancante (process.env.OPENROUTER_API_KEY).");
     }
 
-    // Default to Gemini Pro via OpenRouter if user selected a 'gemini' model name from the UI,
-    // OR map the names.
-    // The previous App.tsx used names like 'gemini-2.5-flash'. We need to map these to OpenRouter model IDs.
-    // Or just use a versatile model if the specific one isn't on OpenRouter with that exact ID.
-    // Mapping:
-    // gemini-2.5-flash -> google/gemini-2.0-flash-001 (OpenRouter ID approximation)
-    // gemini-2.5-pro -> google/gemini-2.0-pro-exp-02-05:free (or similar)
+    // Aggressively sanitize the key - remove any non-visible characters
+    const cleanKey = apiKey.replace(/[\s\n\r"']/g, '').trim();
 
-    // For simplicity, let's map common ones or pass through if already OR compatible
+    // Default to Gemini Pro via OpenRouter
+    // Mapping specific Bloom model names to OpenRouter Model IDs
     let orModel = model;
-    if (model.includes('flash')) orModel = 'google/gemini-2.0-flash-001';
-    else if (model.includes('pro')) orModel = 'google/gemini-2.0-pro-exp-02-05:free'; // Using free tier if available or standard
+
+    // Updated Model Mapping (Jan 2026)
+    if (model.includes('flash-lite')) orModel = 'google/gemini-2.0-flash-lite-preview-02-05:free';
+    else if (model.includes('flash')) orModel = 'google/gemini-2.0-flash-001';
+    else if (model.includes('pro')) orModel = 'google/gemini-2.0-pro-exp-02-05:free';
     else orModel = 'google/gemini-2.0-flash-001'; // Fallback
 
     console.log(`🤖 Calling OpenRouter with model: ${orModel}`);
+    console.log(`🔑 Key used (santized): ${cleanKey.substring(0, 5)}...${cleanKey.substring(cleanKey.length - 4)}`);
 
     const payload: any = {
         model: orModel,
         messages: messages,
         temperature: 0.7,
+        // Optional: provider routing to ensure stability
+        provider: {
+            // order: ["Google", "DeepInfra", "Hyperbolic"],
+            allow_fallbacks: true
+        }
     };
 
     if (schema) {
-        payload.response_format = { type: "json_object" }; // Generic JSON enforcement
-        // OpenRouter supports 'json_schema' for some models, but 'json_object' is safer globally
+        payload.response_format = { type: "json_object" };
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "HTTP-Referer": siteUrl,
+            "Authorization": `Bearer ${cleanKey}`,
+            "HTTP-Referer": window.location.origin, // Use current origin
             "X-Title": siteName,
             "Content-Type": "application/json"
         },
@@ -93,8 +97,21 @@ async function callOpenRouter(model: string, messages: any[], schema?: any) {
     });
 
     if (!response.ok) {
-        const err = await response.text();
-        throw new Error(`OpenRouter API Error: ${response.status} - ${err}`);
+        const errText = await response.text();
+        let errObj;
+        try { errObj = JSON.parse(errText); } catch (e) { }
+
+        console.error("❌ OpenRouter API Error Details:", errText);
+
+        // Specific handling for common 401
+        if (response.status === 401) {
+            const msg = errObj?.error?.message || errText;
+            if (msg.includes("User not found")) {
+                throw new Error("API Key non valida o Account OpenRouter non trovato. Controlla la tua chiave API.");
+            }
+        }
+
+        throw new Error(`OpenRouter Error (${response.status}): ${errObj?.error?.message || errText}`);
     }
 
     const data = await response.json();
