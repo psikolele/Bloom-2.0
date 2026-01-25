@@ -1,85 +1,61 @@
-import os
-import json
+
 import requests
+import json
+import os
 
-# Reuse extraction logic or just hardcode for this step
-ENV_PATH = r"c:\Users\psiko\Desktop\Antigravity\Bloom AI\.env"
-
-def load_api_key():
-    try:
-        with open(ENV_PATH, 'r') as f:
-            for line in f:
-                if line.startswith("N8N_API_KEY="):
-                    return line.strip().split("=", 1)[1]
-    except Exception as e:
-        print(f"Error reading .env: {e}")
-        return None
-
-API_KEY = load_api_key()
+# Conf
+N8N_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMmRmNzQ5NC1hNjVjLTRjOTAtOTE5MC00NmViOWI4ODg5OGIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY4NTEyOTE5fQ.T-W7tlxC7dAA0dPHusS7yuZLpX-qAzuzYCUT653cC0k"
 N8N_BASE_URL = "https://emanueleserra.app.n8n.cloud/api/v1"
-HEADERS = {
-    "X-N8N-API-KEY": API_KEY,
-    "Content-Type": "application/json"
-}
+HEADERS = { "X-N8N-API-KEY": N8N_API_KEY }
 
 def get_workflows():
+    print("🔍 Fetching N8N Workflows...")
     try:
-        response = requests.get(f"{N8N_BASE_URL}/workflows", headers=HEADERS)
-        response.raise_for_status()
-        return response.json()['data']
+        res = requests.get(f"{N8N_BASE_URL}/workflows", headers=HEADERS)
+        res.raise_for_status()
+        workflows = res.json()['data']
+        
+        bloom_wfs = []
+        print("\n📋 Bloom 2.0 Workflows Found:")
+        for w in workflows:
+            # Filter loosely by name or tags if possible, but user said they are in project Bloom 2.0
+            # The API might not return project info directly in list, but we can guess by name
+            # Looking for _V.2 suffix as seen in screenshot
+            if "Bloom" in w['name'] or "Caption" in w['name'] or "_V.2" in w['name']:
+                print(f"   - {w['name']} (ID: {w['id']}, Active: {w['active']})")
+                bloom_wfs.append(w)
+        
+        return bloom_wfs
     except Exception as e:
-        print(f"Error fetching workflows: {e}")
+        print(f"❌ Error: {e}")
         return []
 
-def get_workflow_details(workflow_id):
-    try:
-        response = requests.get(f"{N8N_BASE_URL}/workflows/{workflow_id}", headers=HEADERS)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        print(f"Error fetching workflow {workflow_id}: {e}")
-        return None
-
-def main():
-    if not API_KEY:
-        print("API Key not found.")
-        return
-
-    workflows = get_workflows()
-    v2_workflows = [w for w in workflows if "_V.2" in w['name']]
-    
-    print(f"Found {len(v2_workflows)} V.2 workflows.")
-    
-    webhook_map = {}
-
-    for w in v2_workflows:
-        print(f"Inspecting: {w['name']}")
-        details = get_workflow_details(w['id'])
-        if not details:
-            continue
+def detailed_inspection(workflows):
+    print("\n🕵️ Inspecting Webhook Paths...")
+    results = {}
+    for wf in workflows:
+        try:
+            res = requests.get(f"{N8N_BASE_URL}/workflows/{wf['id']}", headers=HEADERS)
+            data = res.json()
             
-        # Find Webhook nodes
-        for node in details['nodes']:
-            if 'webhook' in node['type'].lower():
-                # Check for path parameter
-                path = "NOT_FOUND"
-                if 'parameters' in node and 'path' in node['parameters']:
-                    path = node['parameters']['path']
-                
-                # Construct URL
-                # Production URL structure: https://emanueleserra.app.n8n.cloud/webhook/[path]
-                # Test URL structure: https://emanueleserra.app.n8n.cloud/webhook-test/[path]
-                
-                # Note: N8N also uses UUIDs for webhooks sometimes if not explicitly set path?
-                # Usually it's /webhook/ID or /webhook/path
-                
-                url = f"https://emanueleserra.app.n8n.cloud/webhook/{path}"
-                print(f"  -> Found Webhook: {node['name']} -> {url}")
-                webhook_map[w['name']] = url
-                
-    # Save to file
-    with open(r"c:\Users\psiko\Desktop\Antigravity\Bloom 2.0\v2_webhooks.json", "w") as f:
-        json.dump(webhook_map, f, indent=2)
+            webhooks = []
+            for node in data['nodes']:
+                if 'webhook' in node['type'].lower() and 'respond' not in node['type'].lower():
+                    path = node['parameters'].get('path', '')
+                    method = node['parameters'].get('httpMethod', 'GET')
+                    webhooks.append(f"{method} /webhook/{path}")
+            
+            if webhooks:
+                print(f"   🔹 {wf['name']}: {', '.join(webhooks)}")
+                results[wf['name']] = webhooks
+            else:
+                 print(f"   🔸 {wf['name']}: No public webhooks found.")
+                 
+        except Exception as e:
+            print(f"   ❌ Error inspecting {wf['name']}: {e}")
+    return results
 
 if __name__ == "__main__":
-    main()
+    wfs = get_workflows()
+    if wfs:
+        detailed_inspection(wfs)

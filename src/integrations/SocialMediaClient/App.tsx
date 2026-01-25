@@ -6,7 +6,7 @@ import { SpotlightCard } from './components/SpotlightCard';
 
 // --- CONFIG ---
 // --- CONFIG ---
-const HARDCODED_WEBHOOK_URL = "https://emanueleserra.app.n8n.cloud/webhook/caption-flow"; // Assuming this maps to "CaptionFlow Webhook Receiver _V.2" or "CaptionFlow - OpenRouter AI _V.2"? Checking logic.
+// --- CONFIG ---
 
 const COMMUNICATION_TYPES = [
     "Educational",
@@ -276,9 +276,9 @@ export default function App() {
             };
 
             console.log("📤 Sending payload to N8N:", payload);
-            console.log("🔗 Webhook URL:", HARDCODED_WEBHOOK_URL);
+            console.log("🔗 Webhook URL:", import.meta.env.VITE_CAPTION_FLOW_WEBHOOK_URL);
 
-            const res = await fetch(HARDCODED_WEBHOOK_URL, {
+            const res = await fetch(import.meta.env.VITE_CAPTION_FLOW_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
