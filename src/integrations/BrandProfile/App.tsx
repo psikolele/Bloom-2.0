@@ -533,66 +533,67 @@ export default function App() {
                                         </div>
                                         <div className="space-y-4">
                                             <div>
-                                                <div className="text-[10px] text-gray-500 uppercase flex items-center gap-1">Brand Name</div>
-                                                <input
-                                                    className="editable-field w-full text-white font-medium text-lg"
-                                                    value={profileData?.brand_name || ''}
-                                                    onChange={(e) => handleUpdate('brand_name', e.target.value)}
-                                                />
+                                                <div className="text-[10px] text-gray-500 uppercase">Brand Name</div>
+                                                <input className="editable-field w-full text-white font-medium text-lg" value={profileData?.brand_name || ''} onChange={(e) => handleUpdate('brand_name', e.target.value)} />
                                             </div>
                                             <div>
-                                                <div className="text-[10px] text-gray-500 uppercase flex items-center gap-1">Settore</div>
-                                                <input
-                                                    className="editable-field w-full text-white font-medium"
-                                                    value={profileData?.settore || ''}
-                                                    onChange={(e) => handleUpdate('settore', e.target.value)}
-                                                />
+                                                <div className="text-[10px] text-gray-500 uppercase">Settore</div>
+                                                <input className="editable-field w-full text-white font-medium" value={profileData?.settore || ''} onChange={(e) => handleUpdate('settore', e.target.value)} />
                                             </div>
                                             <div>
-                                                <div className="text-[10px] text-gray-500 uppercase flex items-center gap-1">Tone of Voice</div>
-                                                <textarea
-                                                    rows={2}
-                                                    className="editable-field w-full text-accent font-medium resize-none"
-                                                    value={profileData?.tone_voice || ''}
-                                                    onChange={(e) => handleUpdate('tone_voice', e.target.value)}
-                                                />
+                                                <div className="text-[10px] text-gray-500 uppercase">Tone of Voice</div>
+                                                <textarea rows={2} className="editable-field w-full text-accent font-medium resize-none" value={profileData?.tone_voice || ''} onChange={(e) => handleUpdate('tone_voice', e.target.value)} />
                                             </div>
+                                            {/* Instagram Discovery */}
+                                            {profileData?.brand_instagram_handle && (
+                                                <div className="p-3 bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-lg">
+                                                    <div className="text-[10px] text-pink-400 uppercase mb-1">📸 Instagram Trovato</div>
+                                                    <a href={profileData?.brand_instagram_url || '#'} target="_blank" rel="noopener noreferrer" className="text-white font-medium hover:text-pink-400 transition-colors">
+                                                        {profileData?.brand_instagram_handle}
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
-                                    {/* TARGET CARD */}
+                                    {/* TARGET CARD - ENHANCED */}
                                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4 hover:border-accent/30 transition-colors group w-full">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400"><Icons.Users width={16} height={16} /></div>
-                                                <h3 className="font-mono font-bold text-sm text-gray-300 uppercase">Targeting</h3>
+                                                <h3 className="font-mono font-bold text-sm text-gray-300 uppercase">Targeting Avanzato</h3>
                                             </div>
                                         </div>
-                                        <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <div className="text-[10px] text-gray-500 uppercase flex items-center gap-1">Age Range</div>
-                                                <input
-                                                    className="editable-field w-full text-white font-medium"
-                                                    value={profileData?.target_age || ''}
-                                                    onChange={(e) => handleUpdate('target_age', e.target.value)}
-                                                />
+                                                <div className="text-[10px] text-gray-500 uppercase">Età</div>
+                                                <input className="editable-field w-full text-white font-medium text-sm" value={profileData?.target_age || ''} onChange={(e) => handleUpdate('target_age', e.target.value)} />
                                             </div>
                                             <div>
-                                                <div className="text-[10px] text-gray-500 uppercase flex items-center gap-1">Geo</div>
-                                                <input
-                                                    className="editable-field w-full text-white font-medium"
-                                                    value={profileData?.target_geo || ''}
-                                                    onChange={(e) => handleUpdate('target_geo', e.target.value)}
-                                                />
+                                                <div className="text-[10px] text-gray-500 uppercase">Genere</div>
+                                                <input className="editable-field w-full text-white font-medium text-sm" value={profileData?.target_gender || ''} onChange={(e) => handleUpdate('target_gender', e.target.value)} placeholder="Es. Misto, Femminile 60%" />
                                             </div>
-                                            <div>
-                                                <div className="text-[10px] text-gray-500 uppercase flex items-center gap-1">Job/Role</div>
-                                                <input
-                                                    className="editable-field w-full text-white font-medium"
-                                                    value={profileData?.target_job || ''}
-                                                    onChange={(e) => handleUpdate('target_job', e.target.value)}
-                                                />
+                                            <div className="col-span-2">
+                                                <div className="text-[10px] text-gray-500 uppercase">📍 Geolocalizzazione</div>
+                                                <input className="editable-field w-full text-white font-medium text-sm" value={profileData?.target_geo || ''} onChange={(e) => handleUpdate('target_geo', e.target.value)} />
                                             </div>
+                                            <div className="col-span-2">
+                                                <div className="text-[10px] text-gray-500 uppercase">💼 Professione/Ruolo</div>
+                                                <input className="editable-field w-full text-white font-medium text-sm" value={profileData?.target_job || ''} onChange={(e) => handleUpdate('target_job', e.target.value)} />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <div className="text-[10px] text-gray-500 uppercase">🎯 Interessi</div>
+                                                <input className="editable-field w-full text-gray-300 text-xs" value={profileData?.target_interests || ''} onChange={(e) => handleUpdate('target_interests', e.target.value)} placeholder="Tecnologia, Design, Sostenibilità..." />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <div className="text-[10px] text-gray-500 uppercase">🛒 Comportamenti</div>
+                                                <input className="editable-field w-full text-gray-300 text-xs" value={profileData?.target_behaviors || ''} onChange={(e) => handleUpdate('target_behaviors', e.target.value)} placeholder="Acquista online, cerca qualità..." />
+                                            </div>
+                                        </div>
+                                        {/* Buyer Persona */}
+                                        <div className="mt-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                                            <div className="text-[10px] text-purple-400 uppercase mb-1">👤 Buyer Persona</div>
+                                            <textarea rows={2} className="editable-field w-full text-white text-xs leading-relaxed resize-none" value={profileData?.buyer_persona || ''} onChange={(e) => handleUpdate('buyer_persona', e.target.value)} placeholder="Descrizione narrativa del cliente ideale..." />
                                         </div>
                                     </div>
 
