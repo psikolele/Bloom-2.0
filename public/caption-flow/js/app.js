@@ -27,6 +27,10 @@ const elements = {
   errorMessage: document.getElementById('errorMessage'),
   newCaptionContainer: document.getElementById('newCaptionContainer'),
   newCaptionBtn: document.getElementById('newCaptionBtn'),
+  // Preview Elements
+  postPreview: document.getElementById('postPreview'),
+  previewImage: document.getElementById('previewImage'),
+  previewCaptionText: document.getElementById('previewCaptionText'),
   // Bloom Return Elements
   returnBtn: document.getElementById('returnToBloomBtn'),
   bloomLoader: document.getElementById('bloomLoader')
@@ -47,13 +51,15 @@ const state = {
 /**
  * Shows a specific state element and hides others
  * @param {string} stateName - 'loading', 'success', 'error', or 'form'
+ * @param {Object} [data] - Optional data for success state (preview)
  */
-function showState(stateName) {
+function showState(stateName, data = null) {
   // Hide all states
   elements.loadingState.classList.add('hidden');
   elements.successState.classList.add('hidden');
   elements.errorState.classList.add('hidden');
   elements.newCaptionContainer.classList.add('hidden');
+  elements.postPreview.classList.add('hidden'); // Ensure preview is hidden by default
 
   // Show form by default
   elements.form.classList.remove('hidden');
@@ -68,6 +74,11 @@ function showState(stateName) {
       elements.form.classList.add('hidden');
       elements.successState.classList.remove('hidden');
       elements.newCaptionContainer.classList.remove('hidden');
+
+      // Render preview if data is available
+      if (data && data.data && data.data.image_url) {
+        renderPreview(data.data);
+      }
       break;
     case 'error':
       elements.errorState.classList.remove('hidden');
@@ -77,6 +88,24 @@ function showState(stateName) {
       // Form is already shown
       break;
   }
+}
+
+/**
+ * Renders the post preview
+ * @param {Object} data - The preview data (caption, image_url)
+ */
+function renderPreview(data) {
+  if (!data) return;
+
+  if (data.image_url) {
+    elements.previewImage.src = data.image_url;
+  }
+
+  if (data.caption) {
+    elements.previewCaptionText.textContent = data.caption;
+  }
+
+  elements.postPreview.classList.remove('hidden');
 }
 
 /**
@@ -200,13 +229,13 @@ async function handleSubmit(event) {
 
   try {
     // Send to webhook
-    await sendToWebhook(data);
+    const response = await sendToWebhook(data);
 
-    // Show success state
-    showState('success');
+    // Show success state with response data
+    showState('success', response);
 
     // Save last used platform to localStorage
-    localStorage.setItem('captionflow_last_platform', data.social_platform);
+    localStorage.setItem('captionflow_last_platform', data.Platform);
 
   } catch (error) {
     console.error('Submission error:', error);

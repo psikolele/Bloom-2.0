@@ -484,6 +484,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "caption-flow",
+        "responseMode": "responseNode",
         "options": {}
       },
       "name": "CaptionFlow Webhook",
@@ -710,9 +711,35 @@
       ],
       "id": "173a13c7-8380-4f51-931b-f96547a8ab2c",
       "name": "If Approved"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Idea elaboration complete.\",\n  \"data\": {\n     \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n     \"image_url\": $('Upload Image to Cloudinary').item.json.secure_url\n  }\n}",
+        "options": {}
+      },
+      "id": "respond-webhook-node",
+      "name": "Respond to Frontend",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        790,
+        1792
+      ]
     }
   ],
   "connections": {
+    "Respond to Frontend": {
+      "main": [
+        [
+          {
+            "node": "Check via Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "(Parse Caption JSON)": {
       "ai_outputParser": [
         [
@@ -893,7 +920,7 @@
       "main": [
         [
           {
-            "node": "Check via Email",
+            "node": "Respond to Frontend",
             "type": "main",
             "index": 0
           }
