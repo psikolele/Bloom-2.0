@@ -88,6 +88,39 @@ async function searchInstagram(brandName: string, location: string): Promise<{ u
     }
 }
 
+/**
+ * Geocode address using OpenStreetMap Nominatim API
+ */
+async function getCoordinates(address: string): Promise<{ lat: string, lon: string } | null> {
+    try {
+        if (!address) return null;
+        console.log(`🌍 Geocoding address: "${address}"`);
+
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'BloomAI-BrandProfile/2.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)' // Generic UA to satisfy policy
+            }
+        });
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        if (data && data.length > 0) {
+            console.log(`📍 Found Coords: ${data[0].lat}, ${data[0].lon}`);
+            return {
+                lat: data[0].lat,
+                lon: data[0].lon
+            };
+        }
+        return null;
+    } catch (e) {
+        console.error("Geocoding error:", e);
+        return null;
+    }
+}
+
 // ============================================================================
 // AI UTILITIES
 // ============================================================================
@@ -200,6 +233,8 @@ export interface BrandProfileData {
     data_source?: string;
     scraping_quality?: number;
     physical_address?: string;
+    latitude?: string;
+    longitude?: string;
     [key: string]: any;
 }
 
@@ -313,6 +348,17 @@ SCHEMA JSON RICHIESTO:
             if (instagramResult) {
                 result.brand_instagram_url = instagramResult.url;
                 result.brand_instagram_handle = instagramResult.handle;
+            }
+        }
+
+        // =====================================================================
+        // STEP 4: Geocoding
+        // =====================================================================
+        if (location || result.physical_address) {
+            const coords = await getCoordinates(result.physical_address || location);
+            if (coords) {
+                result.latitude = coords.lat;
+                result.longitude = coords.lon;
             }
         }
 

@@ -219,7 +219,7 @@ const MetricCard = ({
 
 export default function App() {
     // State
-    const [webhookUrl, setWebhookUrl] = useState(import.meta.env.VITE_N8N_WEBHOOK_URL || "");
+    const [webhookUrl, setWebhookUrl] = useState(import.meta.env.VITE_N8N_WEBHOOK_URL || "https://emanueleserra.app.n8n.cloud/webhook/b5ca58d1-8bb6-4326-835e-bc26a612aa94");
     const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].name);
     const [isConfigOpen, setIsConfigOpen] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
