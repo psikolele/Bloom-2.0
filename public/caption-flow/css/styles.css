@@ -9,31 +9,31 @@
   --void: #030303;
   --surface: #0A0A0A;
   --surface-glass: rgba(18, 18, 18, 0.6);
-  
+
   /* Colors - Accent */
   --accent-primary: #FF6B35;
   --accent-glow: #FF9B75;
   --accent-gradient: linear-gradient(135deg, #FF6B35 0%, #FF8F6B 100%);
-  
+
   /* Colors - Text */
   --text-primary: #F3F4F6;
   --text-secondary: #D1D5DB;
   --text-muted: #9CA3AF;
-  
+
   /* Colors - System */
   --success: #34D399;
   --success-dark: #10B981;
   --error: #F87171;
   --error-dark: #EF4444;
-  
+
   /* Colors - Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
-  
+
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
-  
+
   /* Spacing */
   --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
@@ -41,13 +41,13 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
-  
+
   /* Border Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  
+
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
@@ -55,7 +55,9 @@
 }
 
 /* -------------------- Reset & Base -------------------- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -124,8 +126,15 @@ body {
 }
 
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 /* -------------------- Navbar -------------------- */
@@ -406,12 +415,10 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
   transition: left var(--transition-slow);
 }
 
@@ -510,7 +517,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* -------------------- New Caption Container -------------------- */
@@ -543,6 +552,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -554,10 +564,13 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: scale(1.1);
@@ -569,28 +582,28 @@ body {
   .navbar__container {
     padding: var(--spacing-sm) var(--spacing-md);
   }
-  
+
   .navbar__tagline {
     display: none;
   }
-  
+
   .status-text {
     display: none;
   }
-  
+
   .main {
     padding: 100px var(--spacing-md) var(--spacing-xl);
   }
-  
+
   .glass-panel {
     padding: var(--spacing-lg);
     border-radius: var(--radius-lg);
   }
-  
+
   .hero__title {
     font-size: 2.5rem;
   }
-  
+
   .btn-primary {
     width: 100%;
   }
@@ -670,14 +683,12 @@ body {
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    transparent 40%,
-    #FF6B35 50%,
-    #B349C1 60%,
-    transparent 70%
-  );
+  background: conic-gradient(from 0deg,
+      transparent 0%,
+      transparent 40%,
+      #FF6B35 50%,
+      #B349C1 60%,
+      transparent 70%);
   animation: spin-logo 3s linear infinite;
   z-index: 1;
   filter: blur(4px);
@@ -702,13 +713,23 @@ body {
 }
 
 @keyframes spin-logo {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 /* -------------------- Post Preview (Instagram Style) -------------------- */
@@ -719,14 +740,17 @@ body {
 
 .instagram-card {
   background: white;
-  border-radius: 8px; /* Classic Insta Radius */
-  border: 1px solid #DBDBDB; /* Light gray border */
+  border-radius: 8px;
+  /* Classic Insta Radius */
+  border: 1px solid #DBDBDB;
+  /* Light gray border */
   max-width: 400px;
   margin: 0 auto;
-  color: #262626; /* Insta Dark Text */
+  color: #262626;
+  /* Insta Dark Text */
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   animation: float 6s ease-in-out infinite;
 }
 
@@ -742,7 +766,7 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
   padding: 2px;
   margin-right: 12px;
 }
@@ -752,7 +776,8 @@ body {
   display: block;
   width: 100%;
   height: 100%;
-  background: white; /* Placeholder avatar image */
+  background: white;
+  /* Placeholder avatar image */
   border-radius: 50%;
   border: 2px solid white;
 }
@@ -833,13 +858,263 @@ body {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 /* Dark Mode Adjustment for Insta Card inside Void */
 /* Since the card mimics Instagram (White), we keep it white to look like a real preview. */
 /* But we add a glow to make it sit nicely in the dark UI */
 .instagram-card {
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* -------------------- Enhanced Loading State -------------------- */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  justify-content: center;
+}
+
+.loading-info {
+  text-align: left;
+}
+
+.loading-info strong {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.loading-subtext {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.loading-options {
+  text-align: center;
+  padding: var(--spacing-md);
+  background: rgba(var(--clr-accent-rgb), 0.1);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(var(--clr-accent-rgb), 0.2);
+  width: 100%;
+}
+
+.loading-option-text {
+  margin: 0;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.loading-option-text .emoji {
+  font-size: 1.1rem;
+}
+
+.loading-option-alt {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+/* -------------------- Snake Game -------------------- */
+.snake-game-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#snakeCanvas {
+  border-radius: 8px;
+  background: #0a0a0a;
+  border: 2px solid var(--clr-accent);
+  box-shadow: 0 0 20px rgba(var(--clr-accent-rgb), 0.3);
+}
+
+.snake-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--spacing-md);
+}
+
+.snake-score {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--clr-accent);
+  font-weight: 600;
+}
+
+.snake-restart-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.snake-restart-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.snake-instructions {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* -------------------- Generation Progress -------------------- */
+.generation-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  max-width: 400px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.progress-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .progress-dot {
+  background: var(--clr-accent);
+  border-color: var(--clr-accent);
+  box-shadow: 0 0 12px rgba(var(--clr-accent-rgb), 0.6);
+  animation: pulse-dot 1s infinite;
+}
+
+.progress-step.completed .progress-dot {
+  background: #10B981;
+  border-color: #10B981;
+}
+
+.progress-step span {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.progress-step.active span,
+.progress-step.completed span {
+  color: var(--text-primary);
+}
+
+.progress-line {
+  width: 40px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 4px;
+  margin-bottom: 24px;
+  transition: background 0.3s ease;
+}
+
+.progress-line.completed {
+  background: #10B981;
+}
+
+@keyframes pulse-dot {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* -------------------- Error State with Code -------------------- */
+.error-code {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+/* -------------------- Responsive Adjustments -------------------- */
+@media (max-width: 480px) {
+  .loading-container {
+    padding: var(--spacing-md);
+  }
+
+  .loading-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .loading-info {
+    text-align: center;
+  }
+
+  #snakeCanvas {
+    width: 240px;
+    height: 240px;
+  }
+
+  .generation-progress {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .progress-line {
+    width: 20px;
+  }
 }
