@@ -1,0 +1,713 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Meeting con Gabriele - Roadmap Bloom (Scalabilità Social, Brand Profile, Architettura)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2f3fa85c-0d03-8172-8c43-ef2f00bdc725" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">🤝🏻</span></div><h1 class="page-title" dir="auto">Meeting con Gabriele - Roadmap Bloom (Scalabilità Social, Brand Profile, Architettura)</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>Categoria</th><td><span class="selected-value select-value-color-purple">Meeting</span></td></tr><tr class="property-row property-row-date"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/calendar_gray.svg" style="width:14px;height:14px;display:block"/></span>Data Sessione</th><td><time>@23/01/2026</time></td></tr><tr class="property-row property-row-number"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/hashtag_gray.svg" style="width:14px;height:14px;display:block"/></span>Minuti Lavorati</th><td>60</td></tr><tr class="property-row property-row-text"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/description_gray.svg" style="width:14px;height:14px;display:block"/></span>Note</th><td>Discussione strategica su: scalabilità social media management, brand profile via scraping web, scope Bloom (marketing/commerciale), testing Foot Easy e nuovi clienti</td></tr><tr class="property-row property-row-formula"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/formula_gray.svg" style="width:14px;height:14px;display:block"/></span>Ore Lavorate</th><td>1</td></tr><tr class="property-row property-row-relation"><th><span class="icon property-icon"><img src="https://www.notion.so/icons/arrow-northeast_gray.svg" style="width:14px;height:14px;display:block"/></span>Progetto Collegato</th><td><a href="https://www.notion.so/Social-Marketing-2acfa85c0d0381289bbfdaa29e934429?pvs=21"><span class="icon">💰</span>Social &amp; Marketing</a></td></tr></tbody></table></header><div class="page-body"><div style="display:contents" dir="auto"><h1 id="9a16ef85-a846-4ede-a4ba-2cc5d321694f" class="">📋 Argomenti Discussi</h1></div><div style="display:contents" dir="auto"><h2 id="1c9289fa-40c4-48a8-99b9-43a8539c51a8" class="">1. Scalabilità Social Media &amp; Tool Assessment</h2></div><div style="display:contents" dir="auto"><p id="99529177-77a1-432b-ab95-fb20512247c7" class=""><strong>Contesto</strong>: Valutare se l&#x27;attuale sistema è adatto a un social media manager o se serve un approccio diverso (es. web scraping).</p></div><div style="display:contents" dir="auto"><p id="6fa7978c-507e-4727-8f1b-300994dcc1e6" class=""><strong>Conclusione</strong>:</p></div><div style="display:contents" dir="auto"><ul id="9902a781-bc4c-4d22-b4e5-f38a43f58dde" class="bulleted-list"><li style="list-style-type:disc">Tool attuale potenzialmente non ottimale per social media manager professionale</li></ul></div><div style="display:contents" dir="auto"><ul id="c5daf502-6276-4c19-a70a-9fc2e0334076" class="bulleted-list"><li style="list-style-type:disc">Alternative: sistema focalizzato su scraping siti web per gestione social</li></ul></div><div style="display:contents" dir="auto"><ul id="9622f990-0c06-47d2-a94c-1be5f40c2d17" class="bulleted-list"><li style="list-style-type:disc">Necessità di quantificare e dimostrare al cliente l&#x27;effettivo utilizzo dei social media</li></ul></div><div style="display:contents" dir="auto"><p id="fed6306f-7112-4c8c-bdcb-bcd22c350a2f" class=""><strong>Follow-up</strong>:</p></div><div style="display:contents" dir="auto"><ol type="1" id="9098f55c-ff7b-4d36-bb9c-cc1e14202bac" class="numbered-list" start="1"><li>Continuare sviluppo app concentrandosi sui <strong>menu di reparto</strong></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="9917b906-e477-41b3-a32c-3303925f83b9" class="numbered-list" start="2"><li>Implementare <strong>processo registrazione iniziale Bloom</strong>: routing nuovi utenti verso marketing flow al momento della registrazione</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="f8f24d71-a786-4e12-a32a-8166ba98b6fe" class="numbered-list" start="3"><li>Valutare <strong>due versioni app</strong>:<div style="display:contents" dir="auto"><ul id="4cac7b03-edcc-498c-8e03-8efd10196e5a" class="bulleted-list"><li style="list-style-type:disc">Versione <strong>SAS limitata</strong> (standard)</li></ul></div><div style="display:contents" dir="auto"><ul id="7c145470-3fb5-4e06-8a7b-24b9d15e71b3" class="bulleted-list"><li style="list-style-type:disc">Versione <strong>configurabile per mercati locali</strong> (custom)</li></ul></div><div style="display:contents" dir="auto"><ul id="8d7d995b-2fdc-4de7-81b1-fea49f82e2d9" class="bulleted-list"><li style="list-style-type:disc">Analizzare implicazioni economiche e di configurazione per entrambe</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="78f96200-3c5c-4554-a718-947d3fa97447" class="numbered-list" start="4"><li>Definire <strong>area di copertura Bloom</strong>: marketing, automazione, commerciale?</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="fdbeff65-1a8a-402f-9963-79bc8b654f84" class="numbered-list" start="5"><li>Decidere implementazione <strong>configurazione avanzata sezione marketing</strong></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="38296cd4-5024-402d-ab8d-45562853a71b" class="numbered-list" start="6"><li>Determinare <strong>grado integrazione IA</strong>: bilanciamento tra IA, automazione e ruolo degli agenti IA nel sistema</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="da3c1305-9a68-47f0-91af-2bd55325c6ae" class="numbered-list" start="7"><li><strong>Avviare test applicazione</strong> con:<div style="display:contents" dir="auto"><ul id="24699a07-6914-4533-9d05-e1df7bb9bb53" class="bulleted-list"><li style="list-style-type:disc">Foot Easy</li></ul></div><div style="display:contents" dir="auto"><ul id="5d073fb0-df53-4b01-9dbc-4ee63591ebca" class="bulleted-list"><li style="list-style-type:disc">Altro cliente (nome TBD)</li></ul></div><div style="display:contents" dir="auto"><ul id="74c3bb54-0ee7-4721-8a8d-2329111d8523" class="bulleted-list"><li style="list-style-type:disc">Prerequisito: pulizia database prima del testing</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><hr id="a3b5e395-b1d8-46ad-87b0-0cd168042be4"/></div><div style="display:contents" dir="auto"><h2 id="9a32686f-45c4-4756-8c9e-071a15674bb9" class="">2. Brand Profile Automation via Web Scraping</h2></div><div style="display:contents" dir="auto"><p id="5034a799-6d92-4153-b1e8-8038405cfc64" class=""><strong>Contesto</strong>: Semplificare configurazione iniziale e onboarding utenti usando scraping automatico del sito web cliente.</p></div><div style="display:contents" dir="auto"><p id="faeca365-837d-4310-841e-0ff859b0e9ca" class=""><strong>Conclusione</strong>:</p></div><div style="display:contents" dir="auto"><ul id="6baebb7a-1592-4182-ac6b-42df670d4cbd" class="bulleted-list"><li style="list-style-type:disc"><strong>Approccio proposto</strong>: usare sito web utente per popolare automaticamente brand profile nell&#x27;app</li></ul></div><div style="display:contents" dir="auto"><ul id="519c8487-5175-4afa-9f1a-baff0a4478d1" class="bulleted-list"><li style="list-style-type:disc">Vantaggi: processo più intuitivo ed efficiente</li></ul></div><div style="display:contents" dir="auto"><ul id="b36da900-0a41-4704-a9d2-e834aa831fd2" class="bulleted-list"><li style="list-style-type:disc">Brand profile può <strong>pre-impostare campi</strong> per sviluppo altri servizi e configurazioni</li></ul></div><div style="display:contents" dir="auto"><p id="d2f54fd0-26b3-4910-ab32-437c47706864" class=""><strong>Follow-up</strong>:</p></div><div style="display:contents" dir="auto"><ol type="1" id="574a7c8e-8336-4120-be28-c714de46cbef" class="numbered-list" start="1"><li><strong>Progettare app unica</strong> che integra web scraping per creazione brand profile (Bloom 2.0)<div style="display:contents" dir="auto"><ul id="29f5a851-b64c-430a-a073-bef18e8abc02" class="bulleted-list"><li style="list-style-type:disc">Compilazione automatica informazioni da sito web</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="54d0d0f9-d2d2-47c3-9ef0-ebbc2c16147f" class="numbered-list" start="2"><li>Implementare <strong>controllo umano</strong> per garantire accuratezza dati estratti</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="6a78ecf5-3698-4430-843a-5e9cb9bd79d1" class="numbered-list" start="3"><li>Valutare <strong>sito web di prova</strong> per utenti senza sito esistente durante registrazione</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="5644edf6-75b2-4532-a9ef-b34a12fc5a5e" class="numbered-list" start="4"><li><strong>Progettare flusso utente completo</strong>:<div style="display:contents" dir="auto"><ul id="b7034f65-cfa6-464d-9e46-d52d330e9443" class="bulleted-list"><li style="list-style-type:disc">Registrazione</li></ul></div><div style="display:contents" dir="auto"><ul id="010004c3-93aa-4654-811a-d6d08e183795" class="bulleted-list"><li style="list-style-type:disc">Analisi sito web (o creazione mockup)</li></ul></div><div style="display:contents" dir="auto"><ul id="46b42a7e-821b-4297-a1d8-875d9324214f" class="bulleted-list"><li style="list-style-type:disc">Completamento brand profile</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="1d49177b-124d-4523-9866-cf3976632228" class="numbered-list" start="5"><li><strong>Priorità design</strong>: flusso informazioni PRIMA di sviluppare singoli componenti automazione</li></ol></div><div style="display:contents" dir="auto"><hr id="e5f381ec-48a3-479e-939b-68a52dc5146b"/></div><div style="display:contents" dir="auto"><h2 id="8a9237f4-a4c3-472d-82ec-15850a583fd9" class="">3. Scope Bloom &amp; Integrazione Funzioni Aziendali</h2></div><div style="display:contents" dir="auto"><p id="b1f19cc5-bccd-498d-b30c-b357ad73b56f" class=""><strong>Contesto</strong>: Definire confini precisi di Bloom ed evitare sovrapposizioni con software esistenti.</p></div><div style="display:contents" dir="auto"><p id="b9b679e9-ef4f-43d7-8e70-7dcf172fb986" class=""><strong>Conclusione</strong>:</p></div><div style="display:contents" dir="auto"><ul id="30f85857-5cfd-4177-9c97-8e24d8b850a3" class="bulleted-list"><li style="list-style-type:disc"><strong>Focus primario</strong>: attività <strong>marketing e commerciali</strong></li></ul></div><div style="display:contents" dir="auto"><ul id="71a83a09-2556-4a1d-aa1a-819bd0af29d8" class="bulleted-list"><li style="list-style-type:disc"><strong>NO integrazione diretta</strong> con:<div style="display:contents" dir="auto"><ul id="43f2ecb8-bffc-4e59-b750-64abbfa12fcc" class="bulleted-list"><li style="list-style-type:circle">Contabilità (soluzioni già consolidate)</li></ul></div><div style="display:contents" dir="auto"><ul id="23f6c0ce-02df-4666-a5e7-fb121e61708a" class="bulleted-list"><li style="list-style-type:circle">Risorse umane (soluzioni già consolidate)</li></ul></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0c92a99c-929d-441c-a140-144b5bbcb032" class="bulleted-list"><li style="list-style-type:disc"><strong>Ruolo Bloom</strong>: <strong>middleware/connettore</strong> per semplificare data flow verso questi sistemi esterni</li></ul></div><div style="display:contents" dir="auto"><p id="5c7878db-83d8-4562-bcbd-206eb4382e70" class=""><strong>Follow-up</strong>:</p></div><div style="display:contents" dir="auto"><ol type="1" id="352d1f27-379d-43ca-af3c-bf003add5305" class="numbered-list" start="1"><li>Concentrare sviluppo su funzionalità <strong>generative di opportunità</strong>:<div style="display:contents" dir="auto"><ul id="4fa3a959-5106-4965-ae7c-79c219416c3f" class="bulleted-list"><li style="list-style-type:disc">Appuntamenti</li></ul></div><div style="display:contents" dir="auto"><ul id="a6b75b95-475b-46c3-a41e-e4f299a4b6a8" class="bulleted-list"><li style="list-style-type:disc">Vendite</li></ul></div><div style="display:contents" dir="auto"><ul id="52b62054-2272-4584-9e4f-5e06cd8e8c99" class="bulleted-list"><li style="list-style-type:disc">Marketing</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="e544c847-6990-4b8d-a2be-6937a384ddf6" class="numbered-list" start="2"><li>Implementare <strong>connessioni API</strong> verso:<div style="display:contents" dir="auto"><ul id="db8e3ed7-a582-4d20-9497-8ff66d292b49" class="bulleted-list"><li style="list-style-type:disc">Microsoft Office</li></ul></div><div style="display:contents" dir="auto"><ul id="9d8e8c59-b2e9-47a5-9738-e73572c74810" class="bulleted-list"><li style="list-style-type:disc">Google Workspace</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="48d23af7-7ccd-426c-879f-35cc4c93fd04" class="numbered-list" start="3"><li><strong>Piano base immediato</strong>: caricare post per avviare test su 2 pagine Instagram (Foot Easy &amp; Walmoss)</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="c595a824-3af6-4a30-b773-21b96b5dec42" class="numbered-list" start="4"><li><strong>Testare vecchia versione app</strong> per:<div style="display:contents" dir="auto"><ul id="4535dd63-4730-40ba-bff8-d9223a573665" class="bulleted-list"><li style="list-style-type:disc">Verificare flusso esistente</li></ul></div><div style="display:contents" dir="auto"><ul id="631b3579-e6c3-4796-81d8-bbbc2255735d" class="bulleted-list"><li style="list-style-type:disc">Lavorare sulla nuova interfaccia in parallelo</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="4815a54c-970d-4910-a6db-2e38ecd88065" class="numbered-list" start="5"><li><strong>Reclutamento nuovo team member</strong>:<div style="display:contents" dir="auto"><ul id="9c09f593-0598-4e8a-9c57-d28cd083b10b" class="bulleted-list"><li style="list-style-type:disc">Formazione potenziale in: antigravity, AI (da verificare contesto)…</li></ul></div></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="9b4fde9f-f73d-45f6-931d-f79d1162cf5c" class="numbered-list" start="6"><li><strong>Discussione budget e allocazione risorse con Federico</strong></li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="1f2466b9-b638-419b-9d0b-dc38f0278850" class="numbered-list" start="7"><li><strong>Definire scope finale Bloom</strong> e strumenti necessari</li></ol></div><div style="display:contents" dir="auto"><ol type="1" id="d344bcf3-a1ec-4ae9-9b24-fe23dcc9b082" class="numbered-list" start="8"><li><strong>Possibile meeting follow-up</strong>: venerdì pomeriggio per continuare discussione</li></ol></div><div style="display:contents" dir="auto"><hr id="3d22b4e3-7e55-48bf-b1d3-030d32585117"/></div><div style="display:contents" dir="auto"><h1 id="78355111-2f9d-4d74-915c-92a3a865351d" class="">🎯 Decisioni Chiave</h1></div><div style="display:contents" dir="ltr"><table id="7c3a2b75-4ebd-42bd-ad63-7891629e9dc0" class="simple-table"><thead class="simple-table-header"><div style="display:contents" dir="ltr"><tr id="65343425-f15e-4125-ae97-289caaf7e8b0"><th id="CZ&gt;=" class="simple-table-header-color simple-table-header">Area</th><th id="\{su" class="simple-table-header-color simple-table-header">Decisione</th><th id="EDUh" class="simple-table-header-color simple-table-header">Rationale</th></tr></div></thead><tbody><div style="display:contents" dir="ltr"><tr id="50d6481c-2525-4d08-a99c-4f768b857a72"><td id="CZ&gt;=" class=""><strong>Tool Strategy</strong></td><td id="\{su" class="">Valutare alternativa web scraping vs tool attuale</td><td id="EDUh" class="">Inadeguatezza potenziale per social media manager professionale</td></tr></div><div style="display:contents" dir="ltr"><tr id="6227e9b2-303b-4b6f-8273-632d61a5ed34"><td id="CZ&gt;=" class=""><strong>Brand Profile</strong></td><td id="\{su" class="">Automazione via scraping web con controllo umano</td><td id="EDUh" class="">Semplificare onboarding + pre-configurazione servizi</td></tr></div><div style="display:contents" dir="ltr"><tr id="d86b8c1b-7540-4f54-9a88-a1b8bfb03e6a"><td id="CZ&gt;=" class=""><strong>Scope Bloom</strong></td><td id="\{su" class="">Focus marketing/commerciale, NO contabilità/HR</td><td id="EDUh" class="">Evitare competizione con software consolidati, essere middleware</td></tr></div><div style="display:contents" dir="ltr"><tr id="d63e7e8d-a79b-4fbe-8ea4-53c22340c496"><td id="CZ&gt;=" class=""><strong>Architettura App</strong></td><td id="\{su" class="">Valutare SAS standard vs custom locale</td><td id="EDUh" class="">Bilanciare scalabilità ed esigenze mercati specifici</td></tr></div><div style="display:contents" dir="ltr"><tr id="8e6a08e9-78b4-4541-ba36-5ec7665372f3"><td id="CZ&gt;=" class=""><strong>Testing</strong></td><td id="\{su" class="">Foot Easy + cliente TBD dopo pulizia DB</td><td id="EDUh" class="">Validazione sistema prima di scale-up</td></tr></div></tbody></table></div><div style="display:contents" dir="auto"><hr id="752629c4-4266-42c7-a63e-fadfb7afd8fd"/></div><div style="display:contents" dir="auto"><h1 id="0258bda4-7239-4e2d-9a5e-8e335805b2f0" class="">📌 Action Items Prioritari</h1></div><div style="display:contents" dir="auto"><h2 id="f04f76b0-7ed6-4e45-879c-4326aa06c5fa" class="">Breve Termine (questa settimana)</h2></div><div style="display:contents" dir="auto"><ul id="ff6a2f37-c5cf-442d-a818-16a1a4a879f9" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Piano caricamento post Instagram per test (2 pagine)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="ffd9f444-3431-4c85-8334-1d99f3350304" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Test vecchia versione app per validare flusso</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="b7838456-96b2-4066-9f32-e7536ef4caf3" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Pulizia database pre-testing</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="edc8cea8-8f2b-492e-b6b5-78a8558e3ca9" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Setup test Foot Easy</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f3fa85c-0d03-8060-b0da-e0d5e7f6c019" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Setup test Walmoss</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="2f3fa85c-0d03-80a5-ac04-f1a924f770e6" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Setup Bloom v. 2.0</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h2 id="a472d43c-7308-42aa-8c47-28608810e3a3" class="">Medio Termine (prossime 2 settimane)</h2></div><div style="display:contents" dir="auto"><ul id="c58b5cec-9c80-4a0f-9a2c-b03afb349763" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Design flusso utente completo Bloom 2.0 (registrazione → brand profile)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="b739c442-8bbd-456b-ae4b-1ed542983549" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Prototipo web scraping per brand profile automation</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="16b56a1d-9323-4208-a153-f160b5a308ed" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Definizione finale scope Bloom (documento)</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><h2 id="41213945-5968-4302-b6da-03ce747c0b3a" class="">Lungo Termine (Q1 2026)</h2></div><div style="display:contents" dir="auto"><ul id="040ea50a-1b34-4311-b806-ba5b8fc7dc56" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Decisione architettura: SAS standard vs custom</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="0e554b93-5ed5-49f5-a026-f98f74167612" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Implementazione connessioni API Office/Google</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="23d32494-398b-48ef-88b7-ecf8ff6f314c" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Reclutamento nuovo team member</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><ul id="64379a0a-60aa-40ba-a572-ac8cad5b5e81" class="to-do-list"><li><div class="checkbox checkbox-off"></div> <span class="to-do-children-unchecked">Budget e allocazione risorse</span><div class="indented"></div></li></ul></div><div style="display:contents" dir="auto"><hr id="f71d0ac1-03fa-4239-a7e0-fd5a38ba8b9e"/></div><div style="display:contents" dir="auto"><h1 id="5757b5ee-a894-44b9-8960-da36b47eb100" class="">🔗 Riferimenti</h1></div><div style="display:contents" dir="auto"><ul id="9f9678a1-e2e7-4423-8d57-b5f3392c23f1" class="bulleted-list"><li style="list-style-type:disc"><strong>Progetti correlati</strong>: Instagram Automation, WhatsApp Calendar, Bloom webapp</li></ul></div><div style="display:contents" dir="auto"><ul id="b2125790-d552-4a7b-8ac2-10c331976793" class="bulleted-list"><li style="list-style-type:disc"><strong>Clienti menzionati</strong>: Foot Easy, Walmoss, Non Courier, cliente TBD (senza nome)</li></ul></div><div style="display:contents" dir="auto"><ul id="d283377a-75f4-454a-a43b-7f14ce5b2ce0" class="bulleted-list"><li style="list-style-type:disc"><strong>Tool discussi</strong>: N8N workflows, web scraping, brand profile automation</li></ul></div><div style="display:contents" dir="auto"><ul id="602efec4-6395-4089-a649-8b8cf55b9c27" class="bulleted-list"><li style="list-style-type:disc"><strong>Meeting successivo</strong>: Potenziale venerdì pomeriggio (TBC)</li></ul></div><div style="display:contents" dir="auto"><hr id="3e9131d2-3789-4c7f-8296-0af72d14ca45"/></div><div style="display:contents" dir="auto"><h1 id="5d45ef1e-cac3-467d-b663-210ecc702cca" class="">💬 Note Aggiuntive</h1></div><div style="display:contents" dir="auto"><p id="95f7787f-b0b1-48c8-9d6d-da262c226288" class=""><strong>Tone del meeting</strong>: Strategico, esplorativo. Focus su visione prodotto a lungo termine più che troubleshooting tecnico.</p></div><div style="display:contents" dir="auto"><p id="7e03213b-a5b9-43c5-98ba-73c141d842a6" class=""><strong>Temi emergenti</strong>:</p></div><div style="display:contents" dir="auto"><ul id="3051ddea-d7f2-49ca-bb02-1e6f06bda014" class="bulleted-list"><li style="list-style-type:disc">Tensione tra configurabilità e scalabilità</li></ul></div><div style="display:contents" dir="auto"><ul id="d487a5ae-cbd3-4b3c-a912-7e274e140601" class="bulleted-list"><li style="list-style-type:disc">Ruolo IA come componente vs feature completa</li></ul></div><div style="display:contents" dir="auto"><ul id="e46e14f3-cc56-4171-8a5f-fdc100c7186f" class="bulleted-list"><li style="list-style-type:disc">Necessità di validazione empirica (test Foot Easy) prima di commitments architetturali</li></ul></div><div style="display:contents" dir="auto"><p id="3d329bf7-4d3f-4422-a3a8-e54725aba15e" class=""><strong>Domande aperte</strong>:</p></div><div style="display:contents" dir="auto"><ul id="ee1af57b-fc12-4b9e-9f37-2dbb135ca59b" class="bulleted-list"><li style="list-style-type:disc">Quanto configurabile deve essere Bloom per mercati locali senza compromettere maintenance?</li></ul></div><div style="display:contents" dir="auto"><ul id="1149d6b5-83f8-4096-9eb2-aa21a49f2e96" class="bulleted-list"><li style="list-style-type:disc">IA come &quot;copilota&quot; o come &quot;autopilota&quot;? Quale balance ottimale per i clienti target?</li></ul></div><div style="display:contents" dir="auto"><ul id="6c3f3773-0ffe-468a-b11f-c3b0961dc92e" class="bulleted-list"><li style="list-style-type:disc">Web scraping: build in-house o integrazione servizio terze parti?</li></ul></div></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

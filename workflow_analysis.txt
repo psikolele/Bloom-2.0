@@ -1,0 +1,101 @@
+======================================================================
+WORKFLOW NODES
+======================================================================
+  - 2. Prepare Input Variables (Topic, Audience, etc.)
+  - 3a. Generate Content Concept (Gemini)
+  - (LLM Model for Concept)
+  - (Parse Concept JSON)
+  - 3b. Generate Image Prompt Options (Gemini)
+  - (LLM Model for Prompts)
+  - (Parse Prompts JSON)
+  - 3c. Generate Post Caption (Gemini)
+  - (LLM Model for Caption)
+  - (Parse Caption JSON)
+  - 5. Prepare Data for Instagram API
+  - 7. Update Post Status in Sheet
+  - CaptionFlow Webhook
+  - 4a. Create Image Task (Kie)
+  - 4b. Wait for Generation
+  - 4c. Get Image Result (Kie)
+  - Upload Image to Cloudinary
+  - Upload to Instagram (Upload-Post API)
+  - Check via Email
+  - If Approved
+  - Elabora Dati Ricevuti
+  - Salva su Google Sheets
+  - If
+  - Respond to Frontend
+  - No Operation, do nothing
+
+======================================================================
+ALL CONNECTIONS
+======================================================================
+5. Prepare Data for Instagram API -> Upload Image to Cloudinary
+3c. Generate Post Caption (Gemini) -> 4a. Create Image Task (Kie)
+3a. Generate Content Concept (Gemini) -> 3b. Generate Image Prompt Options (Gemini)
+3b. Generate Image Prompt Options (Gemini) -> 3c. Generate Post Caption (Gemini)
+2. Prepare Input Variables (Topic, Audience, etc.) -> 3a. Generate Content Concept (Gemini)
+CaptionFlow Webhook -> 2. Prepare Input Variables (Topic, Audience, etc.)
+CaptionFlow Webhook -> Elabora Dati Ricevuti
+4a. Create Image Task (Kie) -> 4b. Wait for Generation
+4b. Wait for Generation -> 4c. Get Image Result (Kie)
+4c. Get Image Result (Kie) -> If
+Upload to Instagram (Upload-Post API) -> 7. Update Post Status in Sheet
+Upload Image to Cloudinary -> Respond to Frontend
+Upload Image to Cloudinary -> Check via Email
+Check via Email -> If Approved
+If Approved -> Upload to Instagram (Upload-Post API)
+Elabora Dati Ricevuti -> Salva su Google Sheets
+If -> 5. Prepare Data for Instagram API
+If -> 4b. Wait for Generation
+Respond to Frontend -> No Operation, do nothing
+
+======================================================================
+PATH FROM WEBHOOK TO RESPOND
+======================================================================
+Path found:
+  1. CaptionFlow Webhook
+  2. 2. Prepare Input Variables (Topic, Audience, etc.)
+  3. 3a. Generate Content Concept (Gemini)
+  4. 3b. Generate Image Prompt Options (Gemini)
+  5. 3c. Generate Post Caption (Gemini)
+  6. 4a. Create Image Task (Kie)
+  7. 4b. Wait for Generation
+  8. 4c. Get Image Result (Kie)
+  9. If
+  10. 5. Prepare Data for Instagram API
+  11. Upload Image to Cloudinary
+  12. Respond to Frontend
+
+======================================================================
+CHECK FOR OTHER RESPOND NODES
+======================================================================
+
+Node: Respond to Frontend
+  Type: n8n-nodes-base.respondToWebhook
+  Parameters: {
+    "respondWith": "json",
+    "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"image_url\": $('Upload Image to Cloudinary').item.json.secure_url\n  }\n} }}",
+    "options": {}
+}
+
+======================================================================
+WEBHOOK NODE SETTINGS
+======================================================================
+{
+  "parameters": {
+    "httpMethod": "POST",
+    "path": "caption-flow",
+    "responseMode": "responseNode",
+    "options": {}
+  },
+  "name": "CaptionFlow Webhook",
+  "type": "n8n-nodes-base.webhook",
+  "typeVersion": 1,
+  "position": [
+    -928,
+    880
+  ],
+  "id": "99906da2-e7f2-4680-a256-c9fb1e00a305",
+  "webhookId": "9b0d093c-19f2-4179-8440-c4497df022e0"
+}

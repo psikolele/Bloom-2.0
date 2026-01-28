@@ -21,10 +21,16 @@ const elements = {
   toneSelect: document.getElementById('toneSelect'),
   audienceSelect: document.getElementById('audienceSelect'),
   submitBtn: document.getElementById('submitBtn'),
+  // Popup Elements
+  popupOverlay: document.getElementById('popupOverlay'),
+  popupCloseBtn: document.getElementById('popupCloseBtn'),
   loadingState: document.getElementById('loadingState'),
   successState: document.getElementById('successState'),
   errorState: document.getElementById('errorState'),
   errorMessage: document.getElementById('errorMessage'),
+  popupNewCaptionBtn: document.getElementById('popupNewCaptionBtn'),
+  retryBtn: document.getElementById('retryBtn'),
+  // Legacy elements (kept for compatibility)
   newCaptionContainer: document.getElementById('newCaptionContainer'),
   newCaptionBtn: document.getElementById('newCaptionBtn'),
   // Preview Elements
@@ -381,29 +387,30 @@ function updateProgressUI(step) {
  * @param {Object} [data] - Optional data for success state (preview)
  */
 function showState(stateName, data = null) {
-  // Hide all states
-  elements.loadingState.classList.add('hidden');
-  elements.successState.classList.add('hidden');
-  elements.errorState.classList.add('hidden');
-  elements.newCaptionContainer.classList.add('hidden');
-  elements.postPreview?.classList.add('hidden');
+  // Hide all popup content states
+  elements.loadingState?.classList.add('hidden');
+  elements.successState?.classList.add('hidden');
+  elements.errorState?.classList.add('hidden');
+  elements.newCaptionContainer?.classList.add('hidden');
 
-  // Show form by default
-  elements.form.classList.remove('hidden');
+  // Reset form state
   elements.submitBtn.disabled = false;
 
   switch (stateName) {
     case 'loading':
-      elements.loadingState.classList.remove('hidden');
+      // Show popup with loading state
+      elements.popupOverlay?.classList.remove('hidden');
+      elements.loadingState?.classList.remove('hidden');
       elements.submitBtn.disabled = true;
       // Start Snake game and progress
       snakeGame.start();
       startProgressSimulation();
       break;
+
     case 'success':
-      elements.form.classList.add('hidden');
-      elements.successState.classList.remove('hidden');
-      elements.newCaptionContainer.classList.remove('hidden');
+      // Show popup with success state
+      elements.popupOverlay?.classList.remove('hidden');
+      elements.successState?.classList.remove('hidden');
       // Stop Snake game and complete progress
       snakeGame.stop();
       completeProgress();
@@ -413,14 +420,20 @@ function showState(stateName, data = null) {
         renderPreview(data.data);
       }
       break;
+
     case 'error':
-      elements.errorState.classList.remove('hidden');
+      // Show popup with error state
+      elements.popupOverlay?.classList.remove('hidden');
+      elements.errorState?.classList.remove('hidden');
       // Stop Snake game
       snakeGame.stop();
       stopProgressSimulation();
       break;
+
     case 'form':
     default:
+      // Close popup and return to form
+      elements.popupOverlay?.classList.add('hidden');
       snakeGame.stop();
       stopProgressSimulation();
       break;
@@ -684,6 +697,13 @@ function init() {
   // Attach event listeners
   elements.form.addEventListener('submit', handleSubmit);
   elements.newCaptionBtn?.addEventListener('click', handleNewCaption);
+
+  // Popup button listeners
+  elements.popupCloseBtn?.addEventListener('click', () => {
+    showState('form');
+  });
+  elements.popupNewCaptionBtn?.addEventListener('click', handleNewCaption);
+  elements.retryBtn?.addEventListener('click', handleNewCaption);
 
   // Bloom Return Listener
   if (elements.returnBtn) {
