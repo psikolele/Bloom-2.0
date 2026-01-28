@@ -1011,6 +1011,7 @@ body {
   gap: 0;
   width: 100%;
   max-width: 400px;
+  margin-top: var(--spacing-xl);
 }
 
 .progress-step {
