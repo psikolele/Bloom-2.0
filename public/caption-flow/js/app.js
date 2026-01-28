@@ -416,7 +416,7 @@ function showState(stateName, data = null) {
       completeProgress();
 
       // Render preview if data is available
-      if (data && data.data && data.data.image_url) {
+      if (data && data.data) {
         renderPreview(data.data);
       }
       break;
@@ -442,13 +442,43 @@ function showState(stateName, data = null) {
 
 /**
  * Renders the post preview
- * @param {Object} data - The preview data (caption, image_url)
+ * @param {Object} data - The preview data (caption, image_url, video_url)
  */
 function renderPreview(data) {
   if (!data) return;
 
-  if (data.image_url && elements.previewImage) {
+  const imageContainer = elements.previewImage?.parentElement;
+
+  // Reset visibility
+  if (elements.previewImage) elements.previewImage.style.display = 'none';
+  if (elements.previewVideo) {
+    elements.previewVideo.style.display = 'none';
+    elements.previewVideo.pause();
+    elements.previewVideo.src = "";
+  } else {
+    // Dynamically create video element if it doesn't exist
+    if (data.video_url && imageContainer) {
+      const videoEl = document.createElement('video');
+      videoEl.id = 'previewVideo';
+      videoEl.className = 'instagram-image';
+      videoEl.controls = true;
+      videoEl.autoplay = true;
+      videoEl.loop = true;
+      videoEl.style.objectFit = 'cover';
+      imageContainer.appendChild(videoEl);
+      elements.previewVideo = videoEl;
+    }
+  }
+
+  // Handle Video
+  if (data.video_url && elements.previewVideo) {
+    elements.previewVideo.src = data.video_url;
+    elements.previewVideo.style.display = 'block';
+  }
+  // Handle Image
+  else if (data.image_url && elements.previewImage) {
     elements.previewImage.src = data.image_url;
+    elements.previewImage.style.display = 'block';
   }
 
   if (data.caption && elements.previewCaptionText) {
@@ -521,6 +551,7 @@ function resetForm() {
   elements.socialSelect.value = '';
   elements.toneSelect.value = '';
   elements.audienceSelect.value = '';
+  if (elements.formatToggle) elements.formatToggle.checked = false; // Reset to Image
   showState('form');
   elements.ideaInput.focus();
 }

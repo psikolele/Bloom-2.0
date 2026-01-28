@@ -66,4 +66,26 @@ The project is a **Vite + React** Single Page Application.
   - `CaptionFlowWrapper.tsx`: Wrapper for the static Caption Flow app.
 - `public/caption-flow/`: Static assets for Caption Flow.
 
-Tailwind CSS v3 is configured to match the original "Bloom AI" theme (`bg-void`, `text-accent`).
+
+## 🎥 Video Feature Integration
+
+### 1. Frontend Updates (Completed)
+The Frontend has been updated to include:
+- Image/Video Toggle Switch.
+- Video Preview capabilities.
+- Logic to send `format: 'video'` to N8N.
+
+### 2. N8N Workflow Update (Completed)
+The N8N workflow **Caption Flow V.2** has been automatically updated via the API.
+It now includes:
+- **Format Check**: An IF node detecting `video` vs `image` format.
+- **Video Logic**: Connection to KIE API nodes (`Create Task`, `Wait`, `Get Result`).
+- **Dynamic Prompting**: Fix for the previously hardcoded video prompt.
+
+### 3. Verification
+To verify the feature:
+1.  Go to **Caption Flow** in the Bloom App.
+2.  Select **Video** toggle.
+3.  Generate an idea.
+4.  Verify that a snake game appears (loading) and finally a video preview is shown.
+
