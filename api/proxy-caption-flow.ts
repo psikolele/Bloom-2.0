@@ -1,6 +1,10 @@
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
+export const config = {
+    maxDuration: 60,
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 1. Handle CORS
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -32,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // 3. Return N8N response
         const data = await response.json();
-        
+
         // Propagate status code from N8N
         return res.status(response.status).json(data);
 
