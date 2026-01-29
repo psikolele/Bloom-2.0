@@ -34,6 +34,12 @@
                             "name": "Platform",
                             "type": "string",
                             "value": "={{ $json.body.Platform }}"
+                        },
+                        {
+                            "id": "format-id-123",
+                            "name": "Format",
+                            "type": "string",
+                            "value": "={{ $json.body.format || 'image' }}"
                         }
                     ]
                 },
@@ -908,7 +914,7 @@
                         {
                             "id": "363abbd9-5ed8-4b6a-b1a0-739893a02fff",
                             "name": "video_prompt",
-                            "value": "={{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}",
+                            "value": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
                             "type": "string"
                         }
                     ]
@@ -981,7 +987,10 @@
                 128
             ],
             "id": "d78ffbe8-7951-4473-b982-4eedc2a7d253",
-            "name": "Get Video4"
+            "name": "Get Video4",
+            "retryOnFail": true,
+            "maxTries": 3,
+            "waitBetweenTries": 2000
         },
         {
             "parameters": {
@@ -1087,7 +1096,7 @@
                     "conditions": [
                         {
                             "id": "a5599508-1194-41b5-956d-4092758847d4",
-                            "leftValue": "={{ $json.format }}",
+                            "leftValue": "={{ $json.Format }}",
                             "rightValue": "video",
                             "operator": {
                                 "type": "string",
@@ -1435,7 +1444,7 @@
             "main": [
                 [
                     {
-                        "node": "3a. Generate Content Concept (Gemini)",
+                        "node": "Check Format",
                         "type": "main",
                         "index": 0
                     }
@@ -1453,7 +1462,7 @@
                 ],
                 [
                     {
-                        "node": "3b. Generate Image Prompt Options (Gemini)",
+                        "node": "3a. Generate Content Concept (Gemini)",
                         "type": "main",
                         "index": 0
                     }
@@ -1464,7 +1473,7 @@
             "main": [
                 [
                     {
-                        "node": "Check Format",
+                        "node": "3b. Generate Image Prompt Options (Gemini)",
                         "type": "main",
                         "index": 0
                     }
