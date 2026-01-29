@@ -415,9 +415,18 @@ function showState(stateName, data = null) {
       snakeGame.stop();
       completeProgress();
 
+      // Update message if provided by server (e.g. timeout fallback)
+      if (data && data.message) {
+        const subtitle = elements.successState.querySelector('.popup-subtitle');
+        if (subtitle) subtitle.textContent = data.message;
+      }
+
       // Render preview if data is available
       if (data && data.data) {
         renderPreview(data.data);
+      } else {
+        // Hide preview card if no data (e.g. in timeout fallback)
+        elements.postPreview?.classList.add('hidden');
       }
       break;
 
