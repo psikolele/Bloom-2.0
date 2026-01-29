@@ -8,7 +8,7 @@
 // ============================================
 
 // N8N Webhook URL
-const WEBHOOK_URL = 'https://emanueleserra.app.n8n.cloud/webhook/caption-flow';
+const WEBHOOK_URL = '/api/proxy-caption-flow';
 
 // ============================================
 // DOM ELEMENTS
