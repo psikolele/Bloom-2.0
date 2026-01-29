@@ -46,7 +46,8 @@ const elements = {
   snakeRestartBtn: document.getElementById('snakeRestartBtn'),
   // Progress Elements
   progressSteps: document.querySelectorAll('.progress-step'),
-  progressLines: document.querySelectorAll('.progress-line')
+  progressLines: document.querySelectorAll('.progress-line'),
+  formatToggle: document.getElementById('formatToggle')
 };
 
 // ============================================
@@ -637,6 +638,7 @@ async function handleSubmit(event) {
     Platform: elements.socialSelect.value,
     Audience: elements.audienceSelect.value,
     Voice: elements.toneSelect.value,
+    format: elements.formatToggle && elements.formatToggle.checked ? 'video' : 'image',
     timestamp: new Date().toISOString(),
     source: 'CaptionFlow Web App'
   };
