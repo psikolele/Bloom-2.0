@@ -25,23 +25,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const N8N_WEBHOOK_URL = 'https://emanueleserra.app.n8n.cloud/webhook/caption-flow';
 
-        // 2. Forward request to N8N
-        const response = await fetch(N8N_WEBHOOK_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(req.body)
-        });
+        // Setup timeout controller (50s to stay within Vercel 60s limit and handle fallback)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 50000);
 
-        // 3. Return N8N response
-        const data = await response.json();
+        try {
+            const response = await fetch(N8N_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(req.body),
+                signal: controller.signal
+            });
 
-        // Propagate status code from N8N
-        return res.status(response.status).json(data);
+            clearTimeout(timeoutId);
+
+            // Handle Cloudflare Timeouts (524) or Gateway Timeouts (504) as "Success with delay"
+            if (response.status === 524 || response.status === 504) {
+                console.warn(`N8N Gateway Timeout (${response.status}), returning fallback success`);
+                return res.status(200).json({
+                    success: true,
+                    message: "La generazione sta richiedendo più tempo del previsto. Riceverai il risultato finale via email appena pronto!",
+                    data: null
+                });
+            }
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`N8N Error ${response.status}: ${errorText}`);
+                return res.status(response.status).json({
+                    success: false,
+                    message: `Errore dal server: ${response.status}`,
+                    debug: errorText
+                });
+            }
+
+            const data = await response.json();
+            return res.status(200).json(data);
+
+        } catch (fetchError: any) {
+            clearTimeout(timeoutId);
+
+            // Handle Client-side Timeout (AbortError)
+            if (fetchError.name === 'AbortError' || fetchError.message.includes('timeout')) {
+                console.warn("Proxy client timeout, returning fallback success");
+                return res.status(200).json({
+                    success: true,
+                    message: "La generazione è in corso ma richiede tempo. Riceverai il risultato via email!",
+                    data: null
+                });
+            }
+            throw fetchError;
+        }
 
     } catch (error: any) {
-        console.error("Proxy Error:", error);
-        return res.status(500).json({ error: error.message || 'Internal Server Error' });
+        console.error("Proxy Internal Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Si è verificato un errore interno nel proxy.',
+            error: error.message
+        });
     }
 }
