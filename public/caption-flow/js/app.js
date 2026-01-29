@@ -316,12 +316,21 @@ const snakeGame = {
 let progressInterval = null;
 let currentStep = 1;
 
-function startProgressSimulation() {
+/**
+ * Starts progress simulation with different timings for image vs video
+ * @param {boolean} isVideo - Whether video format is selected
+ */
+function startProgressSimulation(isVideo = false) {
   currentStep = 1;
   updateProgressUI(currentStep);
 
-  // Simulate progress steps (adjust timing based on expected workflow duration)
-  const stepDurations = [15000, 45000, 20000, 10000]; // ms per step
+  // Different timings for image vs video
+  // Image: ~90s total | Video: ~300s (5 min) total
+  const stepDurations = isVideo
+    ? [30000, 150000, 90000, 30000]  // Video: longer timings (~5 min total)
+    : [15000, 45000, 20000, 10000];  // Image: standard timings (~90s total)
+
+  const maxTime = isVideo ? 360000 : 120000; // 6 min max for video, 2 min for image
   let totalElapsed = 0;
 
   progressInterval = setInterval(() => {
@@ -340,7 +349,7 @@ function startProgressSimulation() {
     }
 
     // Safety: stop after max time
-    if (totalElapsed > 120000) {
+    if (totalElapsed > maxTime) {
       stopProgressSimulation();
     }
   }, 1000);
@@ -383,6 +392,50 @@ function updateProgressUI(step) {
 // ============================================
 
 /**
+ * Updates loading message based on format (image vs video)
+ * @param {boolean} isVideo - Whether video format is selected
+ */
+function updateLoadingMessage(isVideo) {
+  const title = elements.loadingState?.querySelector('.popup-title');
+  const subtitle = elements.loadingState?.querySelector('.popup-subtitle');
+  const loadingOptions = elements.loadingState?.querySelector('.loading-options');
+
+  if (isVideo) {
+    // Video: ~5 minuti, notifica via email, invito a giocare Snake
+    if (title) title.textContent = '🎬 Video in creazione...';
+    if (subtitle) subtitle.innerHTML = 'La magia richiede tempo! Il tuo video sarà pronto in circa <strong>5 minuti</strong>.<br>Ti avviseremo via email appena pronto.';
+    if (loadingOptions) {
+      loadingOptions.innerHTML = `
+        <p class="loading-option-text">
+          <span class="emoji">📧</span>
+          <strong>Riceverai una notifica via email</strong> quando il video sarà pronto!
+        </p>
+        <p class="loading-option-text loading-option-alt">
+          <span class="emoji">🎮</span>
+          Nel frattempo... che ne dici di una partita a Snake?
+        </p>
+      `;
+    }
+  } else {
+    // Image: 1-2 minuti, messaggio standard
+    if (title) title.textContent = '✨ Generazione in corso...';
+    if (subtitle) subtitle.innerHTML = 'Stiamo creando la tua immagine e caption.<br>Può richiedere 1-2 minuti.';
+    if (loadingOptions) {
+      loadingOptions.innerHTML = `
+        <p class="loading-option-text">
+          <span class="emoji">💡</span>
+          <strong>Puoi chiudere questa finestra</strong> — riceverai comunque l'anteprima via email!
+        </p>
+        <p class="loading-option-text loading-option-alt">
+          <span class="emoji">🎮</span>
+          Oppure... gioca a Snake mentre aspetti!
+        </p>
+      `;
+    }
+  }
+}
+
+/**
  * Shows a specific state element and hides others
  * @param {string} stateName - 'loading', 'success', 'error', or 'form'
  * @param {Object} [data] - Optional data for success state (preview)
@@ -403,9 +456,14 @@ function showState(stateName, data = null) {
       elements.popupOverlay?.classList.remove('hidden');
       elements.loadingState?.classList.remove('hidden');
       elements.submitBtn.disabled = true;
+
+      // Check format and update message accordingly
+      const isVideoFormat = elements.formatToggle && elements.formatToggle.checked;
+      updateLoadingMessage(isVideoFormat);
+
       // Start Snake game and progress
       snakeGame.start();
-      startProgressSimulation();
+      startProgressSimulation(isVideoFormat);
       break;
 
     case 'success':
