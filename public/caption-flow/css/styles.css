@@ -835,11 +835,20 @@ body {
 
 .action-left {
   display: flex;
+  align-items: center;
   gap: 16px;
+}
+
+.action-right {
+  display: flex;
+  align-items: center;
 }
 
 .instagram-actions svg {
   cursor: pointer;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
 }
 
 .instagram-content {
