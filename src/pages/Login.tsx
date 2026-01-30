@@ -9,7 +9,6 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showBrandProfileModal, setShowBrandProfileModal] = useState(false);
-    const [registeredUsername, setRegisteredUsername] = useState('');
 
     const [formData, setFormData] = useState({
         username: '',
@@ -55,7 +54,6 @@ export default function Login() {
 
                 // If registering, show Brand Profile modal
                 if (isRegistering) {
-                    setRegisteredUsername(data.username || formData.username);
                     setShowBrandProfileModal(true);
                 } else {
                     // Login: redirect to Dashboard
