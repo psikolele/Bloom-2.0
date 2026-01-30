@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, Mail, ArrowRight, Loader2, Sparkles, LayoutDashboard, X } from 'lucide-react';
 
@@ -9,6 +9,11 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showBrandProfileModal, setShowBrandProfileModal] = useState(false);
+
+    // Debug: track modal state changes
+    useEffect(() => {
+        console.log('Modal state changed:', showBrandProfileModal);
+    }, [showBrandProfileModal]);
 
     const [formData, setFormData] = useState({
         username: '',
@@ -45,6 +50,8 @@ export default function Login() {
 
             const data = await response.json();
 
+            console.log('Auth Response:', { success: data.success, isRegistering, data });
+
             if (data.success) {
                 // Save auth state
                 localStorage.setItem('bloom_user', JSON.stringify({
@@ -54,6 +61,7 @@ export default function Login() {
 
                 // If registering, show Brand Profile modal
                 if (isRegistering) {
+                    console.log('Showing Brand Profile Modal');
                     setShowBrandProfileModal(true);
                 } else {
                     // Login: redirect to Dashboard
@@ -171,10 +179,12 @@ export default function Login() {
             </div>
 
             {/* Brand Profile Modal */}
-            {showBrandProfileModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-[reveal_0.3s_ease-out]">
-                    <div className="relative w-full max-w-lg mx-4 bg-gradient-to-br from-surface via-void to-surface border border-white/10 rounded-3xl p-8 shadow-[0_0_60px_rgba(255,107,53,0.3)] animate-[reveal_0.5s_ease-out]">
-                        {/* Close Button */}
+            {showBrandProfileModal && (() => {
+                console.log('RENDERING BRAND PROFILE MODAL');
+                return (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md animate-[reveal_0.3s_ease-out]">
+                        <div className="relative w-full max-w-lg mx-4 bg-gradient-to-br from-surface via-void to-surface border border-white/10 rounded-3xl p-8 shadow-[0_0_60px_rgba(255,107,53,0.3)] animate-[reveal_0.5s_ease-out]">
+                            {/* Close Button */}
                         <button
                             onClick={() => {
                                 setShowBrandProfileModal(false);
@@ -249,7 +259,8 @@ export default function Login() {
                         </p>
                     </div>
                 </div>
-            )}
+                );
+            })()}
         </div>
     );
 }
