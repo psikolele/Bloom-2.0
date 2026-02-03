@@ -20,6 +20,8 @@ const elements = {
   socialSelect: document.getElementById('socialSelect'),
   toneSelect: document.getElementById('toneSelect'),
   audienceSelect: document.getElementById('audienceSelect'),
+  accountSelect: document.getElementById('accountSelect'), // New Account Select
+  accountSelectContainer: document.getElementById('accountSelectContainer'), // Container for visibility
   submitBtn: document.getElementById('submitBtn'),
   // Popup Elements
   popupOverlay: document.getElementById('popupOverlay'),
@@ -532,6 +534,15 @@ function validateForm() {
     return false;
   }
 
+  // Validate Account Select only if visible (Admin)
+  if (elements.accountSelectContainer && !elements.accountSelectContainer.classList.contains('hidden')) {
+    if (!elements.accountSelect.value) {
+      showError('Per favore, seleziona un Account Operativo.');
+      elements.accountSelect.focus();
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -638,6 +649,7 @@ async function handleSubmit(event) {
     Platform: elements.socialSelect.value,
     Audience: elements.audienceSelect.value,
     Voice: elements.toneSelect.value,
+    Account: (elements.accountSelectContainer && !elements.accountSelectContainer.classList.contains('hidden')) ? elements.accountSelect.value : null,
     format: elements.formatToggle && elements.formatToggle.checked ? 'video' : 'image',
     timestamp: new Date().toISOString(),
     source: 'CaptionFlow Web App'
@@ -763,6 +775,20 @@ function init() {
 
   // Focus on idea input
   elements.ideaInput.focus();
+
+  // CHECK USER ROLE (New Requirement)
+  try {
+    const userJson = localStorage.getItem('bloom_user');
+    if (userJson) {
+      const user = JSON.parse(userJson);
+      if (user && user.username === 'admin') {
+        elements.accountSelectContainer?.classList.remove('hidden');
+        console.log('Admin detected: Account Selection enabled');
+      }
+    }
+  } catch (e) {
+    console.error('Error parsing user data:', e);
+  }
 
   console.log('CaptionFlow initialized with Snake mini-game');
   console.log('Webhook URL:', WEBHOOK_URL);
