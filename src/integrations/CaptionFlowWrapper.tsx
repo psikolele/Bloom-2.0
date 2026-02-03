@@ -3,11 +3,11 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 const AnimatedLoader = () => (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-void/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-void/95 backdrop-blur-sm" style={{ caretColor: 'transparent' }}>
         <div className="flex flex-col items-center gap-6">
-            <div className="relative">
-                <div className="absolute inset-0 animate-ping">
-                    <div className="w-24 h-24 bg-accent/20 rounded-full"></div>
+            <div className="relative w-24 h-24">
+                <div className="absolute inset-0 animate-ping rounded-full overflow-hidden">
+                    <div className="w-full h-full bg-accent/20 rounded-full"></div>
                 </div>
                 <div className="relative animate-pulse">
                     <img src="/icon.png" alt="Loading" className="w-24 h-24 object-contain drop-shadow-[0_0_40px_rgba(255,107,53,0.6)]" />
@@ -40,15 +40,17 @@ const AnimatedLoader = () => (
 
 const BloomRedirectLoader = () => (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#030303]">
-        <div className="relative w-32 h-32 flex items-center justify-center animate-[scaleUp_0.6s_ease-out]">
-            {/* Glow Ring - Thin Circular with Mask */}
+        <div className="relative w-44 h-44 flex items-center justify-center animate-[scaleUp_0.6s_ease-out]">
+            {/* Soft Ambient Glow - Close to logo */}
+            <div className="absolute inset-2 rounded-full bg-gradient-radial from-accent/30 via-accent/10 to-transparent blur-xl"></div>
+            {/* Glow Ring - Closer and softer */}
             <div
-                className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#FF6B35_50%,#B349C1_60%,transparent_70%)] animate-[spin_1s_linear_infinite] z-10 opacity-90"
-                style={{ maskImage: 'radial-gradient(transparent 63%, black 65%)', WebkitMaskImage: 'radial-gradient(transparent 63%, black 65%)' }}
+                className="absolute inset-1 rounded-full bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#FF6B35_45%,#B349C1_55%,transparent_70%)] animate-[spin_2s_linear_infinite] z-10 opacity-70 blur-[2px]"
+                style={{ maskImage: 'radial-gradient(transparent 75%, black 80%)', WebkitMaskImage: 'radial-gradient(transparent 75%, black 80%)' }}
             ></div>
-            {/* Logo */}
-            <div className="relative z-20 transform scale-[0.8]">
-                <img src="/icon.png" alt="Loading" className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(255,107,53,0.6)]" />
+            {/* Logo - Bigger */}
+            <div className="relative z-20">
+                <img src="/icon.png" alt="Loading" className="w-28 h-28 object-contain drop-shadow-[0_0_30px_rgba(255,107,53,0.5)]" />
             </div>
         </div>
         <style>{`
@@ -77,8 +79,8 @@ export default function CaptionFlowWrapper() {
 
     return (
         <div className="w-full h-screen bg-void flex flex-col relative">
-            {isLoading && <AnimatedLoader />}
-            {isRedirecting && <BloomRedirectLoader />}
+            {isLoading && <BloomRedirectLoader />}
+            {isRedirecting && <AnimatedLoader />}
 
             {/* Standard Header */}
             <nav className="relative z-50 px-6 py-6 w-full max-w-[90%] mx-auto flex items-center justify-between">

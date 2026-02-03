@@ -30,11 +30,11 @@ const Card = ({ title, description, icon: Icon, path, delay }: { title: string, 
 };
 
 const AnimatedLoader = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void/95 backdrop-blur-sm" style={{ caretColor: 'transparent' }}>
         <div className="flex flex-col items-center gap-6">
-            <div className="relative">
-                <div className="absolute inset-0 animate-ping">
-                    <div className="w-24 h-24 bg-accent/20 rounded-full"></div>
+            <div className="relative w-24 h-24">
+                <div className="absolute inset-0 animate-ping rounded-full overflow-hidden">
+                    <div className="w-full h-full bg-accent/20 rounded-full"></div>
                 </div>
                 <div className="relative animate-pulse">
                     <img src="/icon.png" alt="Loading" className="w-24 h-24 object-contain drop-shadow-[0_0_40px_rgba(255,107,53,0.6)]" />
