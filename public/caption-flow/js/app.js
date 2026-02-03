@@ -837,12 +837,21 @@ function init() {
   // CHECK USER ROLE (New Requirement)
   try {
     const userJson = localStorage.getItem('bloom_user');
+    console.log('DEBUG: Checking auth for dropdown. Found storage:', userJson); // DEBUG LOG
+
     if (userJson) {
       const user = JSON.parse(userJson);
-      if (user && user.username === 'admin') {
+      console.log('DEBUG: Parsed user:', user); // DEBUG LOG
+
+      // Check username case-insensitive
+      if (user && user.username && user.username.toLowerCase() === 'admin') {
         elements.accountSelectContainer?.classList.remove('hidden');
         console.log('Admin detected: Account Selection enabled');
+      } else {
+        console.log('User is not admin. Username:', user?.username); // DEBUG LOG
       }
+    } else {
+      console.log('No user found in localStorage'); // DEBUG LOG
     }
   } catch (e) {
     console.error('Error parsing user data:', e);
