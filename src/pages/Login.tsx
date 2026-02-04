@@ -153,6 +153,12 @@ export default function Login() {
                             </div>
                         </div>
 
+                        <div className="flex justify-end">
+                            <a href="/forgot-password" className="text-[10px] text-gray-500 hover:text-accent transition-colors font-mono">
+                                Password dimenticata?
+                            </a>
+                        </div>
+
                         {error && (
                             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono text-center">
                                 {error}
