@@ -67,22 +67,42 @@ const RAGUpload: React.FC = () => {
         if (!file || !selectedFolderId) return;
 
         setStatus('uploading');
+        setDebugError(null);
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folderId', selectedFolderId);
 
         try {
-            const res = await fetch(UPLOAD_WEBHOOK, { method: 'POST', body: formData });
-            if (!res.ok) throw new Error('Upload failed');
+            console.log('[RAG] Starting upload to:', UPLOAD_WEBHOOK);
+            console.log('[RAG] File:', file.name, 'Folder:', selectedFolderId);
 
+            const res = await fetch(UPLOAD_WEBHOOK, { method: 'POST', body: formData });
+            console.log('[RAG] Upload response status:', res.status);
+
+            const responseData = await res.json();
+            console.log('[RAG] Upload response data:', responseData);
+
+            // Check for error in response body (N8N may return 200 but with error in body)
+            if (!res.ok || responseData.error || responseData.success === false) {
+                const errorMsg = responseData.error || responseData.message || `Upload failed (${res.status})`;
+                console.error('[RAG] Upload error:', errorMsg);
+                setDebugError(errorMsg);
+                setStatus('error');
+                return;
+            }
+
+            console.log('[RAG] Upload successful! FileId:', responseData.fileId);
             setStatus('success');
             setFile(null);
             setTimeout(() => setStatus('idle'), 3000);
-        } catch (err) {
-            console.error("Upload error:", err);
+        } catch (err: any) {
+            console.error("[RAG] Upload exception:", err);
+            setDebugError(err.message || 'Network error');
             setStatus('error');
         }
     };
+
 
     return (
         <div className="rag-upload-card">
@@ -115,9 +135,10 @@ const RAGUpload: React.FC = () => {
                 <div className="rag-input-group">
                     <label><Upload size={14} /> File</label>
                     <div className="rag-file-input" onClick={() => document.getElementById('rag-file-hidden')?.click()}>
-                        {file ? <span className="text-white">{file.name}</span> : <span className="text-gray-500">Choose PDF...</span>}
-                        <input id="rag-file-hidden" type="file" hidden onChange={handleFileChange} />
+                        {file ? <span className="text-white">{file.name}</span> : <span className="text-gray-500">Choose file (PDF, Word, Excel, Images...)</span>}
+                        <input id="rag-file-hidden" type="file" hidden onChange={handleFileChange} accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.mp4,.mov,.md,.txt" />
                     </div>
+
                 </div>
 
                 {/* Action Button */}

@@ -1,9 +1,7 @@
 // Brand Profile Generator v2.0 - Enhanced Targeting & Instagram Discovery
 // Uses multi-step AI analysis for accurate persona creation
+// Note: OpenRouter API key is handled server-side via Vercel proxy (/api/generate)
 
-const apiKeyRaw = import.meta.env.VITE_OPENROUTER_API_KEY || '';
-const apiKey = apiKeyRaw.trim();
-console.log(`🔑 OpenRouter Key Loaded: ${apiKey ? (apiKey.substring(0, 10) + '...') : 'Missing'}`);
 
 // ============================================================================
 // SCRAPING UTILITIES
