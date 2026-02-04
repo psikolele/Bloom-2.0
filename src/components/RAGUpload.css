@@ -1,0 +1,117 @@
+.rag-upload-card {
+    background: rgba(20, 20, 20, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.25rem;
+    width: 100%;
+    margin-top: 2rem;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.rag-upload-card:hover {
+    border-color: rgba(167, 139, 250, 0.2);
+    transform: translateY(-2px);
+}
+
+.rag-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.rag-icon {
+    background: rgba(167, 139, 250, 0.1);
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rag-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #e4e4e7;
+    font-family: 'Outfit', sans-serif;
+}
+
+.rag-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.rag-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.rag-input-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.rag-select,
+.rag-file-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.6rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rag-file-input {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.rag-select:hover,
+.rag-file-input:hover {
+    border-color: rgba(167, 139, 250, 0.4);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.rag-confirm-btn {
+    margin-top: 0.5rem;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    border: none;
+    padding: 0.6rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rag-confirm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #3f3f46;
+}
+
+.rag-confirm-btn.success {
+    background: #10b981;
+}
+
+.rag-confirm-btn.error {
+    background: #ef4444;
+}

@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MessageSquare, Briefcase, ExternalLink } from 'lucide-react';
+import RAGUpload from '../components/RAGUpload';
+
 
 // Reusing global styles from index.css
 const Card = ({ title, description, icon: Icon, path, delay }: { title: string, description: string, icon: any, path: string, delay: string }) => {
@@ -84,6 +86,12 @@ export default function Dashboard() {
             <div className="ambient-light"></div>
             <div className="grid-overlay"></div>
 
+            {/* RAG Upload Widget (Fixed Position or Integrated?) - Let's integrate it nicely in the header area or sidebar if possible, but for now absolute top-right or just below header? 
+               Actually, the user asked for a "new box". Let's put it in the main grid for now as a 4th item, OR if it's a utility, maybe in a side panel.
+               The user said "crea solo un nuovo box coerente dal punto di vista grafico nella dashboard".
+               Let's add it to the main grid.
+            */}
+
             {/* HEADER */}
             <header className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center justify-center mb-16 mt-8 animate-reveal">
                 <div className="flex items-center gap-3 mb-4">
@@ -132,6 +140,11 @@ export default function Dashboard() {
                     path="/brand-profile"
                     delay="0.3s"
                 />
+
+                {/* RAG Upload Widget */}
+                <div className="md:col-span-3 lg:col-span-1">
+                    <RAGUpload />
+                </div>
             </main>
 
             <footer className="relative z-10 mt-auto pt-20 text-center text-xs text-gray-600 font-mono">
