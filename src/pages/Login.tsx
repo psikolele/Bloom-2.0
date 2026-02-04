@@ -38,11 +38,32 @@ export default function Login() {
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) {
-                throw new Error('Errore di connessione al server di autenticazione.');
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                // If JSON parsing fails, we'll handle it using response.status
             }
 
-            const data = await response.json();
+            if (!response.ok) {
+                // Use backend message if available, otherwise fallback based on status
+                if (data && data.message) {
+                    throw new Error(data.message);
+                }
+
+                switch (response.status) {
+                    case 401:
+                        throw new Error('Nome utente o password errati.');
+                    case 409:
+                        throw new Error('Email già registrata. Prova ad accedere.');
+                    case 404:
+                        throw new Error('Servizio di autenticazione non raggiungibile.');
+                    case 500:
+                        throw new Error('Errore interno del server. Riprova più tardi.');
+                    default:
+                        throw new Error(`Errore di comunicazione (${response.status}).`);
+                }
+            }
 
             if (data.success) {
                 // Save auth state
@@ -56,7 +77,7 @@ export default function Login() {
                 setError(data.message || 'Credenziali non valide.');
             }
         } catch (err: any) {
-            setError(err.message || 'Si è verificato un errore.');
+            setError(err.message || 'Si è verificato un errore di connessione.');
         } finally {
             setIsLoading(false);
         }
