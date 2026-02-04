@@ -15,8 +15,8 @@ const RAGUpload: React.FC = () => {
     const [loadingFolders, setLoadingFolders] = useState<boolean>(true);
 
     // Using the same webhooks as before
-    const LIST_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag/folders';
-    const UPLOAD_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag/upload';
+    const LIST_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-folders';
+    const UPLOAD_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-upload';
 
     useEffect(() => {
         fetch(LIST_FOLDERS_WEBHOOK)
