@@ -355,37 +355,6 @@ body {
   line-height: 1.6;
 }
 
-/* -------------------- Link Input -------------------- */
-.label-optional {
-  font-weight: 400;
-  color: var(--text-muted);
-  font-size: 0.6rem;
-  letter-spacing: 0.05em;
-}
-
-.link-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.link-input-icon {
-  position: absolute;
-  left: var(--spacing-md);
-  color: var(--text-muted);
-  pointer-events: none;
-  transition: color var(--transition-fast);
-  z-index: 1;
-}
-
-.tech-input-link {
-  padding-left: calc(var(--spacing-md) + 24px);
-}
-
-.link-input-wrapper:focus-within .link-input-icon {
-  color: var(--accent-primary);
-}
-
 /* -------------------- Select -------------------- */
 .select-wrapper {
   position: relative;
