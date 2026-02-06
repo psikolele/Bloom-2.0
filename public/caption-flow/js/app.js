@@ -848,7 +848,9 @@ function init() {
       console.log('DEBUG: Parsed user:', user); // DEBUG LOG
 
       // Check username case-insensitive
-      if (user && user.username && user.username.toLowerCase() === 'admin') {
+      const username = user.username.toLowerCase();
+      // Allow 'admin', 'admin user', or 'adminuser'
+      if (user && user.username && (username === 'admin' || username === 'admin user' || username === 'adminuser')) {
         elements.accountSelectContainer?.classList.remove('hidden');
         console.log('Admin detected: Account Selection enabled');
       } else {
