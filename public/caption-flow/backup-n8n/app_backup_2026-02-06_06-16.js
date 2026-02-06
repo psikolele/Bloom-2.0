@@ -17,7 +17,6 @@ const WEBHOOK_URL = '/api/proxy-caption-flow';
 const elements = {
   form: document.getElementById('captionForm'),
   ideaInput: document.getElementById('ideaInput'),
-  linkInput: document.getElementById('linkInput'),
   socialSelect: document.getElementById('socialSelect'),
   toneSelect: document.getElementById('toneSelect'),
   audienceSelect: document.getElementById('audienceSelect'),
@@ -628,7 +627,6 @@ function showError(message, errorCode = null) {
  */
 function resetForm() {
   elements.ideaInput.value = '';
-  if (elements.linkInput) elements.linkInput.value = '';
   elements.socialSelect.value = '';
   elements.toneSelect.value = '';
   elements.audienceSelect.value = '';
@@ -704,14 +702,12 @@ async function handleSubmit(event) {
   showState('loading');
 
   // Prepare data
-  const referenceLink = elements.linkInput ? elements.linkInput.value.trim() : '';
   const data = {
     Topic: elements.ideaInput.value.trim(),
     Platform: elements.socialSelect.value,
     Audience: elements.audienceSelect.value,
     Voice: elements.toneSelect.value,
     Account: (elements.accountSelectContainer && !elements.accountSelectContainer.classList.contains('hidden')) ? elements.accountSelect.value : null,
-    ReferenceLink: referenceLink || null,
     format: elements.formatToggle && elements.formatToggle.checked ? 'video' : 'image',
     timestamp: new Date().toISOString(),
     source: 'CaptionFlow Web App'
