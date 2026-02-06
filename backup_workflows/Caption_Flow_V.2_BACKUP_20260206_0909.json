@@ -1,0 +1,3563 @@
+{
+  "updatedAt": "2026-02-03T08:19:21.696Z",
+  "createdAt": "2026-01-24T14:57:05.530Z",
+  "id": "oRYSQ9tk63yPJaqt",
+  "name": "Caption Flow V.2",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aa3b9a02-ac6a-4d7f-937f-a0e6e566a0c8",
+              "name": "Topic",
+              "type": "string",
+              "value": "={{ $json.body.Topic }}"
+            },
+            {
+              "id": "e48783e8-5f6b-4c54-bf4f-c004414dc510",
+              "name": "TargetAudience",
+              "type": "string",
+              "value": "={{ $json.body.Audience }}"
+            },
+            {
+              "id": "c499a954-b4c6-4702-ab86-3656aa2b1783",
+              "name": "BrandVoice",
+              "type": "string",
+              "value": "={{ $json.body.Voice }}"
+            },
+            {
+              "id": "210f7103-4d6b-42e9-9168-fd99dff94b5a",
+              "name": "Platform",
+              "type": "string",
+              "value": "={{ $json.body.Platform }}"
+            },
+            {
+              "id": "format-id-123",
+              "name": "Format",
+              "type": "string",
+              "value": "={{ $json.body.format || 'image' }}"
+            },
+            {
+              "id": "aaa822a0-d83f-409c-89b8-0277ca8bbcfd",
+              "name": "company_context",
+              "value": "={{ $json.company_context }}",
+              "type": "string"
+            },
+            {
+              "id": "d759e246-3725-4de7-b64e-58400b5eac75",
+              "name": "body.Account",
+              "value": "={{ $json.body.Account }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1621ff7d-796d-43ab-aab5-db2673407dd3",
+      "name": "2. Prepare Input Variables (Topic, Audience, etc.)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        0,
+        896
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "\n{{ $if($json.has_rag_context, \"\n\n--- COMPANY CONTEXT (use this to align content with brand) ---\n\" + $json.company_context + \"\n--- END COMPANY CONTEXT ---\n\n\", \"\") }}=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**, genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Più visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalità:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.Platform }}</param>\n        <param name=\"Company Context\">{{ $json.company_context }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
+            }
+          ]
+        }
+      },
+      "id": "6bcdf760-210f-422a-9785-8325654593ac",
+      "name": "3a. Generate Content Concept (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        160,
+        848
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "id": "e111e21a-99a7-426e-9fe9-83e786109dee",
+      "name": "(LLM Model for Concept)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        160,
+        1024
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ideas\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly 1 content concept.\",\n      \"minItems\": 1,\n      \"maxItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"concept\": {\n            \"type\": \"string\",\n            \"description\": \"The detailed text describing the content concept for a Single Image.\"\n          },\n          \"suggested_format\": {\n            \"type\": \"string\",\n            \"description\": \"The post format, which MUST be 'Single Image'.\",\n            \"const\": \"Single Image\"\n          }\n        },\n        \"required\": [\n          \"concept\",\n          \"suggested_format\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"ideas\"\n  ]\n}"
+      },
+      "id": "be1b0781-15ee-43b7-acdd-8ba2a1faf3ea",
+      "name": "(Parse Concept JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        304,
+        1024
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "\n{{ $if($json.has_rag_context, \"\n\n--- COMPANY CONTEXT (use this to align content with brand) ---\n\" + $json.company_context + \"\n--- END COMPANY CONTEXT ---\n\n\", \"\") }}=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilità con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire varietà significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
+            }
+          ]
+        }
+      },
+      "id": "46b3b75c-94df-4a3a-930a-78518ad4e953",
+      "name": "3b. Generate Image Prompt Options (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -912,
+        1760
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.0-flash-001",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "id": "beaaf466-c19f-40e9-ab0f-bbf318522915",
+      "name": "(LLM Model for Prompts)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -912,
+        1920
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"expanded_post_concept\": {\n      \"type\": \"string\",\n      \"description\": \"The elaborated visual concept, stating Single Image format and incorporating user input/platform considerations.\"\n    },\n    \"prompt_options\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly TWO prompt options for the single image concept.\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"option_description\": {\n            \"type\": \"string\",\n            \"description\": \"Briefly describes the distinct angle/style of this option (e.g., 'Option 1: Hyperrealistic...').\"\n          },\n          \"prompts\": {\n            \"type\": \"array\",\n            \"description\": \"Contains ONE detailed prompt string for the single image.\",\n            \"minItems\": 1,\n            \"maxItems\": 1,\n            \"items\": {\n              \"type\": \"string\",\n              \"description\": \"A detailed image generation prompt.\"\n            }\n          }\n        },\n        \"required\": [\n          \"option_description\",\n          \"prompts\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"expanded_post_concept\",\n    \"prompt_options\"\n  ]\n}"
+      },
+      "id": "133bbc03-531e-4da3-adaa-2fca10b941fd",
+      "name": "(Parse Prompts JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -752,
+        1920
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "\n{{ $if($json.has_rag_context, \"\n\n--- COMPANY CONTEXT (use this to align content with brand) ---\n\" + $json.company_context + \"\n--- END COMPANY CONTEXT ---\n\n\", \"\") }}=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo è OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}\n- Audience: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}\n- Voice: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
+            }
+          ]
+        }
+      },
+      "id": "791835f1-c96f-4fb7-9288-82f1391fcbd9",
+      "name": "3c. Generate Post Caption (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        640,
+        784
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.0-flash-001",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "id": "a2fda1d1-7317-41a2-832e-74a7bad9f4a9",
+      "name": "(LLM Model for Caption)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        608,
+        960
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Caption\": \"Thee future of call centers is here!\"\n}"
+      },
+      "id": "6e214b40-4885-417f-b426-32aa12cfbfb4",
+      "name": "(Parse Caption JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        800,
+        960
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a4260ba-3bde-4444-8f42-8a8abd51ff0c",
+              "name": "ImageURL",
+              "type": "string",
+              "value": "={{ $json.video_url || JSON.parse($json.data.resultJson).resultUrls[0] }}"
+            },
+            {
+              "id": "1953ae03-6a86-4847-8686-5a928637be1d",
+              "name": "Caption",
+              "type": "string",
+              "value": "={{ $('3c. Generate Post Caption (Gemini)').item.json.output.Caption }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b77615c0-0cc2-4fb2-8793-f280d3183550",
+      "name": "5. Prepare Data for Instagram API",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        528,
+        1792
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90",
+          "mode": "list",
+          "cachedResultName": "Caption Flow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Foglio1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit#gid=0"
+        },
+        "columns": {
+          "value": {
+            "Topic": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+            "Audience": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}",
+            "Voice": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}",
+            "Platform": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}",
+            "Status": "1",
+            "success": "={{ $json.success }}",
+            "results": "={{ JSON.stringify($json.results || $json.message || '') }}",
+            "usage": "={{ $json.usage || '' }}"
+          },
+          "schema": [
+            {
+              "id": "Topic",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Topic",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Audience",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Audience",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Voice",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Voice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Platform",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Platform",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "success",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "success",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "results",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "results",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "usage",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "usage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Topic"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "51cb9736-9df6-4a3b-93d6-02641c3c4e0b",
+      "name": "7. Update Post Status in Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2144,
+        1856
+      ],
+      "typeVersion": 4.5,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# 01. Generazione Concetto Contenuto\n\n**Scopo:** Questo passaggio utilizza Google Gemini per generare **un concetto di contenuto unico** su misura per la piattaforma specificata (Instagram/LinkedIn), basato sull'argomento, il pubblico e la voce del brand in input.\n\n**Input (dal Nodo '2. Prepare Input Variables'):**\n*   `Topic` (stringa)\n*   `TargetAudience` (stringa)\n*   `BrandVoice` (stringa)\n*   `Platform` (stringa: 'Instagram')\n\n**Output (JSON):**\n*   `{\"ideas\": [{\"concept\": \"Testo del concetto generato...\", \"suggested_format\": \"Image/Video\"}]}`",
+        "height": 820,
+        "width": 508
+      },
+      "id": "df8cfda5-33bb-46a6-918c-fab47cc59362",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        368
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 03b. Generazione Immagine (Ramo Immagine)\n\n**Scopo:** Genera l'immagine effettiva utilizzando il **primo prompt dettagliato** creato. Invia questo prompt all'API Replicate (modello Flux).\n\n**Input:**\n*   `prompt` (stringa)\n\n**Output:**\n*   URL dell'immagine generata.",
+        "height": 804,
+        "width": 796,
+        "color": 4
+      },
+      "id": "dfa4103f-6c81-4d04-8b49-7e11c201d1ff",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        1296
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 02. Elaborazione Prompt & Opzioni\n\n**Scopo:** Prende il concetto del contenuto generato ed espande su di esso per creare **prompt dettagliati**. Questi prompt sono ottimizzati per la generazione di immagini o video a seconda del percorso scelto (Flux per immagini, Luma/Runway per video).\n\n**Input:**\n*   `ChosenIdea` (stringa: Concetto dal passo 3a)\n*   `Platform` (stringa)",
+        "height": 740,
+        "width": 740,
+        "color": 2
+      },
+      "id": "4a32312f-935f-49c9-bb6a-bc149c40411a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        1312
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 03a. Generazione Didascalia (Caption)\n\n**Scopo:** Utilizza Google Gemini per scrivere una didascalia (caption) breve e coinvolgente, **specificamente su misura per la piattaforma di destinazione**. La didascalia completa il contenuto visivo e include hashtag pertinenti.\n\n**Nota Importante:** Questo passaggio avviene **prima** della ramificazione Immagine/Video, garantendo che la caption sia sempre disponibile per entrambi i formati.",
+        "height": 804,
+        "width": 620,
+        "color": 3
+      },
+      "id": "e6cf22c0-941b-4edd-b010-d92b44d24f41",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        384
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 04. Pubblicazione su Instagram\n\n**Scopo:** Prepara l'URL finale (immagine o video) e la caption per l'API Graph di Instagram. Carica il media, crea il contenitore e pubblica.\n\n**Processo:**\n1.  **Format Data:** Organizza ImageURL/VideoURL e Caption.\n2.  **Create Container:** Invia media all'API Graph.\n3.  **Wait:** Attende l'elaborazione (fondamentale per i video).\n4.  **Publish:** Pubblica il post.",
+        "height": 804,
+        "width": 1272,
+        "color": 5
+      },
+      "id": "8db1b78e-0309-4c3e-b420-0a6ac2d50f1c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        1296
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# 05. Finalizzazione\n\n**Scopo:** Aggiorna lo stato nel foglio Google per segnare l'idea come 'completata' (Status = 1), prevenendo ri-elaborazioni future.",
+        "height": 300,
+        "width": 380,
+        "color": 6
+      },
+      "id": "fc663ea6-393a-4dd4-afbe-e101cb6b78ce",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        1616
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caption-flow",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "CaptionFlow Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        736
+      ],
+      "id": "99906da2-e7f2-4680-a256-c9fb1e00a305",
+      "webhookId": "9b0d093c-19f2-4179-8440-c4497df022e0"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'nano-banana-pro', input: { prompt: $('3b. Generate Image Prompt Options (Gemini)').item.json.output.prompt_options[0].prompts[0], aspect_ratio: '1:1', output_format: 'png' } }) }}",
+        "options": {}
+      },
+      "id": "kie-create-task-id",
+      "name": "4a. Create Image Task (Kie)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        1792
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FxDfGS3rzEZsvGhj",
+          "name": "Kie AI (Nano Banana)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "id": "kie-wait-id",
+      "name": "4b. Wait for Generation",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        1792
+      ],
+      "webhookId": "b0c6c4a4-e519-4ed1-b67a-8ddcf7bc8bcf"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "kie-get-result-id",
+      "name": "4c. Get Image Result (Kie)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        1792
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FxDfGS3rzEZsvGhj",
+          "name": "Kie AI (Nano Banana)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/dzudfzmx3/auto/upload",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "value": "={{ $json.ImageURL }}"
+            },
+            {
+              "name": "upload_preset",
+              "value": "instagram_posts"
+            },
+            {
+              "name": "folder",
+              "value": "instagram_posts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cloudinary-upload-node-id",
+      "name": "Upload Image to Cloudinary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        736,
+        1792
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNlcnJhLmVtYW51ZWxlMDlAZ21haWwuY29tIiwiZXhwIjo0OTE3OTYyNTA2LCJqdGkiOiIyNTc5N2Y3MS1kMDg0LTRjODEtOTI4Yi1iY2Y1NGQzYTNlYTMifQ.P3wipAcac8PQrka5MrWTGBEAFenS3PX5c5r8RSV1lbM"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('5. Prepare Data for Instagram API').item.json.Caption }}"
+            },
+            {
+              "name": "user",
+              "value": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.body.Account }}"
+            },
+            {
+              "name": "platform[]",
+              "value": "instagram"
+            },
+            {
+              "name": "photos[]",
+              "value": "={{ $('Upload Image to Cloudinary').item.json.secure_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "upload-post-http-node-id",
+      "name": "Upload to Instagram (Upload-Post API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1552,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "fromEmail": "test@n8n.it",
+        "toEmail": "serra.emanuele09@gmail.com",
+        "subject": "=✅ Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+        "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">⏰</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verrà pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">♡</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">○</td>\n          <td style=\"font-size: 26px; line-height: 1;\">⊳</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post • Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">📌 Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>ℹ️ Come funziona:</strong><br>\n      • <strong>PUBBLICA</strong> → Post online immediatamente<br>\n      • <strong>RIFIUTA</strong> → Post NON verrà mai pubblicato<br>\n      • <strong>Nessuna azione</strong> → Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Approva",
+            "disapproveLabel": "Rifiuta"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        992,
+        1904
+      ],
+      "id": "bc92045e-de1b-4653-82e9-e267cacb0abd",
+      "name": "Check via Email",
+      "webhookId": "393c58f1-730a-4a6f-9955-6cb866c1e50b",
+      "credentials": {
+        "smtp": {
+          "id": "3jxHADCw51qvxr54",
+          "name": "SMTP Gmail Serra Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0534eb79-5f1d-4fa0-997b-a1740a5f2ac5",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "\"true\"",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        1904
+      ],
+      "id": "173a13c7-8380-4f51-931b-f96547a8ab2c",
+      "name": "If Approved"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Estrai i dati dal webhook\nconst idea = $input.first().json.body.Topic || '';\nconst socialPlatform = $input.first().json.body.social_platform || 'instagram';\nconst timestamp = $input.first().json.body.timestamp || new Date().toISOString();\nconst source = $input.first().json.body.source || 'CaptionFlow';\nconst audience = $input.first().json.body.Audience || 'Pubblico Generico';\nconst voice = $input.first().json.body.voice || 'Educativo';\n\n// Genera un ID univoco per questa richiesta\nconst requestId = `CF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;\n\n// Mappa il nome della piattaforma social\nconst platformNames = {\n  'instagram': 'Instagram',\n  'facebook': 'Facebook',\n  'linkedin': 'LinkedIn',\n  'tiktok': 'TikTok',\n  'twitter': 'X (Twitter)'\n};\n\nreturn [{\n  json: {\n    requestId: requestId,\n    idea: idea,\n    socialPlatform: socialPlatform,\n    timestamp: timestamp,\n    source: source,\n    stato: 'Da Elaborare',\n    audience: audience,\n    voice: voice,\n    dataRicezione: new Date().toLocaleDateString('it-IT')\n  }\n}];"
+      },
+      "id": "ee069c7e-e75d-4aa9-b928-66c44c8f9288",
+      "name": "Elabora Dati Ricevuti",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90",
+          "mode": "list",
+          "cachedResultName": "Caption Flow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Foglio1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ $json.idea }}",
+            "Request_ID": "={{ $json.requestId }}",
+            "Platform": "={{ $json.socialPlatform }}",
+            "Status": "={{ $json.stato }}",
+            "Source": "={{ $json.source }}",
+            "Audience": "={{ $json.audience }}",
+            "Voice": "={{ $json.voice }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Audience",
+              "displayName": "Audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Voice",
+              "displayName": "Voice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Platform",
+              "displayName": "Platform",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Request_ID",
+              "displayName": "Request_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0c548744-32fc-47b5-a3f5-11d4d15eff55",
+      "name": "Salva su Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -400,
+        512
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "97dc386e-06b1-4551-9138-a6f0e123f55a",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        272,
+        1808
+      ],
+      "id": "be4c45ca-a89a-4093-95c7-a1019534a610",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"image_url\": $('Upload Image to Cloudinary').item.json.secure_url\n  }\n} }}",
+        "options": {}
+      },
+      "id": "4cceefdd-4659-47d4-88ff-ea5d3f8634dc",
+      "name": "Respond to Frontend",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        992,
+        1728
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        1728
+      ],
+      "id": "32d2deb5-9930-4feb-b590-e27200bb5030",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "363abbd9-5ed8-4b6a-b1a0-739893a02fff",
+              "name": "video_prompt",
+              "value": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1392,
+        400
+      ],
+      "id": "4d325876-e548-40d8-9381-140416cdc5e3",
+      "name": "Video Prompt3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output.replace(/\"/g, '').replace(/\\r?\\n|\\r/g, ' ') }}\",\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"15\",\n    \"remove_watermark\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1856,
+        400
+      ],
+      "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
+      "name": "Text to Video2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jKY9IeAxHcgmGXo7",
+          "name": "KIe IA Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        400
+      ],
+      "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
+      "name": "Wait4",
+      "webhookId": "9fd30610-c0b9-4f5c-9af5-89b821c11ec3"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2144,
+        400
+      ],
+      "id": "d78ffbe8-7951-4473-b982-4eedc2a7d253",
+      "name": "Get Video4",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jKY9IeAxHcgmGXo7",
+          "name": "KIe IA Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4f9a9a29-cc45-4e39-a1a0-e78caadbab09",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2288,
+        400
+      ],
+      "id": "cc056014-afc3-4cc4-b130-c503d50ca935",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "714ed3d2-1e81-4aae-a977-8151769371a7",
+              "name": "video_url",
+              "value": "={{ JSON.parse($json.data.resultJson).resultUrls[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2400,
+        80
+      ],
+      "id": "f12b53c8-b24f-4f57-8378-fce26b492770",
+      "name": "Video URL4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Input: {{ $json.video_prompt }}",
+        "options": {
+          "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito è prendere un concetto grezzo in ingresso (come un’idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall’aspetto naturale** che corrisponda all’intento iniziale. Concentrati sull’ottimizzazione della qualità visiva, del realismo della camera, dell’illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, età, genere, espressione e movimento.\n   * L’ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l’emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\nTutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        400
+      ],
+      "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        656
+      ],
+      "id": "73741eaa-2f09-4d8c-8888-03bf3ab5c67c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a5599508-1194-41b5-956d-4092758847d4",
+              "leftValue": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Format }}",
+              "rightValue": "video",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5fdf65f1-3cf7-488a-adf0-a7954311a3ed",
+      "name": "Check Format",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "loop-limit-check",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-loop-limit",
+      "name": "Check Loop Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2512,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "test@n8n.it",
+        "toEmail": "serra.emanuele09@gmail.com",
+        "subject": "⚠️ Video Generation Timeout",
+        "options": {}
+      },
+      "id": "email-timeout",
+      "name": "Email Timeout",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2704,
+        336
+      ],
+      "webhookId": "2ebe431b-7ff5-48a9-8fd7-3ec9d8a799f3",
+      "credentials": {
+        "smtp": {
+          "id": "3jxHADCw51qvxr54",
+          "name": "SMTP Gmail Serra Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# 03c. Generazione Video (Ramo Video)\n\n**Scopo:** Genera un video a partire dal prompt elaborato, se il formato richiesto è 'video'.\n\n**Processo:**\n1.  **Prompt Video:** Adatta il concetto per un prompt video.\n2.  **Generazione AI:** Avvia la generazione video (es. Luma/Runway).\n3.  **Loop di Verifica:** Entra in un ciclo (`Wait` -> `Get Status`) finché il video non è pronto.\n4.  **Sicurezza:** Un controllo (`Check Loop Limit`) previene loop infiniti in caso di errore.",
+        "height": 864,
+        "width": 1696
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1312,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "64870d45-4db1-4039-9dac-8175a46693b8",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "modelName": "models/embedding-001"
+      },
+      "id": "rag-embeddings",
+      "name": "RAG Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        944
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0hlV653cmbz2iQe4",
+          "name": "Google Gemini(PaLM) Personal Serra"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "ragn8n",
+          "mode": "list",
+          "cachedResultName": "ragn8n"
+        },
+        "prompt": "=BLC Business Learning Center identità aziendale formazione orientamento professionale riqualificazione valori qualità supporto alle aziende Ticino",
+        "options": {}
+      },
+      "id": "rag-pinecone-query",
+      "name": "Query Company Knowledge",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        768
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "pg8MVmRWeGRWKAH9",
+          "name": "PineconeApi account Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Leggiamo tutti gli item restituiti da Pinecone\nconst items = $input.all();\nlet context = \"\";\n// Array per raccogliere i testi unici (se ci sono duplicati)\nconst texts = [];\nfor (const item of items) {\n  // Controlliamo se c'è la proprietà 'text' direttamente nel json\n  // OPPURE se c'è un oggetto 'document' con dentro 'pageContent' o 'text'\n  const doc = item.json.document || item.json;\n  \n  const text = doc.pageContent || doc.text;\n  \n  if (text && !texts.includes(text)) {\n    texts.push(text);\n  }\n}\ncontext = texts.join(\"\\n\\n---\\n\\n\");\n// Recuperiamo l'input originale dal Webhook\n// Nota: 'CaptionFlow Webhook' è il nome del nodo trigger\n// Se il trigger ha un nome diverso, aggiornalo qui sotto\nconst originalData = $('CaptionFlow Webhook').first().json;\nreturn [{\n    json: {\n        ...originalData,\n        company_context: context || \"No company-specific context available.\",\n        has_rag_context: context.length > 0\n    }\n}];"
+      },
+      "id": "format-rag-context",
+      "name": "Format Company Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        896
+      ]
+    }
+  ],
+  "connections": {
+    "(Parse Caption JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "3c. Generate Post Caption (Gemini)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Parse Concept JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "3a. Generate Content Concept (Gemini)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Parse Prompts JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "3b. Generate Image Prompt Options (Gemini)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(LLM Model for Caption)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3c. Generate Post Caption (Gemini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(LLM Model for Concept)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3a. Generate Content Concept (Gemini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(LLM Model for Prompts)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3b. Generate Image Prompt Options (Gemini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Prepare Data for Instagram API": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to Cloudinary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3c. Generate Post Caption (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Check Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3b. Generate Image Prompt Options (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "4a. Create Image Task (Kie)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CaptionFlow Webhook": {
+      "main": [
+        [
+          {
+            "node": "Query Company Knowledge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Elabora Dati Ricevuti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4a. Create Image Task (Kie)": {
+      "main": [
+        [
+          {
+            "node": "4b. Wait for Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4b. Wait for Generation": {
+      "main": [
+        [
+          {
+            "node": "4c. Get Image Result (Kie)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4c. Get Image Result (Kie)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Instagram (Upload-Post API)": {
+      "main": [
+        [
+          {
+            "node": "7. Update Post Status in Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to Cloudinary": {
+      "main": [
+        [
+          {
+            "node": "Respond to Frontend",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check via Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check via Email": {
+      "main": [
+        [
+          {
+            "node": "If Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Approved": {
+      "main": [
+        [
+          {
+            "node": "Upload to Instagram (Upload-Post API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Elabora Dati Ricevuti": {
+      "main": [
+        [
+          {
+            "node": "Salva su Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "5. Prepare Data for Instagram API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "4b. Wait for Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Frontend": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Prompt3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Video2": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Get Video4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video4": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Video URL4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Loop Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Text to Video2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Prepare Input Variables (Topic, Audience, etc.)": {
+      "main": [
+        [
+          {
+            "node": "3a. Generate Content Concept (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Format": {
+      "main": [
+        [
+          {
+            "node": "Video Prompt3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "3b. Generate Image Prompt Options (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3a. Generate Content Concept (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "3c. Generate Post Caption (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video URL4": {
+      "main": [
+        [
+          {
+            "node": "5. Prepare Data for Instagram API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Loop Limit": {
+      "main": [
+        [
+          {
+            "node": "Email Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RAG Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Query Company Knowledge",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Company Knowledge": {
+      "main": [
+        [
+          {
+            "node": "Format Company Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Company Context": {
+      "main": [
+        [
+          {
+            "node": "2. Prepare Input Variables (Topic, Audience, etc.)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "timezone": "Europe/Rome",
+    "errorWorkflow": "COw3VpzClvvvTjhl"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "CaptionFlow Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "emanueleserra.app.n8n.cloud",
+            "user-agent": "node",
+            "content-length": "245",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "*",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "52.54.104.110",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9c7fff1fa3a9db71-IAD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "52.54.104.110, 172.70.34.172",
+            "x-forwarded-host": "emanueleserra.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-16-6f778b7769-6vgpr",
+            "x-invocation-id": "fra1::4zt7x-1770101451872-a6fe03eeb13a",
+            "x-is-trusted": "yes",
+            "x-real-ip": "52.54.104.110",
+            "x-vercel-id": "fra1::4zt7x-1770101451872-a6fe03eeb13a"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "Topic": "Formazione professionale in Ticino",
+            "Platform": "instagram",
+            "Audience": "Professionisti e Business",
+            "Voice": "Ispirazionale",
+            "Account": "BLC_Instagram",
+            "format": "image",
+            "timestamp": "2026-02-03T06:50:56.460Z",
+            "source": "CaptionFlow Web App"
+          },
+          "webhookUrl": "https://emanueleserra.app.n8n.cloud/webhook/caption-flow",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "d419f84a-19bb-40ee-a5b3-3bcaf1d915f2",
+  "activeVersionId": "03912d6f-8ebc-4031-90d5-327deee3dfc7",
+  "versionCounter": 179,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-25T14:43:43.896Z",
+      "createdAt": "2026-01-25T14:43:43.896Z",
+      "role": "workflow:owner",
+      "workflowId": "oRYSQ9tk63yPJaqt",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-02-06T05:47:33.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-05",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [
+    {
+      "updatedAt": "2025-12-13T21:46:23.115Z",
+      "createdAt": "2025-12-13T21:46:23.115Z",
+      "id": "JCVWe4mQulp5kjN6",
+      "name": "instagram-automation"
+    },
+    {
+      "updatedAt": "2025-11-28T20:42:38.923Z",
+      "createdAt": "2025-11-28T20:42:38.923Z",
+      "id": "toA0pH2gwX57UxWi",
+      "name": "Arca 24"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-02-03T07:04:45.000Z",
+    "createdAt": "2026-02-03T07:04:36.389Z",
+    "versionId": "03912d6f-8ebc-4031-90d5-327deee3dfc7",
+    "workflowId": "oRYSQ9tk63yPJaqt",
+    "nodes": [
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "aa3b9a02-ac6a-4d7f-937f-a0e6e566a0c8",
+                "name": "Topic",
+                "type": "string",
+                "value": "={{ $json.body.Topic }}"
+              },
+              {
+                "id": "e48783e8-5f6b-4c54-bf4f-c004414dc510",
+                "name": "TargetAudience",
+                "type": "string",
+                "value": "={{ $json.body.Audience }}"
+              },
+              {
+                "id": "c499a954-b4c6-4702-ab86-3656aa2b1783",
+                "name": "BrandVoice",
+                "type": "string",
+                "value": "={{ $json.body.Voice }}"
+              },
+              {
+                "id": "210f7103-4d6b-42e9-9168-fd99dff94b5a",
+                "name": "Platform",
+                "type": "string",
+                "value": "={{ $json.body.Platform }}"
+              },
+              {
+                "id": "format-id-123",
+                "name": "Format",
+                "type": "string",
+                "value": "={{ $json.body.format || 'image' }}"
+              },
+              {
+                "id": "aaa822a0-d83f-409c-89b8-0277ca8bbcfd",
+                "name": "company_context",
+                "value": "={{ $json.company_context }}",
+                "type": "string"
+              },
+              {
+                "id": "d759e246-3725-4de7-b64e-58400b5eac75",
+                "name": "body.Account",
+                "value": "={{ $json.body.Account }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "1621ff7d-796d-43ab-aab5-db2673407dd3",
+        "name": "2. Prepare Input Variables (Topic, Audience, etc.)",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          0,
+          896
+        ],
+        "typeVersion": 3.4
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "\n{{ $if($json.has_rag_context, \"\n\n--- COMPANY CONTEXT (use this to align content with brand) ---\n\" + $json.company_context + \"\n--- END COMPANY CONTEXT ---\n\n\", \"\") }}=",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**, genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Più visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalità:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.Platform }}</param>\n        <param name=\"Company Context\">{{ $json.company_context }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
+              }
+            ]
+          }
+        },
+        "id": "6bcdf760-210f-422a-9785-8325654593ac",
+        "name": "3a. Generate Content Concept (Gemini)",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          160,
+          848
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "model": "google/gemini-2.5-flash",
+          "options": {
+            "baseURL": "https://openrouter.ai/api/v1"
+          }
+        },
+        "id": "e111e21a-99a7-426e-9fe9-83e786109dee",
+        "name": "(LLM Model for Concept)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          160,
+          1024
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ideas\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly 1 content concept.\",\n      \"minItems\": 1,\n      \"maxItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"concept\": {\n            \"type\": \"string\",\n            \"description\": \"The detailed text describing the content concept for a Single Image.\"\n          },\n          \"suggested_format\": {\n            \"type\": \"string\",\n            \"description\": \"The post format, which MUST be 'Single Image'.\",\n            \"const\": \"Single Image\"\n          }\n        },\n        \"required\": [\n          \"concept\",\n          \"suggested_format\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"ideas\"\n  ]\n}"
+        },
+        "id": "be1b0781-15ee-43b7-acdd-8ba2a1faf3ea",
+        "name": "(Parse Concept JSON)",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          304,
+          1024
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "\n{{ $if($json.has_rag_context, \"\n\n--- COMPANY CONTEXT (use this to align content with brand) ---\n\" + $json.company_context + \"\n--- END COMPANY CONTEXT ---\n\n\", \"\") }}=",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilità con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire varietà significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
+              }
+            ]
+          }
+        },
+        "id": "46b3b75c-94df-4a3a-930a-78518ad4e953",
+        "name": "3b. Generate Image Prompt Options (Gemini)",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -912,
+          1760
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "model": "google/gemini-2.0-flash-001",
+          "options": {
+            "baseURL": "https://openrouter.ai/api/v1"
+          }
+        },
+        "id": "beaaf466-c19f-40e9-ab0f-bbf318522915",
+        "name": "(LLM Model for Prompts)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -912,
+          1920
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"expanded_post_concept\": {\n      \"type\": \"string\",\n      \"description\": \"The elaborated visual concept, stating Single Image format and incorporating user input/platform considerations.\"\n    },\n    \"prompt_options\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly TWO prompt options for the single image concept.\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"option_description\": {\n            \"type\": \"string\",\n            \"description\": \"Briefly describes the distinct angle/style of this option (e.g., 'Option 1: Hyperrealistic...').\"\n          },\n          \"prompts\": {\n            \"type\": \"array\",\n            \"description\": \"Contains ONE detailed prompt string for the single image.\",\n            \"minItems\": 1,\n            \"maxItems\": 1,\n            \"items\": {\n              \"type\": \"string\",\n              \"description\": \"A detailed image generation prompt.\"\n            }\n          }\n        },\n        \"required\": [\n          \"option_description\",\n          \"prompts\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"expanded_post_concept\",\n    \"prompt_options\"\n  ]\n}"
+        },
+        "id": "133bbc03-531e-4da3-adaa-2fca10b941fd",
+        "name": "(Parse Prompts JSON)",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          -752,
+          1920
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "\n{{ $if($json.has_rag_context, \"\n\n--- COMPANY CONTEXT (use this to align content with brand) ---\n\" + $json.company_context + \"\n--- END COMPANY CONTEXT ---\n\n\", \"\") }}=",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo è OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}\n- Audience: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}\n- Voice: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
+              }
+            ]
+          }
+        },
+        "id": "791835f1-c96f-4fb7-9288-82f1391fcbd9",
+        "name": "3c. Generate Post Caption (Gemini)",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          720,
+          880
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "model": "google/gemini-2.0-flash-001",
+          "options": {
+            "baseURL": "https://openrouter.ai/api/v1"
+          }
+        },
+        "id": "a2fda1d1-7317-41a2-832e-74a7bad9f4a9",
+        "name": "(LLM Model for Caption)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          736,
+          1040
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\t\"Caption\": \"Thee future of call centers is here!\"\n}"
+        },
+        "id": "6e214b40-4885-417f-b426-32aa12cfbfb4",
+        "name": "(Parse Caption JSON)",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          880,
+          1040
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "8a4260ba-3bde-4444-8f42-8a8abd51ff0c",
+                "name": "ImageURL",
+                "type": "string",
+                "value": "={{ $json.video_url || JSON.parse($json.data.resultJson).resultUrls[0] }}"
+              },
+              {
+                "id": "1953ae03-6a86-4847-8686-5a928637be1d",
+                "name": "Caption",
+                "type": "string",
+                "value": "={{ $('3c. Generate Post Caption (Gemini)').item.json.output.Caption }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "b77615c0-0cc2-4fb2-8793-f280d3183550",
+        "name": "5. Prepare Data for Instagram API",
+        "type": "n8n-nodes-base.set",
+        "position": [
+          528,
+          1792
+        ],
+        "typeVersion": 3.4
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90",
+            "mode": "list",
+            "cachedResultName": "Caption Flow",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Foglio1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit#gid=0"
+          },
+          "columns": {
+            "value": {
+              "Topic": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+              "Audience": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}",
+              "Voice": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}",
+              "Platform": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}",
+              "Status": "1",
+              "success": "={{ $json.success }}",
+              "results": "={{ JSON.stringify($json.results || $json.message || '') }}",
+              "usage": "={{ $json.usage || '' }}"
+            },
+            "schema": [
+              {
+                "id": "Topic",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Topic",
+                "defaultMatch": true,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Audience",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Audience",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Voice",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Voice",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Platform",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Platform",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Status",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "Status",
+                "defaultMatch": false,
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "success",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "success",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "results",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "results",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              },
+              {
+                "id": "usage",
+                "type": "string",
+                "display": true,
+                "removed": false,
+                "required": false,
+                "displayName": "usage",
+                "defaultMatch": false,
+                "canBeUsedToMatch": false
+              }
+            ],
+            "mappingMode": "defineBelow",
+            "matchingColumns": [
+              "Topic"
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": true
+          },
+          "options": {}
+        },
+        "id": "51cb9736-9df6-4a3b-93d6-02641c3c4e0b",
+        "name": "7. Update Post Status in Sheet",
+        "type": "n8n-nodes-base.googleSheets",
+        "position": [
+          2144,
+          1856
+        ],
+        "typeVersion": 4.5,
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# 01. Generazione Concetto Contenuto\n\n**Scopo:** Questo passaggio utilizza Google Gemini per generare **un concetto di contenuto unico** su misura per la piattaforma specificata (Instagram/LinkedIn), basato sull'argomento, il pubblico e la voce del brand in input.\n\n**Input (dal Nodo '2. Prepare Input Variables'):**\n*   `Topic` (stringa)\n*   `TargetAudience` (stringa)\n*   `BrandVoice` (stringa)\n*   `Platform` (stringa: 'Instagram')\n\n**Output (JSON):**\n*   `{\"ideas\": [{\"concept\": \"Testo del concetto generato...\", \"suggested_format\": \"Image/Video\"}]}`",
+          "height": 820,
+          "width": 508
+        },
+        "id": "df8cfda5-33bb-46a6-918c-fab47cc59362",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -16,
+          368
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "# 03b. Generazione Immagine (Ramo Immagine)\n\n**Scopo:** Genera l'immagine effettiva utilizzando il **primo prompt dettagliato** creato. Invia questo prompt all'API Replicate (modello Flux).\n\n**Input:**\n*   `prompt` (stringa)\n\n**Output:**\n*   URL dell'immagine generata.",
+          "height": 804,
+          "width": 796,
+          "color": 4
+        },
+        "id": "dfa4103f-6c81-4d04-8b49-7e11c201d1ff",
+        "name": "Sticky Note1",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -352,
+          1296
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "# 02. Elaborazione Prompt & Opzioni\n\n**Scopo:** Prende il concetto del contenuto generato ed espande su di esso per creare **prompt dettagliati**. Questi prompt sono ottimizzati per la generazione di immagini o video a seconda del percorso scelto (Flux per immagini, Luma/Runway per video).\n\n**Input:**\n*   `ChosenIdea` (stringa: Concetto dal passo 3a)\n*   `Platform` (stringa)",
+          "height": 740,
+          "width": 740,
+          "color": 2
+        },
+        "id": "4a32312f-935f-49c9-bb6a-bc149c40411a",
+        "name": "Sticky Note2",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -1168,
+          1312
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "# 03a. Generazione Didascalia (Caption)\n\n**Scopo:** Utilizza Google Gemini per scrivere una didascalia (caption) breve e coinvolgente, **specificamente su misura per la piattaforma di destinazione**. La didascalia completa il contenuto visivo e include hashtag pertinenti.\n\n**Nota Importante:** Questo passaggio avviene **prima** della ramificazione Immagine/Video, garantendo che la caption sia sempre disponibile per entrambi i formati.",
+          "height": 804,
+          "width": 620,
+          "color": 3
+        },
+        "id": "e6cf22c0-941b-4edd-b010-d92b44d24f41",
+        "name": "Sticky Note3",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          544,
+          384
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "# 04. Pubblicazione su Instagram\n\n**Scopo:** Prepara l'URL finale (immagine o video) e la caption per l'API Graph di Instagram. Carica il media, crea il contenitore e pubblica.\n\n**Processo:**\n1.  **Format Data:** Organizza ImageURL/VideoURL e Caption.\n2.  **Create Container:** Invia media all'API Graph.\n3.  **Wait:** Attende l'elaborazione (fondamentale per i video).\n4.  **Publish:** Pubblica il post.",
+          "height": 804,
+          "width": 1272,
+          "color": 5
+        },
+        "id": "8db1b78e-0309-4c3e-b420-0a6ac2d50f1c",
+        "name": "Sticky Note4",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          480,
+          1296
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "content": "# 05. Finalizzazione\n\n**Scopo:** Aggiorna lo stato nel foglio Google per segnare l'idea come 'completata' (Status = 1), prevenendo ri-elaborazioni future.",
+          "height": 300,
+          "width": 380,
+          "color": 6
+        },
+        "id": "fc663ea6-393a-4dd4-afbe-e101cb6b78ce",
+        "name": "Sticky Note5",
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1984,
+          1616
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "caption-flow",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "name": "CaptionFlow Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -928,
+          736
+        ],
+        "id": "99906da2-e7f2-4680-a256-c9fb1e00a305",
+        "webhookId": "9b0d093c-19f2-4179-8440-c4497df022e0"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.kie.ai/api/v1/jobs/createTask",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: 'nano-banana-pro', input: { prompt: $('3b. Generate Image Prompt Options (Gemini)').item.json.output.prompt_options[0].prompts[0], aspect_ratio: '1:1', output_format: 'png' } }) }}",
+          "options": {}
+        },
+        "id": "kie-create-task-id",
+        "name": "4a. Create Image Task (Kie)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -288,
+          1792
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "FxDfGS3rzEZsvGhj",
+            "name": "Kie AI (Nano Banana)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 10
+        },
+        "id": "kie-wait-id",
+        "name": "4b. Wait for Generation",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -96,
+          1792
+        ],
+        "webhookId": "b0c6c4a4-e519-4ed1-b67a-8ddcf7bc8bcf"
+      },
+      {
+        "parameters": {
+          "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "taskId",
+                "value": "={{ $json.data.taskId }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "kie-get-result-id",
+        "name": "4c. Get Image Result (Kie)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          96,
+          1792
+        ],
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "FxDfGS3rzEZsvGhj",
+            "name": "Kie AI (Nano Banana)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.cloudinary.com/v1_1/dzudfzmx3/auto/upload",
+          "sendBody": true,
+          "contentType": "multipart-form-data",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "file",
+                "value": "={{ $json.ImageURL }}"
+              },
+              {
+                "name": "upload_preset",
+                "value": "instagram_posts"
+              },
+              {
+                "name": "folder",
+                "value": "instagram_posts"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "cloudinary-upload-node-id",
+        "name": "Upload Image to Cloudinary",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          736,
+          1792
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.upload-post.com/api/upload_photos",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Apikey eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNlcnJhLmVtYW51ZWxlMDlAZ21haWwuY29tIiwiZXhwIjo0OTE3OTYyNTA2LCJqdGkiOiIyNTc5N2Y3MS1kMDg0LTRjODEtOTI4Yi1iY2Y1NGQzYTNlYTMifQ.P3wipAcac8PQrka5MrWTGBEAFenS3PX5c5r8RSV1lbM"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "multipart-form-data",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "title",
+                "value": "={{ $('5. Prepare Data for Instagram API').item.json.Caption }}"
+              },
+              {
+                "name": "user",
+                "value": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.body.Account }}"
+              },
+              {
+                "name": "platform[]",
+                "value": "instagram"
+              },
+              {
+                "name": "photos[]",
+                "value": "={{ $('Upload Image to Cloudinary').item.json.secure_url }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "upload-post-http-node-id",
+        "name": "Upload to Instagram (Upload-Post API)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1552,
+          1856
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "sendAndWait",
+          "fromEmail": "test@n8n.it",
+          "toEmail": "serra.emanuele09@gmail.com",
+          "subject": "=✅ Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+          "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">⏰</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verrà pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">♡</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">○</td>\n          <td style=\"font-size: 26px; line-height: 1;\">⊳</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post • Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">📌 Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>ℹ️ Come funziona:</strong><br>\n      • <strong>PUBBLICA</strong> → Post online immediatamente<br>\n      • <strong>RIFIUTA</strong> → Post NON verrà mai pubblicato<br>\n      • <strong>Nessuna azione</strong> → Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
+          "approvalOptions": {
+            "values": {
+              "approvalType": "double",
+              "approveLabel": "Approva",
+              "disapproveLabel": "Rifiuta"
+            }
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          992,
+          1904
+        ],
+        "id": "bc92045e-de1b-4653-82e9-e267cacb0abd",
+        "name": "Check via Email",
+        "webhookId": "393c58f1-730a-4a6f-9955-6cb866c1e50b",
+        "credentials": {
+          "smtp": {
+            "id": "3jxHADCw51qvxr54",
+            "name": "SMTP Gmail Serra Personal"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "0534eb79-5f1d-4fa0-997b-a1740a5f2ac5",
+                "leftValue": "={{ $json.data.approved }}",
+                "rightValue": "\"true\"",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1280,
+          1904
+        ],
+        "id": "173a13c7-8380-4f51-931b-f96547a8ab2c",
+        "name": "If Approved"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Estrai i dati dal webhook\nconst idea = $input.first().json.body.Topic || '';\nconst socialPlatform = $input.first().json.body.social_platform || 'instagram';\nconst timestamp = $input.first().json.body.timestamp || new Date().toISOString();\nconst source = $input.first().json.body.source || 'CaptionFlow';\nconst audience = $input.first().json.body.Audience || 'Pubblico Generico';\nconst voice = $input.first().json.body.voice || 'Educativo';\n\n// Genera un ID univoco per questa richiesta\nconst requestId = `CF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;\n\n// Mappa il nome della piattaforma social\nconst platformNames = {\n  'instagram': 'Instagram',\n  'facebook': 'Facebook',\n  'linkedin': 'LinkedIn',\n  'tiktok': 'TikTok',\n  'twitter': 'X (Twitter)'\n};\n\nreturn [{\n  json: {\n    requestId: requestId,\n    idea: idea,\n    socialPlatform: socialPlatform,\n    timestamp: timestamp,\n    source: source,\n    stato: 'Da Elaborare',\n    audience: audience,\n    voice: voice,\n    dataRicezione: new Date().toLocaleDateString('it-IT')\n  }\n}];"
+        },
+        "id": "ee069c7e-e75d-4aa9-b928-66c44c8f9288",
+        "name": "Elabora Dati Ricevuti",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -624,
+          512
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90",
+            "mode": "list",
+            "cachedResultName": "Caption Flow",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Foglio1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k57ar4Yb4Lu4dcDT82F7dIDqy0aMz-3NdgWNXoGiz90/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Topic": "={{ $json.idea }}",
+              "Request_ID": "={{ $json.requestId }}",
+              "Platform": "={{ $json.socialPlatform }}",
+              "Status": "={{ $json.stato }}",
+              "Source": "={{ $json.source }}",
+              "Audience": "={{ $json.audience }}",
+              "Voice": "={{ $json.voice }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Topic",
+                "displayName": "Topic",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Audience",
+                "displayName": "Audience",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Voice",
+                "displayName": "Voice",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Platform",
+                "displayName": "Platform",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Status",
+                "displayName": "Status",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Request_ID",
+                "displayName": "Request_ID",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Source",
+                "displayName": "Source",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "id": "0c548744-32fc-47b5-a3f5-11d4d15eff55",
+        "name": "Salva su Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -400,
+          512
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "97dc386e-06b1-4551-9138-a6f0e123f55a",
+                "leftValue": "={{ $json.data.state }}",
+                "rightValue": "success",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          272,
+          1808
+        ],
+        "id": "be4c45ca-a89a-4093-95c7-a1019534a610",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"image_url\": $('Upload Image to Cloudinary').item.json.secure_url\n  }\n} }}",
+          "options": {}
+        },
+        "id": "4cceefdd-4659-47d4-88ff-ea5d3f8634dc",
+        "name": "Respond to Frontend",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          992,
+          1728
+        ]
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          1280,
+          1728
+        ],
+        "id": "32d2deb5-9930-4feb-b590-e27200bb5030",
+        "name": "No Operation, do nothing"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "363abbd9-5ed8-4b6a-b1a0-739893a02fff",
+                "name": "video_prompt",
+                "value": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1392,
+          400
+        ],
+        "id": "4d325876-e548-40d8-9381-140416cdc5e3",
+        "name": "Video Prompt3"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.kie.ai/api/v1/jobs/createTask",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output.replace(/\"/g, '').replace(/\\r?\\n|\\r/g, ' ') }}\",\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"15\",\n    \"remove_watermark\": true\n  }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1856,
+          400
+        ],
+        "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
+        "name": "Text to Video2",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "jKY9IeAxHcgmGXo7",
+            "name": "KIe IA Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 20
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          2016,
+          400
+        ],
+        "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
+        "name": "Wait4",
+        "webhookId": "9fd30610-c0b9-4f5c-9af5-89b821c11ec3"
+      },
+      {
+        "parameters": {
+          "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "taskId",
+                "value": "={{ $json.data.taskId }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2144,
+          400
+        ],
+        "id": "d78ffbe8-7951-4473-b982-4eedc2a7d253",
+        "name": "Get Video4",
+        "retryOnFail": true,
+        "maxTries": 3,
+        "waitBetweenTries": 2000,
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "jKY9IeAxHcgmGXo7",
+            "name": "KIe IA Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "4f9a9a29-cc45-4e39-a1a0-e78caadbab09",
+                "leftValue": "={{ $json.data.state }}",
+                "rightValue": "success",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2288,
+          400
+        ],
+        "id": "cc056014-afc3-4cc4-b130-c503d50ca935",
+        "name": "If4"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "714ed3d2-1e81-4aae-a977-8151769371a7",
+                "name": "video_url",
+                "value": "={{ JSON.parse($json.data.resultJson).resultUrls[0] }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2400,
+          80
+        ],
+        "id": "f12b53c8-b24f-4f57-8378-fce26b492770",
+        "name": "Video URL4"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Input: {{ $json.video_prompt }}",
+          "options": {
+            "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito è prendere un concetto grezzo in ingresso (come un’idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall’aspetto naturale** che corrisponda all’intento iniziale. Concentrati sull’ottimizzazione della qualità visiva, del realismo della camera, dell’illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, età, genere, espressione e movimento.\n   * L’ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l’emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\nTutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 2.2,
+        "position": [
+          1568,
+          400
+        ],
+        "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          1552,
+          656
+        ],
+        "id": "73741eaa-2f09-4d8c-8888-03bf3ab5c67c",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "a5599508-1194-41b5-956d-4092758847d4",
+                "leftValue": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Format }}",
+                "rightValue": "video",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "5fdf65f1-3cf7-488a-adf0-a7954311a3ed",
+        "name": "Check Format",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1072,
+          864
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "loop-limit-check",
+                "leftValue": "={{ $runIndex }}",
+                "rightValue": 50,
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "check-loop-limit",
+        "name": "Check Loop Limit",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          2512,
+          416
+        ]
+      },
+      {
+        "parameters": {
+          "fromEmail": "test@n8n.it",
+          "toEmail": "serra.emanuele09@gmail.com",
+          "subject": "⚠️ Video Generation Timeout",
+          "options": {}
+        },
+        "id": "email-timeout",
+        "name": "Email Timeout",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          2704,
+          336
+        ],
+        "webhookId": "2ebe431b-7ff5-48a9-8fd7-3ec9d8a799f3",
+        "credentials": {
+          "smtp": {
+            "id": "3jxHADCw51qvxr54",
+            "name": "SMTP Gmail Serra Personal"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "# 03c. Generazione Video (Ramo Video)\n\n**Scopo:** Genera un video a partire dal prompt elaborato, se il formato richiesto è 'video'.\n\n**Processo:**\n1.  **Prompt Video:** Adatta il concetto per un prompt video.\n2.  **Generazione AI:** Avvia la generazione video (es. Luma/Runway).\n3.  **Loop di Verifica:** Entra in un ciclo (`Wait` -> `Get Status`) finché il video non è pronto.\n4.  **Sicurezza:** Un controllo (`Check Loop Limit`) previene loop infiniti in caso di errore.",
+          "height": 864,
+          "width": 1696
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1312,
+          16
+        ],
+        "typeVersion": 1,
+        "id": "64870d45-4db1-4039-9dac-8175a46693b8",
+        "name": "Sticky Note6"
+      },
+      {
+        "parameters": {
+          "modelName": "models/embedding-001"
+        },
+        "id": "rag-embeddings",
+        "name": "RAG Embeddings",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          -672,
+          944
+        ],
+        "credentials": {
+          "googlePalmApi": {
+            "id": "0hlV653cmbz2iQe4",
+            "name": "Google Gemini(PaLM) Personal Serra"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "load",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "ragn8n",
+            "mode": "list",
+            "cachedResultName": "ragn8n"
+          },
+          "prompt": "=BLC Business Learning Center identità aziendale formazione orientamento professionale riqualificazione valori qualità supporto alle aziende Ticino",
+          "options": {}
+        },
+        "id": "rag-pinecone-query",
+        "name": "Query Company Knowledge",
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          -672,
+          768
+        ],
+        "credentials": {
+          "pineconeApi": {
+            "id": "pg8MVmRWeGRWKAH9",
+            "name": "PineconeApi account Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Leggiamo tutti gli item restituiti da Pinecone\nconst items = $input.all();\nlet context = \"\";\n// Array per raccogliere i testi unici (se ci sono duplicati)\nconst texts = [];\nfor (const item of items) {\n  // Controlliamo se c'è la proprietà 'text' direttamente nel json\n  // OPPURE se c'è un oggetto 'document' con dentro 'pageContent' o 'text'\n  const doc = item.json.document || item.json;\n  \n  const text = doc.pageContent || doc.text;\n  \n  if (text && !texts.includes(text)) {\n    texts.push(text);\n  }\n}\ncontext = texts.join(\"\\n\\n---\\n\\n\");\n// Recuperiamo l'input originale dal Webhook\n// Nota: 'CaptionFlow Webhook' è il nome del nodo trigger\n// Se il trigger ha un nome diverso, aggiornalo qui sotto\nconst originalData = $('CaptionFlow Webhook').first().json;\nreturn [{\n    json: {\n        ...originalData,\n        company_context: context || \"No company-specific context available.\",\n        has_rag_context: context.length > 0\n    }\n}];"
+        },
+        "id": "format-rag-context",
+        "name": "Format Company Context",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -272,
+          896
+        ]
+      }
+    ],
+    "connections": {
+      "(Parse Caption JSON)": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "3c. Generate Post Caption (Gemini)",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(Parse Concept JSON)": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "3a. Generate Content Concept (Gemini)",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(Parse Prompts JSON)": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "3b. Generate Image Prompt Options (Gemini)",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(LLM Model for Caption)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "3c. Generate Post Caption (Gemini)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(LLM Model for Concept)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "3a. Generate Content Concept (Gemini)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(LLM Model for Prompts)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "3b. Generate Image Prompt Options (Gemini)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "5. Prepare Data for Instagram API": {
+        "main": [
+          [
+            {
+              "node": "Upload Image to Cloudinary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3c. Generate Post Caption (Gemini)": {
+        "main": [
+          [
+            {
+              "node": "Check Format",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3b. Generate Image Prompt Options (Gemini)": {
+        "main": [
+          [
+            {
+              "node": "4a. Create Image Task (Kie)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "CaptionFlow Webhook": {
+        "main": [
+          [
+            {
+              "node": "Query Company Knowledge",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Elabora Dati Ricevuti",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "4a. Create Image Task (Kie)": {
+        "main": [
+          [
+            {
+              "node": "4b. Wait for Generation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "4b. Wait for Generation": {
+        "main": [
+          [
+            {
+              "node": "4c. Get Image Result (Kie)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "4c. Get Image Result (Kie)": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Instagram (Upload-Post API)": {
+        "main": [
+          [
+            {
+              "node": "7. Update Post Status in Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload Image to Cloudinary": {
+        "main": [
+          [
+            {
+              "node": "Respond to Frontend",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Check via Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check via Email": {
+        "main": [
+          [
+            {
+              "node": "If Approved",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If Approved": {
+        "main": [
+          [
+            {
+              "node": "Upload to Instagram (Upload-Post API)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Elabora Dati Ricevuti": {
+        "main": [
+          [
+            {
+              "node": "Salva su Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "5. Prepare Data for Instagram API",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "4b. Wait for Generation",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Respond to Frontend": {
+        "main": [
+          [
+            {
+              "node": "No Operation, do nothing",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Video Prompt3": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Text to Video2": {
+        "main": [
+          [
+            {
+              "node": "Wait4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait4": {
+        "main": [
+          [
+            {
+              "node": "Get Video4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Video4": {
+        "main": [
+          [
+            {
+              "node": "If4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If4": {
+        "main": [
+          [
+            {
+              "node": "Video URL4",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Check Loop Limit",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Text to Video2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "2. Prepare Input Variables (Topic, Audience, etc.)": {
+        "main": [
+          [
+            {
+              "node": "3a. Generate Content Concept (Gemini)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Format": {
+        "main": [
+          [
+            {
+              "node": "Video Prompt3",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "3b. Generate Image Prompt Options (Gemini)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3a. Generate Content Concept (Gemini)": {
+        "main": [
+          [
+            {
+              "node": "3c. Generate Post Caption (Gemini)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Video URL4": {
+        "main": [
+          [
+            {
+              "node": "5. Prepare Data for Instagram API",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Loop Limit": {
+        "main": [
+          [
+            {
+              "node": "Email Timeout",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Wait4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RAG Embeddings": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Query Company Knowledge",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Query Company Knowledge": {
+        "main": [
+          [
+            {
+              "node": "Format Company Context",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Company Context": {
+        "main": [
+          [
+            {
+              "node": "2. Prepare Input Variables (Topic, Audience, etc.)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Emanule Serra",
+    "name": "Version 03912d6f",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-03T07:04:45.158Z",
+        "id": 269,
+        "workflowId": "oRYSQ9tk63yPJaqt",
+        "versionId": "03912d6f-8ebc-4031-90d5-327deee3dfc7",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1831 @@
+{
+  "updatedAt": "2026-02-06T08:42:54.547Z",
+  "createdAt": "2026-01-27T00:41:27.620Z",
+  "id": "7KzNvq6NjRbyQ0j9",
+  "name": "Brand Profile V2",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b5ca58d1-8bb6-4326-835e-bc26a612aa94",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        0
+      ],
+      "webhookId": "b5ca58d1-8bb6-4326-835e-bc26a612aa94",
+      "id": "fe9d519e-3a14-427a-b46e-26a3ee97f728"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// FIX: Get input from Webhook directly, as specific items[0] might come from AI nodes now\nconst webhookNode = $('Webhook').first();\nconst input = (webhookNode && webhookNode.json && webhookNode.json.body) ? webhookNode.json.body : (webhookNode ? webhookNode.json : {});\n\n// AI Extraction\nconst aiConceptNode = $(\"3a. Generate Content Concept (Gemini)\").first().json.output?.ideas?.[0] || {};\nconst aiPromptNode = $(\"3b. Generate Image Prompt Options (Gemini)\").first().json.output?.prompt_options?.[0] || {};\nconst aiCaptionNode = $(\"3c. Generate Post Caption (Gemini)\").first().json.output || {};\n\nconst ai_hook = aiConceptNode.concept || \"\";\nconst ai_prompt = aiPromptNode.prompts?.[0] || \"\";\nconst ai_caption = aiCaptionNode.Caption || \"\";\nconst ai_hashtag = aiCaptionNode.Hashtags || \"\";\n\n\n// Helper to normalize strings\nconst str = (val) => val ? String(val).trim() : \"\";\n// Helper joining arrays for Sheets\nconst strJoin = (val) => Array.isArray(val) ? val.join(\", \") : str(val);\n\n// Helper for Notion Multi-Select\nconst getMultiSelect = (val) => {\n    if (Array.isArray(val)) return val.map(v => ({ name: str(v) }));\n    if (typeof val === 'string') return val.split(',').map(v => ({ name: v.trim() })).filter(v => v.name);\n    return [];\n};\n\n// 1. Prepare Flat Data for Google Sheets\nconst flatData = {\n    \"Id_Brand\": input.timestamp || new Date().toISOString(),\n    \"brand_name\": input.brand_name || input.nome_azienda || \"Unknown Brand\",\n    \"website\": input.website || input.sito_web || \"\",\n    \"settore\": input.settore || \"\",\n    \"target_age\": input.target_age || \"\",\n    \"target_job\": input.target_job || \"\",\n    \"target_geo\": input.target_geo || input.physical_address || \"\",\n    \"tone_voice\": input.tone_voice || \"\",\n    \"pain_point_1\": input.pain_point_1 || \"\",\n    \"pain_point_2\": input.pain_point_2 || \"\",\n    \"pain_point_3\": input.pain_point_3 || \"\",\n    \"value_prop\": input.value_prop || \"\",\n    \"competitor_1_name\": input.competitor_1_name || \"\",\n    \"competitor_1_instagram\": input.competitor_1_instagram || \"\",\n    \"competitor_2_name\": input.competitor_2_name || \"\",\n    \"competitor_2_instagram\": input.competitor_2_instagram || \"\",\n    \"Keywords\": strJoin(input.keywords),\n    \"Hook AI\": ai_hook,\n    \"Hashtag AI\": ai_hashtag,\n    \"Testo completo\": ai_caption,\n    \"Image Prompt (Banana)\": ai_prompt,\n    \"Data di lavorazione AI\": new Date().toISOString(),\n    \"Text to start\": input.text_to_start || input.Topic,\n\n    \"max_emoji\": input.max_emoji || 0,\n    \"Confidence_score\": input.confidence_score || 0,\n    \"Warnings\": input.warnings || \"\",\n    \"created_at\": new Date().toISOString()\n};\n\n// 2. Prepare Payload for Notion API\nconst notionPayload = {\n    parent: { database_id: \"2f5fa85c-0d03-81b5-b333-cdb74b8ce81b\" },\n    properties: {\n        \"Name\": { title: [ { text: { content: str(flatData.brand_name) } } ] },\n        \"Website\": { url: flatData.website || null },\n        \"Settore\": { rich_text: [ { text: { content: str(flatData.settore) } } ] },\n        \"Target Age\": { rich_text: [ { text: { content: str(flatData.target_age) } } ] },\n        \"Target Job\": { rich_text: [ { text: { content: str(flatData.target_job) } } ] },\n        \"Target Geo\": { rich_text: [ { text: { content: str(flatData.target_geo) } } ] },\n        \"Tone Voice\": { rich_text: [ { text: { content: str(flatData.tone_voice) } } ] },\n        \"Pain 1\": { rich_text: [ { text: { content: str(flatData.pain_point_1) } } ] },\n        \"Pain 2\": { rich_text: [ { text: { content: str(flatData.pain_point_2) } } ] },\n        \"Pain 3\": { rich_text: [ { text: { content: str(flatData.pain_point_3) } } ] },\n        \"Value Prop\": { rich_text: [ { text: { content: str(flatData.value_prop) } } ] },\n        \"Comp 1 Name\": { rich_text: [ { text: { content: str(flatData.competitor_1_name) } } ] },\n        \"Comp 1 IG\": { rich_text: [ { text: { content: str(flatData.competitor_1_instagram) } } ] },\n        \"Comp 2 Name\": { rich_text: [ { text: { content: str(flatData.competitor_2_name) } } ] },\n        \"Comp 2 IG\": { rich_text: [ { text: { content: str(flatData.competitor_2_instagram) } } ] },\n        \"Keywords\": { multi_select: getMultiSelect(input.keywords) },\n        \"Max Emoji\": { number: Number(flatData.max_emoji) || 0 },\n        \"Confidence\": { number: Number(flatData.Confidence_score) || 0 }\n    }\n};\n\n// Return merged object\nreturn {\n  json: {\n    ...flatData,\n    notion_payload: notionPayload\n  }\n};\n"
+      },
+      "name": "Map Data V2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -912,
+        432
+      ],
+      "id": "691a65ce-b961-4d5e-97fb-031e9e8cf659"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_NOTION_TOKEN"
+            },
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.notion_payload }}",
+        "options": {}
+      },
+      "name": "Notion HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -608,
+        400
+      ],
+      "id": "a8c0f378-37f5-4843-a32b-3fe2c25537c0"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+          "mode": "list",
+          "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 443464239,
+          "mode": "list",
+          "cachedResultName": "DB Brand Profile",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=443464239"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id_Brand",
+              "displayName": "Id_Brand",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "brand_name",
+              "displayName": "brand_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "settore",
+              "displayName": "settore",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_age",
+              "displayName": "target_age",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_job",
+              "displayName": "target_job",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_geo",
+              "displayName": "target_geo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tone_voice",
+              "displayName": "tone_voice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pain_point_1",
+              "displayName": "pain_point_1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pain_point_2",
+              "displayName": "pain_point_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pain_point_3",
+              "displayName": "pain_point_3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "value_prop",
+              "displayName": "value_prop",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "competitor_1_name",
+              "displayName": "competitor_1_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "competitor_1_instagram",
+              "displayName": "competitor_1_instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "competitor_2_name",
+              "displayName": "competitor_2_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "competitor_2_instagram",
+              "displayName": "competitor_2_instagram",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Keywords",
+              "displayName": "Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "max_emoji",
+              "displayName": "max_emoji",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence_score",
+              "displayName": "Confidence_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Warnings",
+              "displayName": "Warnings",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hook AI",
+              "displayName": "Hook AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hashtag AI",
+              "displayName": "Hashtag AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Testo completo",
+              "displayName": "Testo completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Prompt (Banana)",
+              "displayName": "Image Prompt (Banana)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Data di lavorazione AI",
+              "displayName": "Data di lavorazione AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "notion_payload",
+              "displayName": "notion_payload",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        592
+      ],
+      "id": "4ed12faf-be76-4e6d-8033-77a16131a143",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VcArlZlpyjQDbJj5",
+          "name": "Google Sheets Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**, genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Più visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalità:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.body.text_to_start }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">Instagram</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
+            }
+          ]
+        }
+      },
+      "id": "6bcdf760-210f-422a-9785-8325654593ac",
+      "name": "3a. Generate Content Concept (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -672,
+        0
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.0-flash-001",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "id": "e111e21a-99a7-426e-9fe9-83e786109dee",
+      "name": "(LLM Model for Concept)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -704,
+        176
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ideas\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly 1 content concept.\",\n      \"minItems\": 1,\n      \"maxItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"concept\": {\n            \"type\": \"string\",\n            \"description\": \"The detailed text describing the content concept for a Single Image.\"\n          },\n          \"suggested_format\": {\n            \"type\": \"string\",\n            \"description\": \"The post format, which MUST be 'Single Image'.\",\n            \"const\": \"Single Image\"\n          }\n        },\n        \"required\": [\n          \"concept\",\n          \"suggested_format\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"ideas\"\n  ]\n}"
+      },
+      "id": "be1b0781-15ee-43b7-acdd-8ba2a1faf3ea",
+      "name": "(Parse Concept JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -512,
+        176
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilità con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire varietà significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $json.body.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.body.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.body.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.body.Platform }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
+            }
+          ]
+        }
+      },
+      "id": "46b3b75c-94df-4a3a-930a-78518ad4e953",
+      "name": "3b. Generate Image Prompt Options (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -320,
+        0
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.0-flash-001",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "id": "beaaf466-c19f-40e9-ab0f-bbf318522915",
+      "name": "(LLM Model for Prompts)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -320,
+        176
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"expanded_post_concept\": {\n      \"type\": \"string\",\n      \"description\": \"The elaborated visual concept, stating Single Image format and incorporating user input/platform considerations.\"\n    },\n    \"prompt_options\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly TWO prompt options for the single image concept.\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"option_description\": {\n            \"type\": \"string\",\n            \"description\": \"Briefly describes the distinct angle/style of this option (e.g., 'Option 1: Hyperrealistic...').\"\n          },\n          \"prompts\": {\n            \"type\": \"array\",\n            \"description\": \"Contains ONE detailed prompt string for the single image.\",\n            \"minItems\": 1,\n            \"maxItems\": 1,\n            \"items\": {\n              \"type\": \"string\",\n              \"description\": \"A detailed image generation prompt.\"\n            }\n          }\n        },\n        \"required\": [\n          \"option_description\",\n          \"prompts\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"expanded_post_concept\",\n    \"prompt_options\"\n  ]\n}"
+      },
+      "id": "133bbc03-531e-4da3-adaa-2fca10b941fd",
+      "name": "(Parse Prompts JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -160,
+        176
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo è OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $json.body.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $json.body.Topic }}\n- Audience: {{ $json.body.TargetAudience }}\n- Voice: {{ $json.body.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
+            }
+          ]
+        }
+      },
+      "id": "791835f1-c96f-4fb7-9288-82f1391fcbd9",
+      "name": "3c. Generate Post Caption (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        80,
+        144
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.0-flash-001",
+        "options": {
+          "baseURL": "https://openrouter.ai/api/v1"
+        }
+      },
+      "id": "a2fda1d1-7317-41a2-832e-74a7bad9f4a9",
+      "name": "(LLM Model for Caption)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        32,
+        368
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Caption\": \"Thee future of call centers is here!\"\n}"
+      },
+      "id": "6e214b40-4885-417f-b426-32aa12cfbfb4",
+      "name": "(Parse Caption JSON)",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        240,
+        368
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Esegui ora la trasformazione seguendo le tue istruzioni.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=<prompt>\n    <role>\n        Sei un **Data Structuring Expert** specializzato nell'ottimizzazione di documenti per **RAG (Retrieval-Augmented Generation)** e Vector Databases (come Pinecone).\n    </role>\n\n    <task>\n        Trasforma i dati grezzi del brand in un documento **Markdown strutturato semanticamente**.\n        L'obiettivo è massimizzare la 'retrievability' delle informazioni durante la ricerca vettoriale.\n    </task>\n\n    <guidelines>\n        1.  **Gerarchia Chiara:** Usa H1 (#) SOLO per il nome del brand. Usa H2 (##) per le sezioni principali.\n        2.  **Keywords Density:** Inizia con una sezione 'Summary' che condensa le keyword e il value prop in linguaggio naturale.\n        3.  **Liste Pulite:** Formatta punti elenco con trattino `- ` per pain points e caratteristiche.\n        4.  **Separazione Netta:** Assicurati che ogni sezione abbia il suo spazio. Evita tabelle complesse (usa liste).\n        5.  **Lingua:** ITALIANO.\n    </guidelines>\n\n    <input_context>\n        {{ JSON.stringify($json) }}\n    </input_context>\n\n    <output_format>\n        Restituisci ESCLUSIVAMENTE il contenuto Markdown. Nessun blocco di codice (```json), solo testo Markdown puro.\n    </output_format>\n</prompt>"
+            }
+          ]
+        }
+      },
+      "id": "generate-rag-markdown",
+      "name": "Generate RAG Markdown",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -320,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "limit": 1,
+        "filter": {
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          }
+        },
+        "options": {}
+      },
+      "id": "find-rag-folder",
+      "name": "Find RAG Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        0,
+        560
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare Binary Data\nconst content = $(\"Generate RAG Markdown\").first().json.text || $(\"Generate RAG Markdown\").first().json.output || \"\";\nconst brandName = $(\"Map Data V2\").first().json.brand_name || \"Unknown_Brand\";\nconst safeName = brandName.replace(/[^a-zA-Z0-9]/g, '_');\nconst fileName = `${safeName}_profile.md`;\n\n// Get Folder ID\nconst folderId = $input.item.json.id;\n\nreturn {\n  json: {\n    fileName: fileName,\n    folderId: folderId\n  },\n  binary: {\n    data: {\n      data: Buffer.from(content).toString('base64'),\n      mimeType: 'text/markdown',\n      fileName: fileName\n    }\n  }\n};"
+      },
+      "id": "create-binary-md",
+      "name": "Create Markdown Binary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "upload-rag-file",
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        384,
+        560
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-opus-4.5",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        720
+      ],
+      "id": "c047b5a1-804a-488a-b978-71b6936ea878",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "k5yt8BXWoDf12MAo",
+          "name": "OpenRouter account BLC v2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "3a. Generate Content Concept (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Data V2": {
+      "main": [
+        [
+          {
+            "node": "Notion HTTP",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate RAG Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Parse Caption JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "3c. Generate Post Caption (Gemini)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Parse Concept JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "3a. Generate Content Concept (Gemini)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(Parse Prompts JSON)": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "3b. Generate Image Prompt Options (Gemini)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(LLM Model for Caption)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3c. Generate Post Caption (Gemini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(LLM Model for Concept)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3a. Generate Content Concept (Gemini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "(LLM Model for Prompts)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3b. Generate Image Prompt Options (Gemini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3c. Generate Post Caption (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Map Data V2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3a. Generate Content Concept (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "3b. Generate Image Prompt Options (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3b. Generate Image Prompt Options (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "3c. Generate Post Caption (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Model (RAG)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate RAG Markdown",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate RAG Markdown": {
+      "main": [
+        [
+          {
+            "node": "Find RAG Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find RAG Folder": {
+      "main": [
+        [
+          {
+            "node": "Create Markdown Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Markdown Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate RAG Markdown",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "executionOrder": "v0"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "emanueleserra.app.n8n.cloud",
+            "content-length": "485",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "87.7.43.105",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IT",
+            "cf-ray": "9c9880cfa631edab-MXP",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "87.7.43.105, 172.70.216.140",
+            "x-forwarded-host": "emanueleserra.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-16-6f778b7769-zs7bd",
+            "x-is-trusted": "yes",
+            "x-real-ip": "87.7.43.105"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "brand_name": "Test Brand V3",
+            "website": "www.testbrand.com",
+            "settore": "Test Settore",
+            "target_age": "25-45",
+            "target_job": "Professionisti",
+            "target_geo": "Italia",
+            "tone_voice": "Professionale",
+            "pain_point_1": "Test pain 1",
+            "pain_point_2": "Test pain 2",
+            "pain_point_3": "Test pain 3",
+            "value_prop": "Test value proposition",
+            "competitor_1_name": "Competitor 1",
+            "competitor_1_instagram": "@comp1",
+            "competitor_2_name": "Competitor 2",
+            "competitor_2_instagram": "@comp2",
+            "Keywords": "test, keywords, brand"
+          },
+          "webhookUrl": "https://emanueleserra.app.n8n.cloud/webhook/b5ca58d1-8bb6-4326-835e-bc26a612aa94",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "6ebc5ec7-866d-48c7-9363-bb815891088c",
+  "activeVersionId": "6ebc5ec7-866d-48c7-9363-bb815891088c",
+  "versionCounter": 124,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-27T06:19:19.221Z",
+      "createdAt": "2026-01-27T06:19:19.221Z",
+      "role": "workflow:owner",
+      "workflowId": "7KzNvq6NjRbyQ0j9",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-02-06T05:47:33.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-05",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [
+    {
+      "updatedAt": "2025-12-13T21:46:40.719Z",
+      "createdAt": "2025-12-13T21:46:40.719Z",
+      "id": "PUjESHAi7MJ6zKDr",
+      "name": "ai-content"
+    },
+    {
+      "updatedAt": "2025-11-28T20:42:38.923Z",
+      "createdAt": "2025-11-28T20:42:38.923Z",
+      "id": "toA0pH2gwX57UxWi",
+      "name": "Arca 24"
+    },
+    {
+      "updatedAt": "2025-11-07T08:27:44.450Z",
+      "createdAt": "2025-11-07T08:27:44.450Z",
+      "id": "yDdOP1bFoRVdBivK",
+      "name": "Social"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-02-06T06:49:57.000Z",
+    "createdAt": "2026-02-06T06:49:55.555Z",
+    "versionId": "6ebc5ec7-866d-48c7-9363-bb815891088c",
+    "workflowId": "7KzNvq6NjRbyQ0j9",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "b5ca58d1-8bb6-4326-835e-bc26a612aa94",
+          "options": {}
+        },
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          -1024,
+          0
+        ],
+        "webhookId": "b5ca58d1-8bb6-4326-835e-bc26a612aa94",
+        "id": "fe9d519e-3a14-427a-b46e-26a3ee97f728"
+      },
+      {
+        "parameters": {
+          "jsCode": "\n// FIX: Get input from Webhook directly, as specific items[0] might come from AI nodes now\nconst webhookNode = $('Webhook').first();\nconst input = (webhookNode && webhookNode.json && webhookNode.json.body) ? webhookNode.json.body : (webhookNode ? webhookNode.json : {});\n\n// AI Extraction\nconst aiConceptNode = $(\"3a. Generate Content Concept (Gemini)\").first().json.output?.ideas?.[0] || {};\nconst aiPromptNode = $(\"3b. Generate Image Prompt Options (Gemini)\").first().json.output?.prompt_options?.[0] || {};\nconst aiCaptionNode = $(\"3c. Generate Post Caption (Gemini)\").first().json.output || {};\n\nconst ai_hook = aiConceptNode.concept || \"\";\nconst ai_prompt = aiPromptNode.prompts?.[0] || \"\";\nconst ai_caption = aiCaptionNode.Caption || \"\";\nconst ai_hashtag = aiCaptionNode.Hashtags || \"\";\n\n\n// Helper to normalize strings\nconst str = (val) => val ? String(val).trim() : \"\";\n// Helper joining arrays for Sheets\nconst strJoin = (val) => Array.isArray(val) ? val.join(\", \") : str(val);\n\n// Helper for Notion Multi-Select\nconst getMultiSelect = (val) => {\n    if (Array.isArray(val)) return val.map(v => ({ name: str(v) }));\n    if (typeof val === 'string') return val.split(',').map(v => ({ name: v.trim() })).filter(v => v.name);\n    return [];\n};\n\n// 1. Prepare Flat Data for Google Sheets\nconst flatData = {\n    \"Id_Brand\": input.timestamp || new Date().toISOString(),\n    \"brand_name\": input.brand_name || input.nome_azienda || \"Unknown Brand\",\n    \"website\": input.website || input.sito_web || \"\",\n    \"settore\": input.settore || \"\",\n    \"target_age\": input.target_age || \"\",\n    \"target_job\": input.target_job || \"\",\n    \"target_geo\": input.target_geo || input.physical_address || \"\",\n    \"tone_voice\": input.tone_voice || \"\",\n    \"pain_point_1\": input.pain_point_1 || \"\",\n    \"pain_point_2\": input.pain_point_2 || \"\",\n    \"pain_point_3\": input.pain_point_3 || \"\",\n    \"value_prop\": input.value_prop || \"\",\n    \"competitor_1_name\": input.competitor_1_name || \"\",\n    \"competitor_1_instagram\": input.competitor_1_instagram || \"\",\n    \"competitor_2_name\": input.competitor_2_name || \"\",\n    \"competitor_2_instagram\": input.competitor_2_instagram || \"\",\n    \"Keywords\": strJoin(input.keywords),\n    \"Hook AI\": ai_hook,\n    \"Hashtag AI\": ai_hashtag,\n    \"Testo completo\": ai_caption,\n    \"Image Prompt (Banana)\": ai_prompt,\n    \"Data di lavorazione AI\": new Date().toISOString(),\n    \"Text to start\": input.text_to_start || input.Topic,\n\n    \"max_emoji\": input.max_emoji || 0,\n    \"Confidence_score\": input.confidence_score || 0,\n    \"Warnings\": input.warnings || \"\",\n    \"created_at\": new Date().toISOString()\n};\n\n// 2. Prepare Payload for Notion API\nconst notionPayload = {\n    parent: { database_id: \"2f5fa85c-0d03-81b5-b333-cdb74b8ce81b\" },\n    properties: {\n        \"Name\": { title: [ { text: { content: str(flatData.brand_name) } } ] },\n        \"Website\": { url: flatData.website || null },\n        \"Settore\": { rich_text: [ { text: { content: str(flatData.settore) } } ] },\n        \"Target Age\": { rich_text: [ { text: { content: str(flatData.target_age) } } ] },\n        \"Target Job\": { rich_text: [ { text: { content: str(flatData.target_job) } } ] },\n        \"Target Geo\": { rich_text: [ { text: { content: str(flatData.target_geo) } } ] },\n        \"Tone Voice\": { rich_text: [ { text: { content: str(flatData.tone_voice) } } ] },\n        \"Pain 1\": { rich_text: [ { text: { content: str(flatData.pain_point_1) } } ] },\n        \"Pain 2\": { rich_text: [ { text: { content: str(flatData.pain_point_2) } } ] },\n        \"Pain 3\": { rich_text: [ { text: { content: str(flatData.pain_point_3) } } ] },\n        \"Value Prop\": { rich_text: [ { text: { content: str(flatData.value_prop) } } ] },\n        \"Comp 1 Name\": { rich_text: [ { text: { content: str(flatData.competitor_1_name) } } ] },\n        \"Comp 1 IG\": { rich_text: [ { text: { content: str(flatData.competitor_1_instagram) } } ] },\n        \"Comp 2 Name\": { rich_text: [ { text: { content: str(flatData.competitor_2_name) } } ] },\n        \"Comp 2 IG\": { rich_text: [ { text: { content: str(flatData.competitor_2_instagram) } } ] },\n        \"Keywords\": { multi_select: getMultiSelect(input.keywords) },\n        \"Max Emoji\": { number: Number(flatData.max_emoji) || 0 },\n        \"Confidence\": { number: Number(flatData.Confidence_score) || 0 }\n    }\n};\n\n// Return merged object\nreturn {\n  json: {\n    ...flatData,\n    notion_payload: notionPayload\n  }\n};\n"
+        },
+        "name": "Map Data V2",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -912,
+          432
+        ],
+        "id": "691a65ce-b961-4d5e-97fb-031e9e8cf659"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.notion.com/v1/pages",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "Bearer REDACTED_NOTION_TOKEN"
+              },
+              {
+                "name": "Notion-Version",
+                "value": "2022-06-28"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.notion_payload }}",
+          "options": {}
+        },
+        "name": "Notion HTTP",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.1,
+        "position": [
+          -608,
+          400
+        ],
+        "id": "a8c0f378-37f5-4843-a32b-3fe2c25537c0"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU",
+            "mode": "list",
+            "cachedResultName": "BLC_Text to Instagram N8N Workflow",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 443464239,
+            "mode": "list",
+            "cachedResultName": "DB Brand Profile",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1CBlr9QM_Te4GlgMY_PnhecImRr5LDev0enRAGMUUWvU/edit#gid=443464239"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Id_Brand",
+                "displayName": "Id_Brand",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "brand_name",
+                "displayName": "brand_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "website",
+                "displayName": "website",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "settore",
+                "displayName": "settore",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "target_age",
+                "displayName": "target_age",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "target_job",
+                "displayName": "target_job",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "target_geo",
+                "displayName": "target_geo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "tone_voice",
+                "displayName": "tone_voice",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "pain_point_1",
+                "displayName": "pain_point_1",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "pain_point_2",
+                "displayName": "pain_point_2",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "pain_point_3",
+                "displayName": "pain_point_3",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "value_prop",
+                "displayName": "value_prop",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "competitor_1_name",
+                "displayName": "competitor_1_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "competitor_1_instagram",
+                "displayName": "competitor_1_instagram",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "competitor_2_name",
+                "displayName": "competitor_2_name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "competitor_2_instagram",
+                "displayName": "competitor_2_instagram",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Keywords",
+                "displayName": "Keywords",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "max_emoji",
+                "displayName": "max_emoji",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Confidence_score",
+                "displayName": "Confidence_score",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Warnings",
+                "displayName": "Warnings",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Hook AI",
+                "displayName": "Hook AI",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Hashtag AI",
+                "displayName": "Hashtag AI",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Testo completo",
+                "displayName": "Testo completo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Image Prompt (Banana)",
+                "displayName": "Image Prompt (Banana)",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Data di lavorazione AI",
+                "displayName": "Data di lavorazione AI",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "created_at",
+                "displayName": "created_at",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "notion_payload",
+                "displayName": "notion_payload",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "name": "Google Sheets",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          -608,
+          592
+        ],
+        "id": "4ed12faf-be76-4e6d-8033-77a16131a143",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "VcArlZlpyjQDbJj5",
+            "name": "Google Sheets Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**, genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Più visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalità:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.body.text_to_start }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">Instagram</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
+              }
+            ]
+          }
+        },
+        "id": "6bcdf760-210f-422a-9785-8325654593ac",
+        "name": "3a. Generate Content Concept (Gemini)",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -672,
+          0
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "model": "google/gemini-2.0-flash-001",
+          "options": {
+            "baseURL": "https://openrouter.ai/api/v1"
+          }
+        },
+        "id": "e111e21a-99a7-426e-9fe9-83e786109dee",
+        "name": "(LLM Model for Concept)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -704,
+          176
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ideas\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly 1 content concept.\",\n      \"minItems\": 1,\n      \"maxItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"concept\": {\n            \"type\": \"string\",\n            \"description\": \"The detailed text describing the content concept for a Single Image.\"\n          },\n          \"suggested_format\": {\n            \"type\": \"string\",\n            \"description\": \"The post format, which MUST be 'Single Image'.\",\n            \"const\": \"Single Image\"\n          }\n        },\n        \"required\": [\n          \"concept\",\n          \"suggested_format\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"ideas\"\n  ]\n}"
+        },
+        "id": "be1b0781-15ee-43b7-acdd-8ba2a1faf3ea",
+        "name": "(Parse Concept JSON)",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          -512,
+          176
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilità con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire varietà significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $json.body.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.body.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.body.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.body.Platform }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
+              }
+            ]
+          }
+        },
+        "id": "46b3b75c-94df-4a3a-930a-78518ad4e953",
+        "name": "3b. Generate Image Prompt Options (Gemini)",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          -320,
+          0
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "model": "google/gemini-2.0-flash-001",
+          "options": {
+            "baseURL": "https://openrouter.ai/api/v1"
+          }
+        },
+        "id": "beaaf466-c19f-40e9-ab0f-bbf318522915",
+        "name": "(LLM Model for Prompts)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          -320,
+          176
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "schemaType": "manual",
+          "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"expanded_post_concept\": {\n      \"type\": \"string\",\n      \"description\": \"The elaborated visual concept, stating Single Image format and incorporating user input/platform considerations.\"\n    },\n    \"prompt_options\": {\n      \"type\": \"array\",\n      \"description\": \"An array containing exactly TWO prompt options for the single image concept.\",\n      \"minItems\": 2,\n      \"maxItems\": 2,\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"option_description\": {\n            \"type\": \"string\",\n            \"description\": \"Briefly describes the distinct angle/style of this option (e.g., 'Option 1: Hyperrealistic...').\"\n          },\n          \"prompts\": {\n            \"type\": \"array\",\n            \"description\": \"Contains ONE detailed prompt string for the single image.\",\n            \"minItems\": 1,\n            \"maxItems\": 1,\n            \"items\": {\n              \"type\": \"string\",\n              \"description\": \"A detailed image generation prompt.\"\n            }\n          }\n        },\n        \"required\": [\n          \"option_description\",\n          \"prompts\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"expanded_post_concept\",\n    \"prompt_options\"\n  ]\n}"
+        },
+        "id": "133bbc03-531e-4da3-adaa-2fca10b941fd",
+        "name": "(Parse Prompts JSON)",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          -160,
+          176
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=",
+          "hasOutputParser": true,
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo è OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $json.body.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $json.body.Topic }}\n- Audience: {{ $json.body.TargetAudience }}\n- Voice: {{ $json.body.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
+              }
+            ]
+          }
+        },
+        "id": "791835f1-c96f-4fb7-9288-82f1391fcbd9",
+        "name": "3c. Generate Post Caption (Gemini)",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "position": [
+          80,
+          144
+        ],
+        "typeVersion": 1.5
+      },
+      {
+        "parameters": {
+          "model": "google/gemini-2.0-flash-001",
+          "options": {
+            "baseURL": "https://openrouter.ai/api/v1"
+          }
+        },
+        "id": "a2fda1d1-7317-41a2-832e-74a7bad9f4a9",
+        "name": "(LLM Model for Caption)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          32,
+          368
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsonSchemaExample": "{\n\t\"Caption\": \"Thee future of call centers is here!\"\n}"
+        },
+        "id": "6e214b40-4885-417f-b426-32aa12cfbfb4",
+        "name": "(Parse Caption JSON)",
+        "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+        "position": [
+          240,
+          368
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "Esegui ora la trasformazione seguendo le tue istruzioni.",
+          "messages": {
+            "messageValues": [
+              {
+                "message": "=<prompt>\n    <role>\n        Sei un **Data Structuring Expert** specializzato nell'ottimizzazione di documenti per **RAG (Retrieval-Augmented Generation)** e Vector Databases (come Pinecone).\n    </role>\n\n    <task>\n        Trasforma i dati grezzi del brand in un documento **Markdown strutturato semanticamente**.\n        L'obiettivo è massimizzare la 'retrievability' delle informazioni durante la ricerca vettoriale.\n    </task>\n\n    <guidelines>\n        1.  **Gerarchia Chiara:** Usa H1 (#) SOLO per il nome del brand. Usa H2 (##) per le sezioni principali.\n        2.  **Keywords Density:** Inizia con una sezione 'Summary' che condensa le keyword e il value prop in linguaggio naturale.\n        3.  **Liste Pulite:** Formatta punti elenco con trattino `- ` per pain points e caratteristiche.\n        4.  **Separazione Netta:** Assicurati che ogni sezione abbia il suo spazio. Evita tabelle complesse (usa liste).\n        5.  **Lingua:** ITALIANO.\n    </guidelines>\n\n    <input_context>\n        {{ JSON.stringify($json) }}\n    </input_context>\n\n    <output_format>\n        Restituisci ESCLUSIVAMENTE il contenuto Markdown. Nessun blocco di codice (```json), solo testo Markdown puro.\n    </output_format>\n</prompt>"
+              }
+            ]
+          }
+        },
+        "id": "generate-rag-markdown",
+        "name": "Generate RAG Markdown",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.5,
+        "position": [
+          -320,
+          544
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "fileFolder",
+          "limit": 1,
+          "filter": {
+            "driveId": {
+              "__rl": true,
+              "mode": "list",
+              "value": "My Drive"
+            }
+          },
+          "options": {}
+        },
+        "id": "find-rag-folder",
+        "name": "Find RAG Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          0,
+          560
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Prepare Binary Data\nconst content = $(\"Generate RAG Markdown\").first().json.text || $(\"Generate RAG Markdown\").first().json.output || \"\";\nconst brandName = $(\"Map Data V2\").first().json.brand_name || \"Unknown_Brand\";\nconst safeName = brandName.replace(/[^a-zA-Z0-9]/g, '_');\nconst fileName = `${safeName}_profile.md`;\n\n// Get Folder ID\nconst folderId = $input.item.json.id;\n\nreturn {\n  json: {\n    fileName: fileName,\n    folderId: folderId\n  },\n  binary: {\n    data: {\n      data: Buffer.from(content).toString('base64'),\n      mimeType: 'text/markdown',\n      fileName: fileName\n    }\n  }\n};"
+        },
+        "id": "create-binary-md",
+        "name": "Create Markdown Binary",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          192,
+          560
+        ]
+      },
+      {
+        "parameters": {
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "root",
+            "cachedResultName": "/ (Root folder)"
+          },
+          "options": {}
+        },
+        "id": "upload-rag-file",
+        "name": "Upload to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          384,
+          560
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "anthropic/claude-opus-4.5",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          -304,
+          720
+        ],
+        "id": "c047b5a1-804a-488a-b978-71b6936ea878",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "k5yt8BXWoDf12MAo",
+            "name": "OpenRouter account BLC v2"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "3a. Generate Content Concept (Gemini)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Map Data V2": {
+        "main": [
+          [
+            {
+              "node": "Notion HTTP",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Generate RAG Markdown",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(Parse Caption JSON)": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "3c. Generate Post Caption (Gemini)",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(Parse Concept JSON)": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "3a. Generate Content Concept (Gemini)",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(Parse Prompts JSON)": {
+        "ai_outputParser": [
+          [
+            {
+              "node": "3b. Generate Image Prompt Options (Gemini)",
+              "type": "ai_outputParser",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(LLM Model for Caption)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "3c. Generate Post Caption (Gemini)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(LLM Model for Concept)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "3a. Generate Content Concept (Gemini)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "(LLM Model for Prompts)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "3b. Generate Image Prompt Options (Gemini)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3c. Generate Post Caption (Gemini)": {
+        "main": [
+          [
+            {
+              "node": "Map Data V2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3a. Generate Content Concept (Gemini)": {
+        "main": [
+          [
+            {
+              "node": "3b. Generate Image Prompt Options (Gemini)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3b. Generate Image Prompt Options (Gemini)": {
+        "main": [
+          [
+            {
+              "node": "3c. Generate Post Caption (Gemini)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LLM Model (RAG)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate RAG Markdown",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate RAG Markdown": {
+        "main": [
+          [
+            {
+              "node": "Find RAG Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Find RAG Folder": {
+        "main": [
+          [
+            {
+              "node": "Create Markdown Binary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Markdown Binary": {
+        "main": [
+          [
+            {
+              "node": "Upload to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate RAG Markdown",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Emanule Serra",
+    "name": "Version 6ebc5ec7",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-06T06:49:57.572Z",
+        "id": 361,
+        "workflowId": "7KzNvq6NjRbyQ0j9",
+        "versionId": "6ebc5ec7-866d-48c7-9363-bb815891088c",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      },
+      {
+        "createdAt": "2026-02-06T08:42:54.742Z",
+        "id": 363,
+        "workflowId": "7KzNvq6NjRbyQ0j9",
+        "versionId": "6ebc5ec7-866d-48c7-9363-bb815891088c",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
+  }
+}
