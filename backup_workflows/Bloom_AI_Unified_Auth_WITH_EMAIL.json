@@ -1,0 +1,230 @@
+{
+  "name": "Bloom AI Unified Auth (With Email)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "auth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [460, 360],
+      "webhookId": "auth"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.body.mode }}",
+        "rules": {
+          "rules": [
+            { "value2": "login" },
+            { "value2": "register" }
+          ]
+        }
+      },
+      "id": "switch-mode",
+      "name": "Switch Mode",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [680, 360]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+          "mode": "list",
+          "cachedResultName": "Brand Profiles Database"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $json.body.username }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.body.email }}"
+            },
+            {
+              "key": "Password|rich_text",
+              "textContent": "={{ $json.body.password }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-user",
+      "name": "Create User",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.1,
+      "position": [940, 480],
+      "credentials": {
+        "notionApi": {
+          "id": "jNP7bHIu6NZaobB0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+          "mode": "list",
+          "cachedResultName": "Brand Profiles Database"
+        },
+        "filterType": "manual",
+        "matchType": "all",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Name|title",
+              "condition": "equals",
+              "title": "={{ $('Webhook').item.json.body.username }}"
+            }
+          ]
+        },
+        "options": {
+          "alwaysOutputData": true
+        }
+      },
+      "id": "get-user",
+      "name": "Get User",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.1,
+      "position": [940, 240],
+      "credentials": {
+        "notionApi": {
+          "id": "jNP7bHIu6NZaobB0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Run for ALL items to find one match\nconst webhookBody = $('Webhook').item.json.body;\nconst targetPassword = webhookBody.password ? webhookBody.password.toString().trim() : '';\n\nlet authorized = false;\nlet foundUser = null;\nlet reason = 'User not found';\n\n// Loop through all items returned by Notion\nfor (const item of items) {\n  const notionItem = item.json;\n  \n  if (!notionItem.id) continue;\n\n  let storedPassword = '';\n\n  // STRATEGY 1: N8N Simplified Mode (Prefix 'property_')\n  if (notionItem['property_password']) {\n      storedPassword = notionItem['property_password'];\n  }\n  // STRATEGY 2: Flattened regular (e.g. notionItem.Password)\n  else if (notionItem['Password']) {\n      storedPassword = notionItem['Password'];\n  }\n  // STRATEGY 3: Nested Properties\n  else if (notionItem.properties && notionItem.properties.Password) {\n      if (notionItem.properties.Password.rich_text && notionItem.properties.Password.rich_text.length > 0) {\n          storedPassword = notionItem.properties.Password.rich_text[0].plain_text;\n      } else if (typeof notionItem.properties.Password === 'string') {\n          storedPassword = notionItem.properties.Password;\n      }\n  }\n\n  const cleanStored = storedPassword ? storedPassword.toString().trim() : '';\n\n  // Compare\n  if (cleanStored === targetPassword) {\n    authorized = true;\n    foundUser = notionItem;\n    break;\n  } else {\n     reason = 'Invalid Username or Password';\n  }\n}\n\nif (authorized) {\n  return [{ json: { authorized: true, user: foundUser } }];\n} else {\n  return [{ json: { authorized: false, reason: reason } }];\n}"
+      },
+      "id": "validate-user",
+      "name": "Validate User",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [1120, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.authorized }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-auth",
+      "name": "If Authorized",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1300, 240]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@bloom-ai.app",
+        "toEmail": "={{ $('Webhook').item.json.body.email }}",
+        "subject": "🚀 Benvenuto in Bloom AI - La tua registrazione è completa!",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\n<html lang=\"it\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Benvenuto in Bloom AI</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #030303 0%, #0A0A0A 100%);\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background: linear-gradient(135deg, #030303 0%, #0A0A0A 100%); padding: 40px 20px;\">\n        <tr>\n            <td align=\"center\">\n                <!-- Main Container -->\n                <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 600px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);\">\n                    \n                    <!-- Header with Logo -->\n                    <tr>\n                        <td style=\"background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(179, 73, 193, 0.1) 100%); padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05);\">\n                            <div style=\"margin-bottom: 20px;\">\n                                <div style=\"display: inline-block; width: 80px; height: 80px; background: linear-gradient(135deg, #FF6B35 0%, #B349C1 100%); border-radius: 20px; padding: 2px;\">\n                                    <div style=\"width: 100%; height: 100%; background: #030303; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; color: #FF6B35;\">B</div>\n                                </div>\n                            </div>\n                            <h1 style=\"margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;\">Bloom AI</h1>\n                            <p style=\"margin: 8px 0 0; color: rgba(255, 255, 255, 0.6); font-size: 14px; letter-spacing: 2px; text-transform: uppercase;\">Antigravity Marketing Platform</p>\n                        </td>\n                    </tr>\n                    \n                    <!-- Welcome Message -->\n                    <tr>\n                        <td style=\"padding: 40px;\">\n                            <div style=\"text-align: center; margin-bottom: 30px;\">\n                                <div style=\"display: inline-block; padding: 8px 16px; background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 20px; margin-bottom: 20px;\">\n                                    <span style=\"color: #FF9B75; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;\">✨ Account Attivato</span>\n                                </div>\n                                <h2 style=\"margin: 0 0 16px; color: #ffffff; font-size: 28px; font-weight: 700;\">Benvenuto, {{ $('Webhook').item.json.body.username }}!</h2>\n                                <p style=\"margin: 0; color: rgba(255, 255, 255, 0.7); font-size: 16px; line-height: 1.6;\">La tua registrazione a Bloom AI è stata completata con successo.<br>Sei pronto a far decollare il tuo business!</p>\n                            </div>\n                            \n                            <!-- Account Info Box -->\n                            <div style=\"background: rgba(10, 10, 10, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px; margin-bottom: 30px;\">\n                                <h3 style=\"margin: 0 0 16px; color: #FF6B35; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;\">📋 Riepilogo Account</h3>\n                                <table width=\"100%\" cellpadding=\"8\" cellspacing=\"0\">\n                                    <tr>\n                                        <td style=\"color: rgba(255, 255, 255, 0.5); font-size: 13px; padding: 8px 0;\">Username:</td>\n                                        <td style=\"color: #ffffff; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;\">{{ $('Webhook').item.json.body.username }}</td>\n                                    </tr>\n                                    <tr>\n                                        <td style=\"color: rgba(255, 255, 255, 0.5); font-size: 13px; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.05);\">Email:</td>\n                                        <td style=\"color: #ffffff; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.05);\">{{ $('Webhook').item.json.body.email }}</td>\n                                    </tr>\n                                    <tr>\n                                        <td style=\"color: rgba(255, 255, 255, 0.5); font-size: 13px; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.05);\">Data Registrazione:</td>\n                                        <td style=\"color: #ffffff; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.05);\">{{ $now.format('DD/MM/YYYY HH:mm') }}</td>\n                                    </tr>\n                                </table>\n                            </div>\n                            \n                            <!-- CTA Button -->\n                            <div style=\"text-align: center; margin: 30px 0;\">\n                                <a href=\"https://bloom-ai.app/login\" style=\"display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #FF6B35 0%, #FF9B75 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4); text-transform: uppercase;\">🚀 Accedi alla Dashboard</a>\n                            </div>\n                            \n                            <!-- Features Preview -->\n                            <div style=\"margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.05);\">\n                                <h3 style=\"margin: 0 0 20px; color: rgba(255, 255, 255, 0.9); font-size: 18px; font-weight: 700; text-align: center;\">Cosa puoi fare con Bloom AI</h3>\n                                <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                    <tr>\n                                        <td width=\"50%\" style=\"padding: 12px;\">\n                                            <div style=\"background: rgba(255, 107, 53, 0.05); border: 1px solid rgba(255, 107, 53, 0.2); border-radius: 12px; padding: 16px; text-align: center;\">\n                                                <div style=\"font-size: 28px; margin-bottom: 8px;\">✨</div>\n                                                <div style=\"color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 4px;\">Caption AI</div>\n                                                <div style=\"color: rgba(255, 255, 255, 0.5); font-size: 12px;\">Genera caption virali</div>\n                                            </div>\n                                        </td>\n                                        <td width=\"50%\" style=\"padding: 12px;\">\n                                            <div style=\"background: rgba(179, 73, 193, 0.05); border: 1px solid rgba(179, 73, 193, 0.2); border-radius: 12px; padding: 16px; text-align: center;\">\n                                                <div style=\"font-size: 28px; margin-bottom: 8px;\">🎯</div>\n                                                <div style=\"color: #ffffff; font-size: 14px; font-weight: 600; margin-bottom: 4px;\">Brand Profile</div>\n                                                <div style=\"color: rgba(255, 255, 255, 0.5); font-size: 12px;\">Analisi del tuo brand</div>\n                                            </div>\n                                        </td>\n                                    </tr>\n                                </table>\n                            </div>\n                        </td>\n                    </tr>\n                    \n                    <!-- Footer -->\n                    <tr>\n                        <td style=\"background: rgba(3, 3, 3, 0.6); padding: 30px 40px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05);\">\n                            <p style=\"margin: 0 0 12px; color: rgba(255, 255, 255, 0.4); font-size: 12px; line-height: 1.5;\">Questa è un'email automatica. Per assistenza, contattaci a <a href=\"mailto:support@bloom-ai.app\" style=\"color: #FF6B35; text-decoration: none;\">support@bloom-ai.app</a></p>\n                            <p style=\"margin: 12px 0 0; color: rgba(255, 255, 255, 0.3); font-size: 11px;\">© 2026 Bloom AI - Antigravity Marketing Platform</p>\n                            <div style=\"margin-top: 16px;\">\n                                <span style=\"display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 8px #10b981;\"></span>\n                                <span style=\"color: rgba(255, 255, 255, 0.4); font-size: 10px; text-transform: uppercase; letter-spacing: 1px;\">System Online</span>\n                            </div>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "send-welcome-email",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1140, 480],
+      "credentials": {
+        "smtp": {
+          "id": "YOUR_SMTP_CREDENTIALS_ID",
+          "name": "SMTP Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Registration successful\",\n  \"username\": \"{{ $('Webhook').item.json.body.username }}\"\n}",
+        "options": {}
+      },
+      "id": "respond-success-register",
+      "name": "Respond Success (Register)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1340, 480]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name }}\"\n}",
+        "options": {}
+      },
+      "id": "respond-success-login",
+      "name": "Respond Success (Login)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1500, 360]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"message\": \"{{ $json.reason || 'Login failed' }}\"\n}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "respond-error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1500, 140]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Switch Mode", "type": "main", "index": 0 }]]
+    },
+    "Switch Mode": {
+      "main": [
+        [{ "node": "Get User", "type": "main", "index": 0 }],
+        [{ "node": "Create User", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create User": {
+      "main": [[{ "node": "Send Welcome Email", "type": "main", "index": 0 }]]
+    },
+    "Send Welcome Email": {
+      "main": [[{ "node": "Respond Success (Register)", "type": "main", "index": 0 }]]
+    },
+    "Get User": {
+      "main": [[{ "node": "Validate User", "type": "main", "index": 0 }]]
+    },
+    "Validate User": {
+      "main": [[{ "node": "If Authorized", "type": "main", "index": 0 }]]
+    },
+    "If Authorized": {
+      "main": [
+        [{ "node": "Respond Success (Login)", "type": "main", "index": 0 }],
+        [{ "node": "Respond Error", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
