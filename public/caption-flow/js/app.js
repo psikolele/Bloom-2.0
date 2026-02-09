@@ -838,26 +838,24 @@ function init() {
   // Focus on idea input
   elements.ideaInput.focus();
 
-  // CHECK USER ROLE (New Requirement)
+  // CHECK USER ROLE — Admin identified by email (from Notion via N8N auth)
   try {
     const userJson = localStorage.getItem('bloom_user');
-    console.log('DEBUG: Checking auth for dropdown. Found storage:', userJson); // DEBUG LOG
-
     if (userJson) {
       const user = JSON.parse(userJson);
-      console.log('DEBUG: Parsed user:', user); // DEBUG LOG
+      const email = (user.email || '').toLowerCase().trim();
+      const username = (user.username || '').toLowerCase().trim();
 
-      // Check username case-insensitive
-      const username = user.username.toLowerCase();
-      // Allow 'admin', 'admin user', or 'adminuser'
-      if (user && user.username && (username === 'admin' || username === 'admin user' || username === 'adminuser')) {
+      // Admin: check email domain @blc-sa.ch or known admin usernames
+      const isAdmin = email.endsWith('@blc-sa.ch')
+        || username === 'admin'
+        || username === 'admin user'
+        || username === 'adminuser';
+
+      if (isAdmin) {
         elements.accountSelectContainer?.classList.remove('hidden');
-        console.log('Admin detected: Account Selection enabled');
-      } else {
-        console.log('User is not admin. Username:', user?.username); // DEBUG LOG
+        console.log('Admin detected via email/username: Account Selection enabled');
       }
-    } else {
-      console.log('No user found in localStorage'); // DEBUG LOG
     }
   } catch (e) {
     console.error('Error parsing user data:', e);
