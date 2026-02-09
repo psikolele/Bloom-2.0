@@ -838,23 +838,25 @@ function init() {
   // Focus on idea input
   elements.ideaInput.focus();
 
-  // CHECK USER ROLE — Admin identified by email (from Notion via N8N auth)
+  // CHECK USER ROLE — Admin identified by loginName (the actual login input)
   try {
     const userJson = localStorage.getItem('bloom_user');
     if (userJson) {
       const user = JSON.parse(userJson);
-      const email = (user.email || '').toLowerCase().trim();
+      const loginName = (user.loginName || '').toLowerCase().trim();
       const username = (user.username || '').toLowerCase().trim();
+      const email = (user.email || '').toLowerCase().trim();
 
-      // Admin: check email domain @blc-sa.ch or known admin usernames
-      const isAdmin = email.endsWith('@blc-sa.ch')
+      // Admin: check loginName first (actual typed username), then fallbacks
+      const isAdmin = loginName === 'admin'
+        || email.endsWith('@blc-sa.ch')
         || username === 'admin'
         || username === 'admin user'
         || username === 'adminuser';
 
       if (isAdmin) {
         elements.accountSelectContainer?.classList.remove('hidden');
-        console.log('Admin detected via email/username: Account Selection enabled');
+        console.log('Admin detected — Account Selection enabled');
       }
     }
   } catch (e) {
