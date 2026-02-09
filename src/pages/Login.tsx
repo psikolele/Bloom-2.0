@@ -69,6 +69,7 @@ export default function Login() {
                 // Save auth state
                 localStorage.setItem('bloom_user', JSON.stringify({
                     username: data.username || formData.username,
+                    email: data.email || formData.email || '',
                     timestamp: new Date().toISOString()
                 }));
                 // Redirect to Dashboard
