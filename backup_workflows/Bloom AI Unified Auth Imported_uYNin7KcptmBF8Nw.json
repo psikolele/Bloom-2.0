@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-19T22:16:16.000Z",
+  "updatedAt": "2026-02-10T12:00:00.000Z",
   "createdAt": "2026-01-19T21:01:43.242Z",
   "id": "uYNin7KcptmBF8Nw",
   "name": "Bloom AI Unified Auth (Imported)",
@@ -51,6 +51,112 @@
     {
       "parameters": {
         "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+          "mode": "list",
+          "cachedResultName": "Brand Profiles Database",
+          "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+        },
+        "filterType": "manual",
+        "matchType": "all",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Name|title",
+              "condition": "equals",
+              "title": "={{ $('Webhook').item.json.body.username }}"
+            }
+          ]
+        },
+        "options": {
+          "alwaysOutputData": true
+        }
+      },
+      "id": "get-user",
+      "name": "Get User",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.1,
+      "position": [
+        940,
+        220
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "jNP7bHIu6NZaobB0",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Run for ALL items to find one match\nconst webhookBody = $('Webhook').item.json.body;\nconst targetPassword = webhookBody.password ? webhookBody.password.toString().trim() : '';\n\nlet authorized = false;\nlet foundUser = null;\nlet reason = 'User not found';\n\n// Loop through all items returned by Notion\nfor (const item of items) {\n  const notionItem = item.json;\n  \n  if (!notionItem.id) continue;\n\n  let storedPassword = '';\n\n  // STRATEGY 1: N8N Simplified Mode (Prefix 'property_')\n  if (notionItem['property_password']) {\n      storedPassword = notionItem['property_password'];\n  }\n  // STRATEGY 2: Flattened regular (e.g. notionItem.Password)\n  else if (notionItem['Password']) {\n      storedPassword = notionItem['Password'];\n  }\n  // STRATEGY 3: Nested Properties\n  else if (notionItem.properties && notionItem.properties.Password) {\n      if (notionItem.properties.Password.rich_text && notionItem.properties.Password.rich_text.length > 0) {\n          storedPassword = notionItem.properties.Password.rich_text[0].plain_text;\n      } else if (typeof notionItem.properties.Password === 'string') {\n          storedPassword = notionItem.properties.Password;\n      }\n  }\n\n  const cleanStored = storedPassword ? storedPassword.toString().trim() : '';\n\n  // Compare\n  if (cleanStored === targetPassword) {\n    authorized = true;\n    foundUser = notionItem;\n    break;\n  } else {\n     reason = 'Invalid Username or Password';\n  }\n}\n\nif (authorized) {\n  return [{ json: { authorized: true, user: foundUser } }];\n} else {\n  return [{ json: { authorized: false, reason: reason } }];\n}"
+      },
+      "id": "validate-user",
+      "name": "Validate User",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.authorized }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-auth",
+      "name": "If Authorized",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name || $json.user.Name || $('Webhook').item.json.body.username }}\"\n}",
+        "options": {}
+      },
+      "id": "respond-login-success",
+      "name": "Respond Login Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"message\": \"{{ $json.reason || 'Login failed' }}\"\n}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "respond-error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
         "databaseId": {
           "__rl": true,
           "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
@@ -82,7 +188,7 @@
       "typeVersion": 2.1,
       "position": [
         940,
-        480
+        540
       ],
       "credentials": {
         "notionApi": {
@@ -90,111 +196,20 @@
           "name": "Notion account"
         }
       }
-    },
-    {
-      "parameters": {
-        "resource": "databasePage",
-        "operation": "getAll",
-        "databaseId": {
-          "__rl": true,
-          "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
-          "mode": "list",
-          "cachedResultName": "Brand Profiles Database",
-          "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
-        },
-        "filterType": "manual",
-        "matchType": "all",
-        "filters": {
-          "conditions": [
-            {
-              "key": "Name|title",
-              "condition": "equals",
-              "title": "={{ $('Webhook').item.json.body.username }}"
-            }
-          ]
-        },
-        "options": {
-          "alwaysOutputData": true
-        }
-      },
-      "id": "get-user",
-      "name": "Get User",
-      "type": "n8n-nodes-base.notion",
-      "typeVersion": 2.1,
-      "position": [
-        940,
-        240
-      ],
-      "credentials": {
-        "notionApi": {
-          "id": "jNP7bHIu6NZaobB0",
-          "name": "Notion account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Run for ALL items to find one match\nconst webhookBody = $('Webhook').item.json.body;\nconst targetPassword = webhookBody.password ? webhookBody.password.toString().trim() : '';\n\nlet authorized = false;\nlet foundUser = null;\nlet reason = 'User not found';\n\n// Loop through all items returned by Notion\nfor (const item of items) {\n  const notionItem = item.json;\n  \n  if (!notionItem.id) continue;\n\n  let storedPassword = '';\n\n  // STRATEGY 1: N8N Simplified Mode (Prefix 'property_')\n  if (notionItem['property_password']) {\n      storedPassword = notionItem['property_password'];\n  }\n  // STRATEGY 2: Flattened regular (e.g. notionItem.Password)\n  else if (notionItem['Password']) {\n      storedPassword = notionItem['Password'];\n  }\n  // STRATEGY 3: Nested Properties\n  else if (notionItem.properties && notionItem.properties.Password) {\n      if (notionItem.properties.Password.rich_text && notionItem.properties.Password.rich_text.length > 0) {\n          storedPassword = notionItem.properties.Password.rich_text[0].plain_text;\n      } else if (typeof notionItem.properties.Password === 'string') {\n          storedPassword = notionItem.properties.Password;\n      }\n  }\n\n  const cleanStored = storedPassword ? storedPassword.toString().trim() : '';\n\n  // Compare\n  if (cleanStored === targetPassword) {\n    authorized = true;\n    foundUser = notionItem;\n    break;\n  } else {\n     reason = 'Invalid Username or Password';\n  }\n}\n\nif (authorized) {\n  return [{ json: { authorized: true, user: foundUser } }];\n} else {\n  return [{ json: { authorized: false, reason: reason } }];\n}"
-      },
-      "id": "validate-user",
-      "name": "Validate User",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 1,
-      "position": [
-        1120,
-        240
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ $json.authorized }}",
-              "value2": true
-            }
-          ]
-        }
-      },
-      "id": "check-auth",
-      "name": "If Authorized",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        1300,
-        240
-      ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name }}\"\n}",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Registrazione completata\",\n  \"username\": \"{{ $('Webhook').item.json.body.username }}\",\n  \"email\": \"{{ $('Webhook').item.json.body.email }}\"\n}",
         "options": {}
       },
-      "id": "respond-success",
-      "name": "Respond Success",
+      "id": "respond-register-success",
+      "name": "Respond Registration Success",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1500,
-        360
-      ]
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"success\": false,\n  \"message\": \"{{ $json.reason || 'Login failed' }}\"\n}",
-        "options": {
-          "responseCode": 401
-        }
-      },
-      "id": "respond-error",
-      "name": "Respond Error",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1,
-      "position": [
-        1500,
-        140
+        1200,
+        540
       ]
     }
   ],
@@ -228,17 +243,6 @@
         ]
       ]
     },
-    "Create User": {
-      "main": [
-        [
-          {
-            "node": "Respond Success",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Get User": {
       "main": [
         [
@@ -265,7 +269,7 @@
       "main": [
         [
           {
-            "node": "Respond Success",
+            "node": "Respond Login Success",
             "type": "main",
             "index": 0
           }
@@ -273,6 +277,17 @@
         [
           {
             "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User": {
+      "main": [
+        [
+          {
+            "node": "Respond Registration Success",
             "type": "main",
             "index": 0
           }
@@ -289,7 +304,7 @@
   "pinData": {},
   "versionId": "7a4fa220-9854-437d-bb3f-c2c1262777e3",
   "activeVersionId": "7a4fa220-9854-437d-bb3f-c2c1262777e3",
-  "versionCounter": 45,
+  "versionCounter": 46,
   "triggerCount": 1,
   "shared": [
     {
@@ -346,8 +361,8 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-01-19T22:15:09.414Z",
-    "createdAt": "2026-01-19T22:15:09.414Z",
+    "updatedAt": "2026-02-10T12:00:00.000Z",
+    "createdAt": "2026-02-10T12:00:00.000Z",
     "versionId": "7a4fa220-9854-437d-bb3f-c2c1262777e3",
     "workflowId": "uYNin7KcptmBF8Nw",
     "nodes": [
@@ -395,6 +410,112 @@
       {
         "parameters": {
           "resource": "databasePage",
+          "operation": "getAll",
+          "databaseId": {
+            "__rl": true,
+            "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+            "mode": "list",
+            "cachedResultName": "Brand Profiles Database",
+            "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+          },
+          "filterType": "manual",
+          "matchType": "all",
+          "filters": {
+            "conditions": [
+              {
+                "key": "Name|title",
+                "condition": "equals",
+                "title": "={{ $('Webhook').item.json.body.username }}"
+              }
+            ]
+          },
+          "options": {
+            "alwaysOutputData": true
+          }
+        },
+        "id": "get-user",
+        "name": "Get User",
+        "type": "n8n-nodes-base.notion",
+        "typeVersion": 2.1,
+        "position": [
+          940,
+          220
+        ],
+        "credentials": {
+          "notionApi": {
+            "id": "jNP7bHIu6NZaobB0",
+            "name": "Notion account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Run for ALL items to find one match\nconst webhookBody = $('Webhook').item.json.body;\nconst targetPassword = webhookBody.password ? webhookBody.password.toString().trim() : '';\n\nlet authorized = false;\nlet foundUser = null;\nlet reason = 'User not found';\n\n// Loop through all items returned by Notion\nfor (const item of items) {\n  const notionItem = item.json;\n  \n  if (!notionItem.id) continue;\n\n  let storedPassword = '';\n\n  // STRATEGY 1: N8N Simplified Mode (Prefix 'property_')\n  if (notionItem['property_password']) {\n      storedPassword = notionItem['property_password'];\n  }\n  // STRATEGY 2: Flattened regular (e.g. notionItem.Password)\n  else if (notionItem['Password']) {\n      storedPassword = notionItem['Password'];\n  }\n  // STRATEGY 3: Nested Properties\n  else if (notionItem.properties && notionItem.properties.Password) {\n      if (notionItem.properties.Password.rich_text && notionItem.properties.Password.rich_text.length > 0) {\n          storedPassword = notionItem.properties.Password.rich_text[0].plain_text;\n      } else if (typeof notionItem.properties.Password === 'string') {\n          storedPassword = notionItem.properties.Password;\n      }\n  }\n\n  const cleanStored = storedPassword ? storedPassword.toString().trim() : '';\n\n  // Compare\n  if (cleanStored === targetPassword) {\n    authorized = true;\n    foundUser = notionItem;\n    break;\n  } else {\n     reason = 'Invalid Username or Password';\n  }\n}\n\nif (authorized) {\n  return [{ json: { authorized: true, user: foundUser } }];\n} else {\n  return [{ json: { authorized: false, reason: reason } }];\n}"
+        },
+        "id": "validate-user",
+        "name": "Validate User",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 1,
+        "position": [
+          1160,
+          220
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{ $json.authorized }}",
+                "value2": true
+              }
+            ]
+          }
+        },
+        "id": "check-auth",
+        "name": "If Authorized",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [
+          1380,
+          220
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name || $json.user.Name || $('Webhook').item.json.body.username }}\"\n}",
+          "options": {}
+        },
+        "id": "respond-login-success",
+        "name": "Respond Login Success",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          1620,
+          160
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n  \"success\": false,\n  \"message\": \"{{ $json.reason || 'Login failed' }}\"\n}",
+          "options": {
+            "responseCode": 401
+          }
+        },
+        "id": "respond-error",
+        "name": "Respond Error",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          1620,
+          320
+        ]
+      },
+      {
+        "parameters": {
+          "resource": "databasePage",
           "databaseId": {
             "__rl": true,
             "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
@@ -426,7 +547,7 @@
         "typeVersion": 2.1,
         "position": [
           940,
-          480
+          540
         ],
         "credentials": {
           "notionApi": {
@@ -434,111 +555,20 @@
             "name": "Notion account"
           }
         }
-      },
-      {
-        "parameters": {
-          "resource": "databasePage",
-          "operation": "getAll",
-          "databaseId": {
-            "__rl": true,
-            "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
-            "mode": "list",
-            "cachedResultName": "Brand Profiles Database",
-            "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
-          },
-          "filterType": "manual",
-          "matchType": "all",
-          "filters": {
-            "conditions": [
-              {
-                "key": "Name|title",
-                "condition": "equals",
-                "title": "={{ $('Webhook').item.json.body.username }}"
-              }
-            ]
-          },
-          "options": {
-            "alwaysOutputData": true
-          }
-        },
-        "id": "get-user",
-        "name": "Get User",
-        "type": "n8n-nodes-base.notion",
-        "typeVersion": 2.1,
-        "position": [
-          940,
-          240
-        ],
-        "credentials": {
-          "notionApi": {
-            "id": "jNP7bHIu6NZaobB0",
-            "name": "Notion account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "jsCode": "// Run for ALL items to find one match\nconst webhookBody = $('Webhook').item.json.body;\nconst targetPassword = webhookBody.password ? webhookBody.password.toString().trim() : '';\n\nlet authorized = false;\nlet foundUser = null;\nlet reason = 'User not found';\n\n// Loop through all items returned by Notion\nfor (const item of items) {\n  const notionItem = item.json;\n  \n  if (!notionItem.id) continue;\n\n  let storedPassword = '';\n\n  // STRATEGY 1: N8N Simplified Mode (Prefix 'property_')\n  if (notionItem['property_password']) {\n      storedPassword = notionItem['property_password'];\n  }\n  // STRATEGY 2: Flattened regular (e.g. notionItem.Password)\n  else if (notionItem['Password']) {\n      storedPassword = notionItem['Password'];\n  }\n  // STRATEGY 3: Nested Properties\n  else if (notionItem.properties && notionItem.properties.Password) {\n      if (notionItem.properties.Password.rich_text && notionItem.properties.Password.rich_text.length > 0) {\n          storedPassword = notionItem.properties.Password.rich_text[0].plain_text;\n      } else if (typeof notionItem.properties.Password === 'string') {\n          storedPassword = notionItem.properties.Password;\n      }\n  }\n\n  const cleanStored = storedPassword ? storedPassword.toString().trim() : '';\n\n  // Compare\n  if (cleanStored === targetPassword) {\n    authorized = true;\n    foundUser = notionItem;\n    break;\n  } else {\n     reason = 'Invalid Username or Password';\n  }\n}\n\nif (authorized) {\n  return [{ json: { authorized: true, user: foundUser } }];\n} else {\n  return [{ json: { authorized: false, reason: reason } }];\n}"
-        },
-        "id": "validate-user",
-        "name": "Validate User",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 1,
-        "position": [
-          1120,
-          240
-        ]
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "boolean": [
-              {
-                "value1": "={{ $json.authorized }}",
-                "value2": true
-              }
-            ]
-          }
-        },
-        "id": "check-auth",
-        "name": "If Authorized",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 1,
-        "position": [
-          1300,
-          240
-        ]
       },
       {
         "parameters": {
           "respondWith": "json",
-          "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name }}\"\n}",
+          "responseBody": "={\n  \"success\": true,\n  \"message\": \"Registrazione completata\",\n  \"username\": \"{{ $('Webhook').item.json.body.username }}\",\n  \"email\": \"{{ $('Webhook').item.json.body.email }}\"\n}",
           "options": {}
         },
-        "id": "respond-success",
-        "name": "Respond Success",
+        "id": "respond-register-success",
+        "name": "Respond Registration Success",
         "type": "n8n-nodes-base.respondToWebhook",
         "typeVersion": 1,
         "position": [
-          1500,
-          360
-        ]
-      },
-      {
-        "parameters": {
-          "respondWith": "json",
-          "responseBody": "={\n  \"success\": false,\n  \"message\": \"{{ $json.reason || 'Login failed' }}\"\n}",
-          "options": {
-            "responseCode": 401
-          }
-        },
-        "id": "respond-error",
-        "name": "Respond Error",
-        "type": "n8n-nodes-base.respondToWebhook",
-        "typeVersion": 1,
-        "position": [
-          1500,
-          140
+          1200,
+          540
         ]
       }
     ],
@@ -572,17 +602,6 @@
           ]
         ]
       },
-      "Create User": {
-        "main": [
-          [
-            {
-              "node": "Respond Success",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
       "Get User": {
         "main": [
           [
@@ -609,7 +628,7 @@
         "main": [
           [
             {
-              "node": "Respond Success",
+              "node": "Respond Login Success",
               "type": "main",
               "index": 0
             }
@@ -617,6 +636,17 @@
           [
             {
               "node": "Respond Error",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create User": {
+        "main": [
+          [
+            {
+              "node": "Respond Registration Success",
               "type": "main",
               "index": 0
             }

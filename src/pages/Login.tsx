@@ -65,6 +65,10 @@ export default function Login() {
                 }
             }
 
+            if (!data) {
+                throw new Error('Risposta non valida dal server.');
+            }
+
             if (data.success) {
                 // Save auth state
                 localStorage.setItem('bloom_user', JSON.stringify({
