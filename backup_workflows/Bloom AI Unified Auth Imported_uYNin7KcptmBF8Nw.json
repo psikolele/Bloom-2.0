@@ -1,8 +1,8 @@
 {
-    "updatedAt": "2026-02-10T06:38:52.556Z",
+    "updatedAt": "2026-02-10T06:50:00.722Z",
     "createdAt": "2026-01-19T21:01:43.242Z",
     "id": "uYNin7KcptmBF8Nw",
-    "name": "Bloom AI Unified Auth V7 (Registration Fix)",
+    "name": "Bloom AI Unified Auth V7.1",
     "description": null,
     "active": true,
     "isArchived": false,
@@ -19,14 +19,14 @@
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1.1,
             "position": [
-                460,
-                360
+                180,
+                500
             ],
-            "webhookId": "auth"
+            "webhookId": "auth",
+            "notes": "POST /webhook/auth\nRiceve: { mode, username, password, email }"
         },
         {
             "parameters": {
-                "mode": "rules",
                 "rules": {
                     "values": [
                         {
@@ -122,9 +122,10 @@
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3,
             "position": [
-                680,
-                360
-            ]
+                480,
+                500
+            ],
+            "notes": "Instrada verso Login, Register, Forgot o Reset in base al campo 'mode'"
         },
         {
             "parameters": {
@@ -159,15 +160,16 @@
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                1660,
-                600
+                1820,
+                720
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Crea nuovo record in Marketing Profile DB con Username, Password, Email"
         },
         {
             "parameters": {
@@ -180,9 +182,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1660,
-                160
-            ]
+                1820,
+                80
+            ],
+            "notes": "200 OK - Restituisce success + username"
         },
         {
             "parameters": {
@@ -201,29 +204,27 @@
                     "conditions": [
                         {
                             "key": "Name|title",
-                            "condition": "equals",
-                            "title": "={{ $('Webhook').item.json.body.username }}"
+                            "condition": "equals"
                         }
                     ]
                 },
-                "options": {
-                    "alwaysOutputData": true
-                }
+                "options": {}
             },
             "id": "get-user-brand",
             "name": "Get User (Brand)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                900,
-                160
+                760,
+                100
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Cerca utente nel DB Brand Profiles (Bloom 2.0) per username"
         },
         {
             "parameters": {
@@ -242,21 +243,18 @@
                     "conditions": [
                         {
                             "key": "Name|title",
-                            "condition": "equals",
-                            "title": "={{ $('Webhook').item.json.body.username }}"
+                            "condition": "equals"
                         }
                     ]
                 },
-                "options": {
-                    "alwaysOutputData": true
-                }
+                "options": {}
             },
             "id": "get-user-marketing",
             "name": "Get User (Marketing)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                900,
+                760,
                 300
             ],
             "credentials": {
@@ -264,31 +262,20 @@
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Cerca utente nel DB Marketing Profile per username"
         },
         {
-            "parameters": {
-                "mode": "append",
-                "mergeByFields": {
-                    "values": [
-                        {
-                            "field1": "id",
-                            "field2": "id"
-                        }
-                    ]
-                },
-                "options": {
-                    "clashHandling": "alwaysOutput"
-                }
-            },
+            "parameters": {},
             "id": "merge-users",
             "name": "Merge Users",
             "type": "n8n-nodes-base.merge",
             "typeVersion": 2.1,
             "position": [
-                1100,
-                220
-            ]
+                1040,
+                190
+            ],
+            "notes": "Unisce i risultati da Brand + Marketing DB"
         },
         {
             "parameters": {
@@ -299,9 +286,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                1280,
-                220
-            ]
+                1300,
+                190
+            ],
+            "notes": "Confronta la password inviata con quella salvata su Notion (3 strategie di lettura)"
         },
         {
             "parameters": {
@@ -319,9 +307,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                1460,
-                220
-            ]
+                1560,
+                190
+            ],
+            "notes": "Verifica il flag 'authorized' dal nodo Validate User"
         },
         {
             "parameters": {
@@ -336,9 +325,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1660,
+                1820,
                 320
-            ]
+            ],
+            "notes": "401 Unauthorized - Credenziali non valide"
         },
         {
             "parameters": {
@@ -359,22 +349,24 @@
                             "emailValue": "={{ $('Webhook').item.json.body.email }}"
                         }
                     ]
-                }
+                },
+                "options": {}
             },
             "id": "8460384d-880d-453c-ad9f-3c625c32449c",
             "name": "Check User (Forgot)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                900,
-                780
+                760,
+                1060
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Cerca utente nel Brand DB per email"
         },
         {
             "parameters": {
@@ -392,9 +384,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                1100,
-                780
-            ]
+                1040,
+                1060
+            ],
+            "notes": "Verifica se l'utente esiste per procedere con il recupero"
         },
         {
             "parameters": {
@@ -405,33 +398,35 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                1280,
-                720
-            ]
+                1300,
+                980
+            ],
+            "notes": "Genera token HMAC-SHA256 con scadenza 1h e costruisce il link di reset"
         },
         {
             "parameters": {
                 "fromEmail": "serra.emanuele09@gmail.com",
                 "toEmail": "={{ $json.email }}",
                 "subject": "Reset Password - Bloom AI",
-                "options": {},
-                "text": "={{ 'Reset link: ' + $json.resetLink }}",
-                "html": "={{ $json.emailBody }}"
+                "html": "={{ $json.emailBody }}",
+                "options": {}
             },
             "id": "35701625-7808-4416-9413-acfd33bceb0a",
             "name": "Send Reset Email",
             "type": "n8n-nodes-base.emailSend",
             "typeVersion": 2.1,
             "position": [
-                1460,
-                720
+                1560,
+                980
             ],
+            "webhookId": "22220410-025c-4f00-93a0-bbe2c44a1383",
             "credentials": {
                 "smtp": {
                     "id": "3jxHADCw51qvxr54",
                     "name": "SMTP Gmail Serra Personal"
                 }
-            }
+            },
+            "notes": "Invia email con link di reset via SMTP Gmail"
         },
         {
             "parameters": {
@@ -444,9 +439,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1660,
-                780
-            ]
+                1820,
+                1060
+            ],
+            "notes": "Risponde al frontend (messaggio generico per sicurezza)"
         },
         {
             "parameters": {
@@ -457,9 +453,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                900,
-                980
-            ]
+                760,
+                1440
+            ],
+            "notes": "Valida il token: firma HMAC, scadenza, corrispondenza email"
         },
         {
             "parameters": {
@@ -481,22 +478,24 @@
                             "emailValue": "={{ $json.email }}"
                         }
                     ]
-                }
+                },
+                "options": {}
             },
             "id": "5be755a2-d95c-437b-9cd7-0be74bd314a3",
             "name": "Get User To Update",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                1100,
-                980
+                1040,
+                1440
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Cerca l'utente nel Marketing DB per aggiornare la password"
         },
         {
             "parameters": {
@@ -516,27 +515,23 @@
                         }
                     ]
                 },
-                "databaseId": {
-                    "__rl": true,
-                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
-                    "mode": "list",
-                    "cachedResultName": "Marketing Profile Database"
-                }
+                "options": {}
             },
             "id": "2021582d-83fa-4fd4-9554-2b28c712ce64",
             "name": "Update Password",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                1280,
-                980
+                1300,
+                1440
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Aggiorna il campo Password nel record Notion"
         },
         {
             "parameters": {
@@ -549,9 +544,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1460,
-                980
-            ]
+                1560,
+                1440
+            ],
+            "notes": "200 OK - Password aggiornata con successo"
         },
         {
             "parameters": {
@@ -562,9 +558,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                900,
-                520
-            ]
+                760,
+                600
+            ],
+            "notes": "Estrae l'email dal body del Webhook"
         },
         {
             "parameters": {
@@ -575,24 +572,23 @@
                     "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
                     "mode": "list"
                 },
-                "options": {
-                    "alwaysOutputData": true
-                }
+                "options": {}
             },
             "id": "check-email-notion-v65",
             "name": "Check Existing Email (Marketing DB)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2,
             "position": [
-                1100,
-                520
+                1040,
+                600
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            }
+            },
+            "notes": "Scarica tutti i profili dal Marketing DB per confronto email"
         },
         {
             "parameters": {
@@ -603,9 +599,10 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                1280,
-                520
-            ]
+                1300,
+                600
+            ],
+            "notes": "Verifica se l'email esiste gia' confrontando con i record Notion"
         },
         {
             "parameters": {
@@ -623,9 +620,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                1460,
-                520
-            ]
+                1560,
+                600
+            ],
+            "notes": "True = email gia' registrata, False = nuova registrazione"
         },
         {
             "parameters": {
@@ -640,9 +638,10 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1660,
-                440
-            ]
+                1820,
+                500
+            ],
+            "notes": "409 Conflict - Email gia' esistente"
         },
         {
             "parameters": {
@@ -657,8 +656,89 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1880,
-                600
+                2100,
+                720
+            ],
+            "notes": "200 OK - Registrazione completata con success + username + email"
+        },
+        {
+            "parameters": {
+                "content": "## Bloom AI Unified Auth\n**Endpoint:** `POST /webhook/auth`\n\nGestisce 4 modalita':\n- `login` - Autenticazione utente\n- `register` - Registrazione nuovo account\n- `forgot_password` - Invio email di recupero\n- `reset_password` - Reset con token",
+                "height": 260,
+                "width": 320,
+                "color": 1
+            },
+            "id": "sticky-header",
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                100,
+                340
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## LOGIN\nCerca l'utente in entrambi i DB (Brand + Marketing), valida la password e risponde con success/error.",
+                "height": 420,
+                "width": 1340,
+                "color": 4
+            },
+            "id": "sticky-login",
+            "name": "Sticky Note1",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                680,
+                20
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## REGISTRAZIONE\nVerifica se l'email esiste gia'. Se no, crea il profilo su Notion e risponde con successo.",
+                "height": 420,
+                "width": 1620,
+                "color": 5
+            },
+            "id": "sticky-register",
+            "name": "Sticky Note2",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                680,
+                440
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## RECUPERO PASSWORD\nGenera un token sicuro, costruisce il link di reset e invia l'email via SMTP.",
+                "height": 400,
+                "width": 1340,
+                "color": 2
+            },
+            "id": "sticky-forgot",
+            "name": "Sticky Note3",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                680,
+                880
+            ]
+        },
+        {
+            "parameters": {
+                "content": "## RESET PASSWORD\nValida il token (firma + scadenza), trova l'utente e aggiorna la password su Notion.",
+                "height": 340,
+                "width": 1080,
+                "color": 6
+            },
+            "id": "sticky-reset",
+            "name": "Sticky Note4",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                680,
+                1320
             ]
         }
     ],
@@ -967,9 +1047,9 @@
             }
         ]
     },
-    "versionId": "a9bde3e7-47cc-42a3-9e27-5c31ba4b5685",
-    "activeVersionId": "a9bde3e7-47cc-42a3-9e27-5c31ba4b5685",
-    "versionCounter": 464,
+    "versionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
+    "activeVersionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
+    "versionCounter": 471,
     "triggerCount": 1,
     "shared": [
         {
@@ -1024,11 +1104,24 @@
             }
         }
     ],
-    "tags": [],
+    "tags": [
+        {
+            "updatedAt": "2026-02-10T06:41:18.068Z",
+            "createdAt": "2026-02-10T06:41:18.068Z",
+            "id": "s0Gi8huRDD2NFR35",
+            "name": "Bloom 2.0"
+        },
+        {
+            "updatedAt": "2025-11-28T20:42:38.923Z",
+            "createdAt": "2025-11-28T20:42:38.923Z",
+            "id": "toA0pH2gwX57UxWi",
+            "name": "Arca 24"
+        }
+    ],
     "activeVersion": {
-        "updatedAt": "2026-02-10T06:38:52.557Z",
-        "createdAt": "2026-02-10T06:38:52.557Z",
-        "versionId": "a9bde3e7-47cc-42a3-9e27-5c31ba4b5685",
+        "updatedAt": "2026-02-10T06:50:00.723Z",
+        "createdAt": "2026-02-10T06:50:00.723Z",
+        "versionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
         "workflowId": "uYNin7KcptmBF8Nw",
         "nodes": [
             {
@@ -1043,14 +1136,14 @@
                 "type": "n8n-nodes-base.webhook",
                 "typeVersion": 1.1,
                 "position": [
-                    460,
-                    360
+                    180,
+                    500
                 ],
-                "webhookId": "auth"
+                "webhookId": "auth",
+                "notes": "POST /webhook/auth\nRiceve: { mode, username, password, email }"
             },
             {
                 "parameters": {
-                    "mode": "rules",
                     "rules": {
                         "values": [
                             {
@@ -1146,9 +1239,10 @@
                 "type": "n8n-nodes-base.switch",
                 "typeVersion": 3,
                 "position": [
-                    680,
-                    360
-                ]
+                    480,
+                    500
+                ],
+                "notes": "Instrada verso Login, Register, Forgot o Reset in base al campo 'mode'"
             },
             {
                 "parameters": {
@@ -1183,15 +1277,16 @@
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    1660,
-                    600
+                    1820,
+                    720
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Crea nuovo record in Marketing Profile DB con Username, Password, Email"
             },
             {
                 "parameters": {
@@ -1204,9 +1299,10 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1660,
-                    160
-                ]
+                    1820,
+                    80
+                ],
+                "notes": "200 OK - Restituisce success + username"
             },
             {
                 "parameters": {
@@ -1225,29 +1321,27 @@
                         "conditions": [
                             {
                                 "key": "Name|title",
-                                "condition": "equals",
-                                "title": "={{ $('Webhook').item.json.body.username }}"
+                                "condition": "equals"
                             }
                         ]
                     },
-                    "options": {
-                        "alwaysOutputData": true
-                    }
+                    "options": {}
                 },
                 "id": "get-user-brand",
                 "name": "Get User (Brand)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    900,
-                    160
+                    760,
+                    100
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Cerca utente nel DB Brand Profiles (Bloom 2.0) per username"
             },
             {
                 "parameters": {
@@ -1266,21 +1360,18 @@
                         "conditions": [
                             {
                                 "key": "Name|title",
-                                "condition": "equals",
-                                "title": "={{ $('Webhook').item.json.body.username }}"
+                                "condition": "equals"
                             }
                         ]
                     },
-                    "options": {
-                        "alwaysOutputData": true
-                    }
+                    "options": {}
                 },
                 "id": "get-user-marketing",
                 "name": "Get User (Marketing)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    900,
+                    760,
                     300
                 ],
                 "credentials": {
@@ -1288,31 +1379,20 @@
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Cerca utente nel DB Marketing Profile per username"
             },
             {
-                "parameters": {
-                    "mode": "append",
-                    "mergeByFields": {
-                        "values": [
-                            {
-                                "field1": "id",
-                                "field2": "id"
-                            }
-                        ]
-                    },
-                    "options": {
-                        "clashHandling": "alwaysOutput"
-                    }
-                },
+                "parameters": {},
                 "id": "merge-users",
                 "name": "Merge Users",
                 "type": "n8n-nodes-base.merge",
                 "typeVersion": 2.1,
                 "position": [
-                    1100,
-                    220
-                ]
+                    1040,
+                    190
+                ],
+                "notes": "Unisce i risultati da Brand + Marketing DB"
             },
             {
                 "parameters": {
@@ -1323,9 +1403,10 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    1280,
-                    220
-                ]
+                    1300,
+                    190
+                ],
+                "notes": "Confronta la password inviata con quella salvata su Notion (3 strategie di lettura)"
             },
             {
                 "parameters": {
@@ -1343,9 +1424,10 @@
                 "type": "n8n-nodes-base.if",
                 "typeVersion": 1,
                 "position": [
-                    1460,
-                    220
-                ]
+                    1560,
+                    190
+                ],
+                "notes": "Verifica il flag 'authorized' dal nodo Validate User"
             },
             {
                 "parameters": {
@@ -1360,9 +1442,10 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1660,
+                    1820,
                     320
-                ]
+                ],
+                "notes": "401 Unauthorized - Credenziali non valide"
             },
             {
                 "parameters": {
@@ -1383,22 +1466,24 @@
                                 "emailValue": "={{ $('Webhook').item.json.body.email }}"
                             }
                         ]
-                    }
+                    },
+                    "options": {}
                 },
                 "id": "8460384d-880d-453c-ad9f-3c625c32449c",
                 "name": "Check User (Forgot)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    900,
-                    780
+                    760,
+                    1060
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Cerca utente nel Brand DB per email"
             },
             {
                 "parameters": {
@@ -1416,9 +1501,10 @@
                 "type": "n8n-nodes-base.if",
                 "typeVersion": 1,
                 "position": [
-                    1100,
-                    780
-                ]
+                    1040,
+                    1060
+                ],
+                "notes": "Verifica se l'utente esiste per procedere con il recupero"
             },
             {
                 "parameters": {
@@ -1429,33 +1515,35 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    1280,
-                    720
-                ]
+                    1300,
+                    980
+                ],
+                "notes": "Genera token HMAC-SHA256 con scadenza 1h e costruisce il link di reset"
             },
             {
                 "parameters": {
                     "fromEmail": "serra.emanuele09@gmail.com",
                     "toEmail": "={{ $json.email }}",
                     "subject": "Reset Password - Bloom AI",
-                    "options": {},
-                    "text": "={{ 'Reset link: ' + $json.resetLink }}",
-                    "html": "={{ $json.emailBody }}"
+                    "html": "={{ $json.emailBody }}",
+                    "options": {}
                 },
                 "id": "35701625-7808-4416-9413-acfd33bceb0a",
                 "name": "Send Reset Email",
                 "type": "n8n-nodes-base.emailSend",
                 "typeVersion": 2.1,
                 "position": [
-                    1460,
-                    720
+                    1560,
+                    980
                 ],
+                "webhookId": "22220410-025c-4f00-93a0-bbe2c44a1383",
                 "credentials": {
                     "smtp": {
                         "id": "3jxHADCw51qvxr54",
                         "name": "SMTP Gmail Serra Personal"
                     }
-                }
+                },
+                "notes": "Invia email con link di reset via SMTP Gmail"
             },
             {
                 "parameters": {
@@ -1468,9 +1556,10 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1660,
-                    780
-                ]
+                    1820,
+                    1060
+                ],
+                "notes": "Risponde al frontend (messaggio generico per sicurezza)"
             },
             {
                 "parameters": {
@@ -1481,9 +1570,10 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    900,
-                    980
-                ]
+                    760,
+                    1440
+                ],
+                "notes": "Valida il token: firma HMAC, scadenza, corrispondenza email"
             },
             {
                 "parameters": {
@@ -1505,22 +1595,24 @@
                                 "emailValue": "={{ $json.email }}"
                             }
                         ]
-                    }
+                    },
+                    "options": {}
                 },
                 "id": "5be755a2-d95c-437b-9cd7-0be74bd314a3",
                 "name": "Get User To Update",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    1100,
-                    980
+                    1040,
+                    1440
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Cerca l'utente nel Marketing DB per aggiornare la password"
             },
             {
                 "parameters": {
@@ -1540,27 +1632,23 @@
                             }
                         ]
                     },
-                    "databaseId": {
-                        "__rl": true,
-                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
-                        "mode": "list",
-                        "cachedResultName": "Marketing Profile Database"
-                    }
+                    "options": {}
                 },
                 "id": "2021582d-83fa-4fd4-9554-2b28c712ce64",
                 "name": "Update Password",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    1280,
-                    980
+                    1300,
+                    1440
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Aggiorna il campo Password nel record Notion"
             },
             {
                 "parameters": {
@@ -1573,9 +1661,10 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1460,
-                    980
-                ]
+                    1560,
+                    1440
+                ],
+                "notes": "200 OK - Password aggiornata con successo"
             },
             {
                 "parameters": {
@@ -1586,9 +1675,10 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    900,
-                    520
-                ]
+                    760,
+                    600
+                ],
+                "notes": "Estrae l'email dal body del Webhook"
             },
             {
                 "parameters": {
@@ -1599,24 +1689,23 @@
                         "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
                         "mode": "list"
                     },
-                    "options": {
-                        "alwaysOutputData": true
-                    }
+                    "options": {}
                 },
                 "id": "check-email-notion-v65",
                 "name": "Check Existing Email (Marketing DB)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2,
                 "position": [
-                    1100,
-                    520
+                    1040,
+                    600
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                }
+                },
+                "notes": "Scarica tutti i profili dal Marketing DB per confronto email"
             },
             {
                 "parameters": {
@@ -1627,9 +1716,10 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    1280,
-                    520
-                ]
+                    1300,
+                    600
+                ],
+                "notes": "Verifica se l'email esiste gia' confrontando con i record Notion"
             },
             {
                 "parameters": {
@@ -1647,9 +1737,10 @@
                 "type": "n8n-nodes-base.if",
                 "typeVersion": 1,
                 "position": [
-                    1460,
-                    520
-                ]
+                    1560,
+                    600
+                ],
+                "notes": "True = email gia' registrata, False = nuova registrazione"
             },
             {
                 "parameters": {
@@ -1664,9 +1755,10 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1660,
-                    440
-                ]
+                    1820,
+                    500
+                ],
+                "notes": "409 Conflict - Email gia' esistente"
             },
             {
                 "parameters": {
@@ -1681,8 +1773,89 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1880,
-                    600
+                    2100,
+                    720
+                ],
+                "notes": "200 OK - Registrazione completata con success + username + email"
+            },
+            {
+                "parameters": {
+                    "content": "## Bloom AI Unified Auth\n**Endpoint:** `POST /webhook/auth`\n\nGestisce 4 modalita':\n- `login` - Autenticazione utente\n- `register` - Registrazione nuovo account\n- `forgot_password` - Invio email di recupero\n- `reset_password` - Reset con token",
+                    "height": 260,
+                    "width": 320,
+                    "color": 1
+                },
+                "id": "sticky-header",
+                "name": "Sticky Note",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [
+                    100,
+                    340
+                ]
+            },
+            {
+                "parameters": {
+                    "content": "## LOGIN\nCerca l'utente in entrambi i DB (Brand + Marketing), valida la password e risponde con success/error.",
+                    "height": 420,
+                    "width": 1340,
+                    "color": 4
+                },
+                "id": "sticky-login",
+                "name": "Sticky Note1",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [
+                    680,
+                    20
+                ]
+            },
+            {
+                "parameters": {
+                    "content": "## REGISTRAZIONE\nVerifica se l'email esiste gia'. Se no, crea il profilo su Notion e risponde con successo.",
+                    "height": 420,
+                    "width": 1620,
+                    "color": 5
+                },
+                "id": "sticky-register",
+                "name": "Sticky Note2",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [
+                    680,
+                    440
+                ]
+            },
+            {
+                "parameters": {
+                    "content": "## RECUPERO PASSWORD\nGenera un token sicuro, costruisce il link di reset e invia l'email via SMTP.",
+                    "height": 400,
+                    "width": 1340,
+                    "color": 2
+                },
+                "id": "sticky-forgot",
+                "name": "Sticky Note3",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [
+                    680,
+                    880
+                ]
+            },
+            {
+                "parameters": {
+                    "content": "## RESET PASSWORD\nValida il token (firma + scadenza), trova l'utente e aggiorna la password su Notion.",
+                    "height": 340,
+                    "width": 1080,
+                    "color": 6
+                },
+                "id": "sticky-reset",
+                "name": "Sticky Note4",
+                "type": "n8n-nodes-base.stickyNote",
+                "typeVersion": 1,
+                "position": [
+                    680,
+                    1320
                 ]
             }
         ],
@@ -1950,10 +2123,10 @@
         "autosaved": false,
         "workflowPublishHistory": [
             {
-                "createdAt": "2026-02-10T06:38:52.763Z",
-                "id": 545,
+                "createdAt": "2026-02-10T06:50:00.960Z",
+                "id": 547,
                 "workflowId": "uYNin7KcptmBF8Nw",
-                "versionId": "a9bde3e7-47cc-42a3-9e27-5c31ba4b5685",
+                "versionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
                 "event": "activated",
                 "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
             }
