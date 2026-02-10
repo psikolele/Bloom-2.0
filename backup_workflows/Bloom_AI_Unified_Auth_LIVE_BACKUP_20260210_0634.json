@@ -1,8 +1,8 @@
 {
-    "updatedAt": "2026-02-10T06:50:00.722Z",
+    "updatedAt": "2026-02-09T15:20:56.275Z",
     "createdAt": "2026-01-19T21:01:43.242Z",
     "id": "uYNin7KcptmBF8Nw",
-    "name": "Bloom AI Unified Auth V7.1",
+    "name": "Bloom AI Unified Auth V6.5 (Conflict Node Refresh)",
     "description": null,
     "active": true,
     "isArchived": false,
@@ -19,14 +19,14 @@
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1.1,
             "position": [
-                180,
-                500
+                460,
+                360
             ],
-            "webhookId": "auth",
-            "notes": "POST /webhook/auth\nRiceve: { mode, username, password, email }"
+            "webhookId": "auth"
         },
         {
             "parameters": {
+                "mode": "rules",
                 "rules": {
                     "values": [
                         {
@@ -122,10 +122,50 @@
             "type": "n8n-nodes-base.switch",
             "typeVersion": 3,
             "position": [
-                480,
-                500
+                680,
+                360
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "databasePage",
+                "operation": "getAll",
+                "databaseId": {
+                    "__rl": true,
+                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                    "mode": "list",
+                    "cachedResultName": "Marketing Profile Database",
+                    "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+                },
+                "filterType": "manual",
+                "matchType": "all",
+                "filters": {
+                    "conditions": [
+                        {
+                            "key": "Email|email",
+                            "condition": "equals",
+                            "emailValue": "={{ $json.body.email }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "alwaysOutputData": false
+                }
+            },
+            "id": "get-marketing-profile",
+            "name": "Get Marketing Profile",
+            "type": "n8n-nodes-base.notion",
+            "typeVersion": 2.1,
+            "position": [
+                1300,
+                600
             ],
-            "notes": "Instrada verso Login, Register, Forgot o Reset in base al campo 'mode'"
+            "credentials": {
+                "notionApi": {
+                    "id": "jNP7bHIu6NZaobB0",
+                    "name": "Notion account"
+                }
+            }
         },
         {
             "parameters": {
@@ -160,32 +200,30 @@
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                1820,
-                720
+                1500,
+                600
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Crea nuovo record in Marketing Profile DB con Username, Password, Email"
+            }
         },
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name || $json.user.Name || $json.user.Username || $('Webhook').item.json.body.username }}\"\n}",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name }}\"\n}",
                 "options": {}
             },
             "id": "respond-success",
-            "name": "Respond Login Success",
+            "name": "Respond Success",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1820,
-                80
-            ],
-            "notes": "200 OK - Restituisce success + username"
+                1700,
+                500
+            ]
         },
         {
             "parameters": {
@@ -204,27 +242,29 @@
                     "conditions": [
                         {
                             "key": "Name|title",
-                            "condition": "equals"
+                            "condition": "equals",
+                            "title": "={{ $('Webhook').item.json.body.username }}"
                         }
                     ]
                 },
-                "options": {}
+                "options": {
+                    "alwaysOutputData": true
+                }
             },
             "id": "get-user-brand",
             "name": "Get User (Brand)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                760,
-                100
+                860,
+                200
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Cerca utente nel DB Brand Profiles (Bloom 2.0) per username"
+            }
         },
         {
             "parameters": {
@@ -243,39 +283,53 @@
                     "conditions": [
                         {
                             "key": "Name|title",
-                            "condition": "equals"
+                            "condition": "equals",
+                            "title": "={{ $('Webhook').item.json.body.username }}"
                         }
                     ]
                 },
-                "options": {}
+                "options": {
+                    "alwaysOutputData": true
+                }
             },
             "id": "get-user-marketing",
             "name": "Get User (Marketing)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                760,
-                300
+                860,
+                340
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Cerca utente nel DB Marketing Profile per username"
+            }
         },
         {
-            "parameters": {},
+            "parameters": {
+                "mode": "append",
+                "mergeByFields": {
+                    "values": [
+                        {
+                            "field1": "id",
+                            "field2": "id"
+                        }
+                    ]
+                },
+                "options": {
+                    "clashHandling": "alwaysOutput"
+                }
+            },
             "id": "merge-users",
             "name": "Merge Users",
             "type": "n8n-nodes-base.merge",
             "typeVersion": 2.1,
             "position": [
                 1040,
-                190
-            ],
-            "notes": "Unisce i risultati da Brand + Marketing DB"
+                260
+            ]
         },
         {
             "parameters": {
@@ -286,10 +340,9 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                1300,
-                190
-            ],
-            "notes": "Confronta la password inviata con quella salvata su Notion (3 strategie di lettura)"
+                1220,
+                260
+            ]
         },
         {
             "parameters": {
@@ -307,10 +360,9 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                1560,
-                190
-            ],
-            "notes": "Verifica il flag 'authorized' dal nodo Validate User"
+                1380,
+                260
+            ]
         },
         {
             "parameters": {
@@ -325,10 +377,9 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1820,
-                320
-            ],
-            "notes": "401 Unauthorized - Credenziali non valide"
+                1580,
+                140
+            ]
         },
         {
             "parameters": {
@@ -349,24 +400,22 @@
                             "emailValue": "={{ $('Webhook').item.json.body.email }}"
                         }
                     ]
-                },
-                "options": {}
+                }
             },
-            "id": "8460384d-880d-453c-ad9f-3c625c32449c",
+            "id": "c1b780f9-5f0c-4d38-8bc3-4c09bb093502",
             "name": "Check User (Forgot)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                760,
-                1060
+                900,
+                800
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Cerca utente nel Brand DB per email"
+            }
         },
         {
             "parameters": {
@@ -379,54 +428,51 @@
                     ]
                 }
             },
-            "id": "99538615-df29-4828-8756-c9efadcd04fe",
+            "id": "9b391ba0-5aeb-444f-8b41-74c45fdbb591",
             "name": "If User Exists (Forgot)",
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                1040,
-                1060
-            ],
-            "notes": "Verifica se l'utente esiste per procedere con il recupero"
+                1100,
+                800
+            ]
         },
         {
             "parameters": {
                 "jsCode": "\nconst crypto = require('crypto');\n\n// Get context from Webhook node\n// Try different ways to access webhook data safely\nlet body = {};\nlet requestHeaders = {};\n\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n    requestHeaders = webhookData.headers || {};\n} catch(e) {\n    // Fallback if direct access fails (e.g. testing)\n    body = $json.body || {};\n}\n\nconst email = body.email;\nconst secret = 'BLOOM_AUTH_SECRET_V1'; \nconst expires = Date.now() + 3600000; // 1 hour\n\nconst payload = Buffer.from(JSON.stringify({ email, expires })).toString('base64');\nconst signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');\nconst token = `${payload}.${signature}`;\n\n// Determine Frontend URL dynamically from Origin header\nlet frontendUrl = 'http://localhost:5173';\nif (requestHeaders && requestHeaders.origin) {\n    frontendUrl = requestHeaders.origin;\n}\n\nconst resetLink = `${frontendUrl}/reset-password?token=${token}&email=${email}`;\n\n// Construct Email Body\nconst emailBody = `\n<div style=\"font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;\">\n    <h2 style=\"color: #ff4d4d;\">Recupero Password</h2>\n    <p>Ciao,</p>\n    <p>Hai richiesto di reimpostare la tua password per il tuo account Bloom AI.</p>\n    <p>Clicca sul pulsante qui sotto per procedere:</p>\n    <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"${resetLink}\" style=\"background-color: #ff4d4d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Reimposta Password</a>\n    </div>\n    <p style=\"font-size: 14px; color: #666;\">Se il pulsante non funziona, copia e incolla questo link nel tuo browser:</p>\n    <p style=\"font-size: 12px; color: #888; word-break: break-all;\">${resetLink}</p>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\">\n    <p style=\"font-size: 12px; color: #aaa;\">Se non hai richiesto tu il ripristino, ignora questa email.</p>\n</div>\n`;\n\nreturn [{ \n    json: { \n        token, \n        resetLink, \n        email,\n        emailBody\n    } \n}];\n"
             },
-            "id": "63bbcd7f-80f7-4a9c-8afa-e85fc76d0f84",
+            "id": "835fec1f-70ab-41f2-9cca-7dea6ad8c174",
             "name": "Generate Token",
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
                 1300,
-                980
-            ],
-            "notes": "Genera token HMAC-SHA256 con scadenza 1h e costruisce il link di reset"
+                750
+            ]
         },
         {
             "parameters": {
                 "fromEmail": "serra.emanuele09@gmail.com",
                 "toEmail": "={{ $json.email }}",
                 "subject": "Reset Password - Bloom AI",
-                "html": "={{ $json.emailBody }}",
-                "options": {}
+                "options": {},
+                "text": "={{ 'Reset link: ' + $json.resetLink }}",
+                "html": "={{ $json.emailBody }}"
             },
-            "id": "35701625-7808-4416-9413-acfd33bceb0a",
+            "id": "c491f652-b31a-4b85-8b1d-fdde3792b95e",
             "name": "Send Reset Email",
             "type": "n8n-nodes-base.emailSend",
             "typeVersion": 2.1,
             "position": [
-                1560,
-                980
+                1500,
+                750
             ],
-            "webhookId": "22220410-025c-4f00-93a0-bbe2c44a1383",
             "credentials": {
                 "smtp": {
                     "id": "3jxHADCw51qvxr54",
                     "name": "SMTP Gmail Serra Personal"
                 }
-            },
-            "notes": "Invia email con link di reset via SMTP Gmail"
+            }
         },
         {
             "parameters": {
@@ -434,29 +480,27 @@
                 "responseBody": "={\n  \"success\": true,\n  \"message\": \"If the email exists, a reset link has been sent.\"\n}",
                 "options": {}
             },
-            "id": "cefb7535-e480-4bc0-aa75-c8934dde3cd4",
+            "id": "feac77d4-ade3-4c88-89bc-89467498aa13",
             "name": "Respond Success (Forgot)",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1820,
-                1060
-            ],
-            "notes": "Risponde al frontend (messaggio generico per sicurezza)"
+                1700,
+                750
+            ]
         },
         {
             "parameters": {
                 "jsCode": "\nconst crypto = require('crypto');\n\n// Try different ways to access webhook data safely\nlet body = {};\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n} catch(e) {\n    body = $json.body || {};\n}\n\nconst token = body.token;\n// Email might come from body param or encoded in token\n// For verification logic we use body email if present, or extract from token\nlet email = body.email;\n\n// Password might be passed as 'password' or 'new_password'\nconst newPassword = body.password || body.new_password;\n\nif (!token || !token.includes('.')) throw new Error('Invalid Token Format');\n\nconst [payloadB64, signature] = token.split('.');\nconst secret = 'BLOOM_AUTH_SECRET_V1';\nconst expectedSig = crypto.createHmac('sha256', secret).update(payloadB64).digest('hex');\n\nif (signature !== expectedSig) throw new Error('Invalid Token Signature');\n\nconst payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'));\n\nif (Date.now() > payload.expires) throw new Error('Token Expired');\n\n// If email provided in body, check match. Otherwise verify token email is valid.\nif (email && payload.email !== email) throw new Error('Email Mismatch');\n\n// Use email from token payload as the source of truth\nemail = payload.email;\n\nreturn [{ \n    json: { \n        email, \n        newPassword,\n        valid: true\n    } \n}];\n"
             },
-            "id": "b9a5fea1-2495-4723-bc9b-3e572a70df69",
+            "id": "932936ee-7e15-4e3b-b73e-f5b2c1aab4b1",
             "name": "Verify Token",
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                760,
-                1440
-            ],
-            "notes": "Valida il token: firma HMAC, scadenza, corrispondenza email"
+                900,
+                1000
+            ]
         },
         {
             "parameters": {
@@ -478,24 +522,22 @@
                             "emailValue": "={{ $json.email }}"
                         }
                     ]
-                },
-                "options": {}
+                }
             },
-            "id": "5be755a2-d95c-437b-9cd7-0be74bd314a3",
+            "id": "0c87a384-9d96-408e-bd91-1026486b4c4b",
             "name": "Get User To Update",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2.1,
             "position": [
-                1040,
-                1440
+                1100,
+                1000
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Cerca l'utente nel Marketing DB per aggiornare la password"
+            }
         },
         {
             "parameters": {
@@ -515,7 +557,225 @@
                         }
                     ]
                 },
+                "databaseId": {
+                    "__rl": true,
+                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                    "mode": "list",
+                    "cachedResultName": "Marketing Profile Database"
+                }
+            },
+            "id": "fd907f39-0a05-4cd1-a906-47699ccdd2d2",
+            "name": "Update Password",
+            "type": "n8n-nodes-base.notion",
+            "typeVersion": 2.1,
+            "position": [
+                1300,
+                1000
+            ],
+            "credentials": {
+                "notionApi": {
+                    "id": "jNP7bHIu6NZaobB0",
+                    "name": "Notion account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Password updated successfully.\"\n}",
                 "options": {}
+            },
+            "id": "e78f9d47-0077-4955-83bc-e8ac9e66761f",
+            "name": "Respond Success (Reset)",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1500,
+                1000
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "databasePage",
+                "operation": "getAll",
+                "databaseId": {
+                    "__rl": true,
+                    "value": "2f5fa85c-0d03-81b5-b333-cdb74b8ce81b",
+                    "mode": "list"
+                },
+                "filterType": "manual",
+                "matchType": "all",
+                "filters": {
+                    "conditions": [
+                        {
+                            "key": "Email|email",
+                            "condition": "equals",
+                            "emailValue": "={{ $('Webhook').item.json.body.email }}"
+                        }
+                    ]
+                }
+            },
+            "id": "8460384d-880d-453c-ad9f-3c625c32449c",
+            "name": "Check User (Forgot)",
+            "type": "n8n-nodes-base.notion",
+            "typeVersion": 2.1,
+            "position": [
+                900,
+                800
+            ],
+            "credentials": {
+                "notionApi": {
+                    "id": "jNP7bHIu6NZaobB0",
+                    "name": "Notion account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $items().length > 0 }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "99538615-df29-4828-8756-c9efadcd04fe",
+            "name": "If User Exists (Forgot)",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1100,
+                800
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "\nconst crypto = require('crypto');\n\n// Get context from Webhook node\n// Try different ways to access webhook data safely\nlet body = {};\nlet requestHeaders = {};\n\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n    requestHeaders = webhookData.headers || {};\n} catch(e) {\n    // Fallback if direct access fails (e.g. testing)\n    body = $json.body || {};\n}\n\nconst email = body.email;\nconst secret = 'BLOOM_AUTH_SECRET_V1'; \nconst expires = Date.now() + 3600000; // 1 hour\n\nconst payload = Buffer.from(JSON.stringify({ email, expires })).toString('base64');\nconst signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');\nconst token = `${payload}.${signature}`;\n\n// Determine Frontend URL dynamically from Origin header\nlet frontendUrl = 'http://localhost:5173';\nif (requestHeaders && requestHeaders.origin) {\n    frontendUrl = requestHeaders.origin;\n}\n\nconst resetLink = `${frontendUrl}/reset-password?token=${token}&email=${email}`;\n\n// Construct Email Body\nconst emailBody = `\n<div style=\"font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;\">\n    <h2 style=\"color: #ff4d4d;\">Recupero Password</h2>\n    <p>Ciao,</p>\n    <p>Hai richiesto di reimpostare la tua password per il tuo account Bloom AI.</p>\n    <p>Clicca sul pulsante qui sotto per procedere:</p>\n    <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"${resetLink}\" style=\"background-color: #ff4d4d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Reimposta Password</a>\n    </div>\n    <p style=\"font-size: 14px; color: #666;\">Se il pulsante non funziona, copia e incolla questo link nel tuo browser:</p>\n    <p style=\"font-size: 12px; color: #888; word-break: break-all;\">${resetLink}</p>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\">\n    <p style=\"font-size: 12px; color: #aaa;\">Se non hai richiesto tu il ripristino, ignora questa email.</p>\n</div>\n`;\n\nreturn [{ \n    json: { \n        token, \n        resetLink, \n        email,\n        emailBody\n    } \n}];\n"
+            },
+            "id": "63bbcd7f-80f7-4a9c-8afa-e85fc76d0f84",
+            "name": "Generate Token",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                1300,
+                750
+            ]
+        },
+        {
+            "parameters": {
+                "fromEmail": "serra.emanuele09@gmail.com",
+                "toEmail": "={{ $json.email }}",
+                "subject": "Reset Password - Bloom AI",
+                "options": {},
+                "text": "={{ 'Reset link: ' + $json.resetLink }}",
+                "html": "={{ $json.emailBody }}"
+            },
+            "id": "35701625-7808-4416-9413-acfd33bceb0a",
+            "name": "Send Reset Email",
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2.1,
+            "position": [
+                1500,
+                750
+            ],
+            "credentials": {
+                "smtp": {
+                    "id": "3jxHADCw51qvxr54",
+                    "name": "SMTP Gmail Serra Personal"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": true,\n  \"message\": \"If the email exists, a reset link has been sent.\"\n}",
+                "options": {}
+            },
+            "id": "cefb7535-e480-4bc0-aa75-c8934dde3cd4",
+            "name": "Respond Success (Forgot)",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1700,
+                750
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "\nconst crypto = require('crypto');\n\n// Try different ways to access webhook data safely\nlet body = {};\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n} catch(e) {\n    body = $json.body || {};\n}\n\nconst token = body.token;\n// Email might come from body param or encoded in token\n// For verification logic we use body email if present, or extract from token\nlet email = body.email;\n\n// Password might be passed as 'password' or 'new_password'\nconst newPassword = body.password || body.new_password;\n\nif (!token || !token.includes('.')) throw new Error('Invalid Token Format');\n\nconst [payloadB64, signature] = token.split('.');\nconst secret = 'BLOOM_AUTH_SECRET_V1';\nconst expectedSig = crypto.createHmac('sha256', secret).update(payloadB64).digest('hex');\n\nif (signature !== expectedSig) throw new Error('Invalid Token Signature');\n\nconst payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'));\n\nif (Date.now() > payload.expires) throw new Error('Token Expired');\n\n// If email provided in body, check match. Otherwise verify token email is valid.\nif (email && payload.email !== email) throw new Error('Email Mismatch');\n\n// Use email from token payload as the source of truth\nemail = payload.email;\n\nreturn [{ \n    json: { \n        email, \n        newPassword,\n        valid: true\n    } \n}];\n"
+            },
+            "id": "b9a5fea1-2495-4723-bc9b-3e572a70df69",
+            "name": "Verify Token",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                900,
+                1000
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "databasePage",
+                "operation": "getAll",
+                "databaseId": {
+                    "__rl": true,
+                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                    "mode": "list",
+                    "cachedResultName": "Marketing Profile Database"
+                },
+                "filterType": "manual",
+                "matchType": "all",
+                "filters": {
+                    "conditions": [
+                        {
+                            "key": "Email|email",
+                            "condition": "equals",
+                            "emailValue": "={{ $json.email }}"
+                        }
+                    ]
+                }
+            },
+            "id": "5be755a2-d95c-437b-9cd7-0be74bd314a3",
+            "name": "Get User To Update",
+            "type": "n8n-nodes-base.notion",
+            "typeVersion": 2.1,
+            "position": [
+                1100,
+                1000
+            ],
+            "credentials": {
+                "notionApi": {
+                    "id": "jNP7bHIu6NZaobB0",
+                    "name": "Notion account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "resource": "databasePage",
+                "operation": "update",
+                "pageId": {
+                    "__rl": true,
+                    "value": "={{ $json.id }}",
+                    "mode": "id"
+                },
+                "propertiesUi": {
+                    "propertyValues": [
+                        {
+                            "key": "Password|rich_text",
+                            "type": "rich_text",
+                            "textContent": "={{ $('Verify Token').item.json.newPassword }}"
+                        }
+                    ]
+                },
+                "databaseId": {
+                    "__rl": true,
+                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                    "mode": "list",
+                    "cachedResultName": "Marketing Profile Database"
+                }
             },
             "id": "2021582d-83fa-4fd4-9554-2b28c712ce64",
             "name": "Update Password",
@@ -523,15 +783,14 @@
             "typeVersion": 2.1,
             "position": [
                 1300,
-                1440
+                1000
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Aggiorna il campo Password nel record Notion"
+            }
         },
         {
             "parameters": {
@@ -544,10 +803,9 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1560,
-                1440
-            ],
-            "notes": "200 OK - Password aggiornata con successo"
+                1500,
+                1000
+            ]
         },
         {
             "parameters": {
@@ -558,10 +816,9 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                760,
-                600
-            ],
-            "notes": "Estrae l'email dal body del Webhook"
+                780,
+                500
+            ]
         },
         {
             "parameters": {
@@ -572,23 +829,24 @@
                     "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
                     "mode": "list"
                 },
-                "options": {}
+                "options": {
+                    "alwaysOutputData": true
+                }
             },
             "id": "check-email-notion-v65",
             "name": "Check Existing Email (Marketing DB)",
             "type": "n8n-nodes-base.notion",
             "typeVersion": 2,
             "position": [
-                1040,
-                600
+                950,
+                500
             ],
             "credentials": {
                 "notionApi": {
                     "id": "jNP7bHIu6NZaobB0",
                     "name": "Notion account"
                 }
-            },
-            "notes": "Scarica tutti i profili dal Marketing DB per confronto email"
+            }
         },
         {
             "parameters": {
@@ -599,10 +857,9 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 1,
             "position": [
-                1300,
-                600
-            ],
-            "notes": "Verifica se l'email esiste gia' confrontando con i record Notion"
+                1150,
+                500
+            ]
         },
         {
             "parameters": {
@@ -620,10 +877,9 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                1560,
-                600
-            ],
-            "notes": "True = email gia' registrata, False = nuova registrazione"
+                1350,
+                500
+            ]
         },
         {
             "parameters": {
@@ -638,15 +894,14 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1820,
-                500
-            ],
-            "notes": "409 Conflict - Email gia' esistente"
+                1550,
+                400
+            ]
         },
         {
             "parameters": {
                 "respondWith": "json",
-                "responseBody": "={\n  \"success\": true,\n  \"message\": \"Registrazione completata\",\n  \"username\": \"{{ $('Webhook').first().json.body.username }}\",\n  \"email\": \"{{ $('Webhook').first().json.body.email }}\"\n}",
+                "responseBody": "{\"message\": \"User registered successfully\", \"email\": \"{{ $json.email }}\"}",
                 "options": {
                     "responseCode": 200
                 }
@@ -656,89 +911,8 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                2100,
-                720
-            ],
-            "notes": "200 OK - Registrazione completata con success + username + email"
-        },
-        {
-            "parameters": {
-                "content": "## Bloom AI Unified Auth\n**Endpoint:** `POST /webhook/auth`\n\nGestisce 4 modalita':\n- `login` - Autenticazione utente\n- `register` - Registrazione nuovo account\n- `forgot_password` - Invio email di recupero\n- `reset_password` - Reset con token",
-                "height": 260,
-                "width": 320,
-                "color": 1
-            },
-            "id": "sticky-header",
-            "name": "Sticky Note",
-            "type": "n8n-nodes-base.stickyNote",
-            "typeVersion": 1,
-            "position": [
-                100,
-                340
-            ]
-        },
-        {
-            "parameters": {
-                "content": "## LOGIN\nCerca l'utente in entrambi i DB (Brand + Marketing), valida la password e risponde con success/error.",
-                "height": 420,
-                "width": 1340,
-                "color": 4
-            },
-            "id": "sticky-login",
-            "name": "Sticky Note1",
-            "type": "n8n-nodes-base.stickyNote",
-            "typeVersion": 1,
-            "position": [
-                680,
-                20
-            ]
-        },
-        {
-            "parameters": {
-                "content": "## REGISTRAZIONE\nVerifica se l'email esiste gia'. Se no, crea il profilo su Notion e risponde con successo.",
-                "height": 420,
-                "width": 1620,
-                "color": 5
-            },
-            "id": "sticky-register",
-            "name": "Sticky Note2",
-            "type": "n8n-nodes-base.stickyNote",
-            "typeVersion": 1,
-            "position": [
-                680,
-                440
-            ]
-        },
-        {
-            "parameters": {
-                "content": "## RECUPERO PASSWORD\nGenera un token sicuro, costruisce il link di reset e invia l'email via SMTP.",
-                "height": 400,
-                "width": 1340,
-                "color": 2
-            },
-            "id": "sticky-forgot",
-            "name": "Sticky Note3",
-            "type": "n8n-nodes-base.stickyNote",
-            "typeVersion": 1,
-            "position": [
-                680,
-                880
-            ]
-        },
-        {
-            "parameters": {
-                "content": "## RESET PASSWORD\nValida il token (firma + scadenza), trova l'utente e aggiorna la password su Notion.",
-                "height": 340,
-                "width": 1080,
-                "color": 6
-            },
-            "id": "sticky-reset",
-            "name": "Sticky Note4",
-            "type": "n8n-nodes-base.stickyNote",
-            "typeVersion": 1,
-            "position": [
-                680,
-                1320
+                1700,
+                580
             ]
         }
     ],
@@ -824,6 +998,28 @@
                 ]
             ]
         },
+        "Get Marketing Profile": {
+            "main": [
+                [
+                    {
+                        "node": "Create User",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create User": {
+            "main": [
+                [
+                    {
+                        "node": "Respond Registration Success",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
         "Validate User": {
             "main": [
                 [
@@ -839,7 +1035,7 @@
             "main": [
                 [
                     {
-                        "node": "Respond Login Success",
+                        "node": "Respond Success",
                         "type": "main",
                         "index": 0
                     }
@@ -847,68 +1043,6 @@
                 [
                     {
                         "node": "Respond Error",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Set Email": {
-            "main": [
-                [
-                    {
-                        "node": "Check Existing Email (Marketing DB)",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Check Existing Email (Marketing DB)": {
-            "main": [
-                [
-                    {
-                        "node": "Check Logic",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Check Logic": {
-            "main": [
-                [
-                    {
-                        "node": "If Exists",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "If Exists": {
-            "main": [
-                [
-                    {
-                        "node": "Respond Conflict",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Create User",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Create User": {
-            "main": [
-                [
-                    {
-                        "node": "Respond Registration Success",
                         "type": "main",
                         "index": 0
                     }
@@ -1047,9 +1181,9 @@
             }
         ]
     },
-    "versionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
-    "activeVersionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
-    "versionCounter": 471,
+    "versionId": "268a57b6-5163-4827-98f9-15b22c32d144",
+    "activeVersionId": "268a57b6-5163-4827-98f9-15b22c32d144",
+    "versionCounter": 461,
     "triggerCount": 1,
     "shared": [
         {
@@ -1104,24 +1238,11 @@
             }
         }
     ],
-    "tags": [
-        {
-            "updatedAt": "2026-02-10T06:41:18.068Z",
-            "createdAt": "2026-02-10T06:41:18.068Z",
-            "id": "s0Gi8huRDD2NFR35",
-            "name": "Bloom 2.0"
-        },
-        {
-            "updatedAt": "2025-11-28T20:42:38.923Z",
-            "createdAt": "2025-11-28T20:42:38.923Z",
-            "id": "toA0pH2gwX57UxWi",
-            "name": "Arca 24"
-        }
-    ],
+    "tags": [],
     "activeVersion": {
-        "updatedAt": "2026-02-10T06:50:00.723Z",
-        "createdAt": "2026-02-10T06:50:00.723Z",
-        "versionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
+        "updatedAt": "2026-02-09T15:20:56.277Z",
+        "createdAt": "2026-02-09T15:20:56.277Z",
+        "versionId": "268a57b6-5163-4827-98f9-15b22c32d144",
         "workflowId": "uYNin7KcptmBF8Nw",
         "nodes": [
             {
@@ -1136,14 +1257,14 @@
                 "type": "n8n-nodes-base.webhook",
                 "typeVersion": 1.1,
                 "position": [
-                    180,
-                    500
+                    460,
+                    360
                 ],
-                "webhookId": "auth",
-                "notes": "POST /webhook/auth\nRiceve: { mode, username, password, email }"
+                "webhookId": "auth"
             },
             {
                 "parameters": {
+                    "mode": "rules",
                     "rules": {
                         "values": [
                             {
@@ -1239,10 +1360,50 @@
                 "type": "n8n-nodes-base.switch",
                 "typeVersion": 3,
                 "position": [
-                    480,
-                    500
+                    680,
+                    360
+                ]
+            },
+            {
+                "parameters": {
+                    "resource": "databasePage",
+                    "operation": "getAll",
+                    "databaseId": {
+                        "__rl": true,
+                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                        "mode": "list",
+                        "cachedResultName": "Marketing Profile Database",
+                        "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
+                    },
+                    "filterType": "manual",
+                    "matchType": "all",
+                    "filters": {
+                        "conditions": [
+                            {
+                                "key": "Email|email",
+                                "condition": "equals",
+                                "emailValue": "={{ $json.body.email }}"
+                            }
+                        ]
+                    },
+                    "options": {
+                        "alwaysOutputData": false
+                    }
+                },
+                "id": "get-marketing-profile",
+                "name": "Get Marketing Profile",
+                "type": "n8n-nodes-base.notion",
+                "typeVersion": 2.1,
+                "position": [
+                    1300,
+                    600
                 ],
-                "notes": "Instrada verso Login, Register, Forgot o Reset in base al campo 'mode'"
+                "credentials": {
+                    "notionApi": {
+                        "id": "jNP7bHIu6NZaobB0",
+                        "name": "Notion account"
+                    }
+                }
             },
             {
                 "parameters": {
@@ -1277,32 +1438,30 @@
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    1820,
-                    720
+                    1500,
+                    600
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Crea nuovo record in Marketing Profile DB con Username, Password, Email"
+                }
             },
             {
                 "parameters": {
                     "respondWith": "json",
-                    "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name || $json.user.Name || $json.user.Username || $('Webhook').item.json.body.username }}\"\n}",
+                    "responseBody": "={\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"username\": \"{{ $json.user.property_username || $json.user.property_name }}\"\n}",
                     "options": {}
                 },
                 "id": "respond-success",
-                "name": "Respond Login Success",
+                "name": "Respond Success",
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1820,
-                    80
-                ],
-                "notes": "200 OK - Restituisce success + username"
+                    1700,
+                    500
+                ]
             },
             {
                 "parameters": {
@@ -1321,27 +1480,29 @@
                         "conditions": [
                             {
                                 "key": "Name|title",
-                                "condition": "equals"
+                                "condition": "equals",
+                                "title": "={{ $('Webhook').item.json.body.username }}"
                             }
                         ]
                     },
-                    "options": {}
+                    "options": {
+                        "alwaysOutputData": true
+                    }
                 },
                 "id": "get-user-brand",
                 "name": "Get User (Brand)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    760,
-                    100
+                    860,
+                    200
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Cerca utente nel DB Brand Profiles (Bloom 2.0) per username"
+                }
             },
             {
                 "parameters": {
@@ -1360,39 +1521,53 @@
                         "conditions": [
                             {
                                 "key": "Name|title",
-                                "condition": "equals"
+                                "condition": "equals",
+                                "title": "={{ $('Webhook').item.json.body.username }}"
                             }
                         ]
                     },
-                    "options": {}
+                    "options": {
+                        "alwaysOutputData": true
+                    }
                 },
                 "id": "get-user-marketing",
                 "name": "Get User (Marketing)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    760,
-                    300
+                    860,
+                    340
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Cerca utente nel DB Marketing Profile per username"
+                }
             },
             {
-                "parameters": {},
+                "parameters": {
+                    "mode": "append",
+                    "mergeByFields": {
+                        "values": [
+                            {
+                                "field1": "id",
+                                "field2": "id"
+                            }
+                        ]
+                    },
+                    "options": {
+                        "clashHandling": "alwaysOutput"
+                    }
+                },
                 "id": "merge-users",
                 "name": "Merge Users",
                 "type": "n8n-nodes-base.merge",
                 "typeVersion": 2.1,
                 "position": [
                     1040,
-                    190
-                ],
-                "notes": "Unisce i risultati da Brand + Marketing DB"
+                    260
+                ]
             },
             {
                 "parameters": {
@@ -1403,10 +1578,9 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    1300,
-                    190
-                ],
-                "notes": "Confronta la password inviata con quella salvata su Notion (3 strategie di lettura)"
+                    1220,
+                    260
+                ]
             },
             {
                 "parameters": {
@@ -1424,10 +1598,9 @@
                 "type": "n8n-nodes-base.if",
                 "typeVersion": 1,
                 "position": [
-                    1560,
-                    190
-                ],
-                "notes": "Verifica il flag 'authorized' dal nodo Validate User"
+                    1380,
+                    260
+                ]
             },
             {
                 "parameters": {
@@ -1442,10 +1615,9 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1820,
-                    320
-                ],
-                "notes": "401 Unauthorized - Credenziali non valide"
+                    1580,
+                    140
+                ]
             },
             {
                 "parameters": {
@@ -1466,24 +1638,22 @@
                                 "emailValue": "={{ $('Webhook').item.json.body.email }}"
                             }
                         ]
-                    },
-                    "options": {}
+                    }
                 },
-                "id": "8460384d-880d-453c-ad9f-3c625c32449c",
+                "id": "c1b780f9-5f0c-4d38-8bc3-4c09bb093502",
                 "name": "Check User (Forgot)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    760,
-                    1060
+                    900,
+                    800
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Cerca utente nel Brand DB per email"
+                }
             },
             {
                 "parameters": {
@@ -1496,54 +1666,51 @@
                         ]
                     }
                 },
-                "id": "99538615-df29-4828-8756-c9efadcd04fe",
+                "id": "9b391ba0-5aeb-444f-8b41-74c45fdbb591",
                 "name": "If User Exists (Forgot)",
                 "type": "n8n-nodes-base.if",
                 "typeVersion": 1,
                 "position": [
-                    1040,
-                    1060
-                ],
-                "notes": "Verifica se l'utente esiste per procedere con il recupero"
+                    1100,
+                    800
+                ]
             },
             {
                 "parameters": {
                     "jsCode": "\nconst crypto = require('crypto');\n\n// Get context from Webhook node\n// Try different ways to access webhook data safely\nlet body = {};\nlet requestHeaders = {};\n\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n    requestHeaders = webhookData.headers || {};\n} catch(e) {\n    // Fallback if direct access fails (e.g. testing)\n    body = $json.body || {};\n}\n\nconst email = body.email;\nconst secret = 'BLOOM_AUTH_SECRET_V1'; \nconst expires = Date.now() + 3600000; // 1 hour\n\nconst payload = Buffer.from(JSON.stringify({ email, expires })).toString('base64');\nconst signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');\nconst token = `${payload}.${signature}`;\n\n// Determine Frontend URL dynamically from Origin header\nlet frontendUrl = 'http://localhost:5173';\nif (requestHeaders && requestHeaders.origin) {\n    frontendUrl = requestHeaders.origin;\n}\n\nconst resetLink = `${frontendUrl}/reset-password?token=${token}&email=${email}`;\n\n// Construct Email Body\nconst emailBody = `\n<div style=\"font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;\">\n    <h2 style=\"color: #ff4d4d;\">Recupero Password</h2>\n    <p>Ciao,</p>\n    <p>Hai richiesto di reimpostare la tua password per il tuo account Bloom AI.</p>\n    <p>Clicca sul pulsante qui sotto per procedere:</p>\n    <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"${resetLink}\" style=\"background-color: #ff4d4d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Reimposta Password</a>\n    </div>\n    <p style=\"font-size: 14px; color: #666;\">Se il pulsante non funziona, copia e incolla questo link nel tuo browser:</p>\n    <p style=\"font-size: 12px; color: #888; word-break: break-all;\">${resetLink}</p>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\">\n    <p style=\"font-size: 12px; color: #aaa;\">Se non hai richiesto tu il ripristino, ignora questa email.</p>\n</div>\n`;\n\nreturn [{ \n    json: { \n        token, \n        resetLink, \n        email,\n        emailBody\n    } \n}];\n"
                 },
-                "id": "63bbcd7f-80f7-4a9c-8afa-e85fc76d0f84",
+                "id": "835fec1f-70ab-41f2-9cca-7dea6ad8c174",
                 "name": "Generate Token",
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
                     1300,
-                    980
-                ],
-                "notes": "Genera token HMAC-SHA256 con scadenza 1h e costruisce il link di reset"
+                    750
+                ]
             },
             {
                 "parameters": {
                     "fromEmail": "serra.emanuele09@gmail.com",
                     "toEmail": "={{ $json.email }}",
                     "subject": "Reset Password - Bloom AI",
-                    "html": "={{ $json.emailBody }}",
-                    "options": {}
+                    "options": {},
+                    "text": "={{ 'Reset link: ' + $json.resetLink }}",
+                    "html": "={{ $json.emailBody }}"
                 },
-                "id": "35701625-7808-4416-9413-acfd33bceb0a",
+                "id": "c491f652-b31a-4b85-8b1d-fdde3792b95e",
                 "name": "Send Reset Email",
                 "type": "n8n-nodes-base.emailSend",
                 "typeVersion": 2.1,
                 "position": [
-                    1560,
-                    980
+                    1500,
+                    750
                 ],
-                "webhookId": "22220410-025c-4f00-93a0-bbe2c44a1383",
                 "credentials": {
                     "smtp": {
                         "id": "3jxHADCw51qvxr54",
                         "name": "SMTP Gmail Serra Personal"
                     }
-                },
-                "notes": "Invia email con link di reset via SMTP Gmail"
+                }
             },
             {
                 "parameters": {
@@ -1551,29 +1718,27 @@
                     "responseBody": "={\n  \"success\": true,\n  \"message\": \"If the email exists, a reset link has been sent.\"\n}",
                     "options": {}
                 },
-                "id": "cefb7535-e480-4bc0-aa75-c8934dde3cd4",
+                "id": "feac77d4-ade3-4c88-89bc-89467498aa13",
                 "name": "Respond Success (Forgot)",
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1820,
-                    1060
-                ],
-                "notes": "Risponde al frontend (messaggio generico per sicurezza)"
+                    1700,
+                    750
+                ]
             },
             {
                 "parameters": {
                     "jsCode": "\nconst crypto = require('crypto');\n\n// Try different ways to access webhook data safely\nlet body = {};\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n} catch(e) {\n    body = $json.body || {};\n}\n\nconst token = body.token;\n// Email might come from body param or encoded in token\n// For verification logic we use body email if present, or extract from token\nlet email = body.email;\n\n// Password might be passed as 'password' or 'new_password'\nconst newPassword = body.password || body.new_password;\n\nif (!token || !token.includes('.')) throw new Error('Invalid Token Format');\n\nconst [payloadB64, signature] = token.split('.');\nconst secret = 'BLOOM_AUTH_SECRET_V1';\nconst expectedSig = crypto.createHmac('sha256', secret).update(payloadB64).digest('hex');\n\nif (signature !== expectedSig) throw new Error('Invalid Token Signature');\n\nconst payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'));\n\nif (Date.now() > payload.expires) throw new Error('Token Expired');\n\n// If email provided in body, check match. Otherwise verify token email is valid.\nif (email && payload.email !== email) throw new Error('Email Mismatch');\n\n// Use email from token payload as the source of truth\nemail = payload.email;\n\nreturn [{ \n    json: { \n        email, \n        newPassword,\n        valid: true\n    } \n}];\n"
                 },
-                "id": "b9a5fea1-2495-4723-bc9b-3e572a70df69",
+                "id": "932936ee-7e15-4e3b-b73e-f5b2c1aab4b1",
                 "name": "Verify Token",
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    760,
-                    1440
-                ],
-                "notes": "Valida il token: firma HMAC, scadenza, corrispondenza email"
+                    900,
+                    1000
+                ]
             },
             {
                 "parameters": {
@@ -1595,24 +1760,22 @@
                                 "emailValue": "={{ $json.email }}"
                             }
                         ]
-                    },
-                    "options": {}
+                    }
                 },
-                "id": "5be755a2-d95c-437b-9cd7-0be74bd314a3",
+                "id": "0c87a384-9d96-408e-bd91-1026486b4c4b",
                 "name": "Get User To Update",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2.1,
                 "position": [
-                    1040,
-                    1440
+                    1100,
+                    1000
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Cerca l'utente nel Marketing DB per aggiornare la password"
+                }
             },
             {
                 "parameters": {
@@ -1632,7 +1795,225 @@
                             }
                         ]
                     },
+                    "databaseId": {
+                        "__rl": true,
+                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                        "mode": "list",
+                        "cachedResultName": "Marketing Profile Database"
+                    }
+                },
+                "id": "fd907f39-0a05-4cd1-a906-47699ccdd2d2",
+                "name": "Update Password",
+                "type": "n8n-nodes-base.notion",
+                "typeVersion": 2.1,
+                "position": [
+                    1300,
+                    1000
+                ],
+                "credentials": {
+                    "notionApi": {
+                        "id": "jNP7bHIu6NZaobB0",
+                        "name": "Notion account"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "respondWith": "json",
+                    "responseBody": "={\n  \"success\": true,\n  \"message\": \"Password updated successfully.\"\n}",
                     "options": {}
+                },
+                "id": "e78f9d47-0077-4955-83bc-e8ac9e66761f",
+                "name": "Respond Success (Reset)",
+                "type": "n8n-nodes-base.respondToWebhook",
+                "typeVersion": 1,
+                "position": [
+                    1500,
+                    1000
+                ]
+            },
+            {
+                "parameters": {
+                    "resource": "databasePage",
+                    "operation": "getAll",
+                    "databaseId": {
+                        "__rl": true,
+                        "value": "2f5fa85c-0d03-81b5-b333-cdb74b8ce81b",
+                        "mode": "list"
+                    },
+                    "filterType": "manual",
+                    "matchType": "all",
+                    "filters": {
+                        "conditions": [
+                            {
+                                "key": "Email|email",
+                                "condition": "equals",
+                                "emailValue": "={{ $('Webhook').item.json.body.email }}"
+                            }
+                        ]
+                    }
+                },
+                "id": "8460384d-880d-453c-ad9f-3c625c32449c",
+                "name": "Check User (Forgot)",
+                "type": "n8n-nodes-base.notion",
+                "typeVersion": 2.1,
+                "position": [
+                    900,
+                    800
+                ],
+                "credentials": {
+                    "notionApi": {
+                        "id": "jNP7bHIu6NZaobB0",
+                        "name": "Notion account"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "conditions": {
+                        "boolean": [
+                            {
+                                "value1": "={{ $items().length > 0 }}",
+                                "value2": true
+                            }
+                        ]
+                    }
+                },
+                "id": "99538615-df29-4828-8756-c9efadcd04fe",
+                "name": "If User Exists (Forgot)",
+                "type": "n8n-nodes-base.if",
+                "typeVersion": 1,
+                "position": [
+                    1100,
+                    800
+                ]
+            },
+            {
+                "parameters": {
+                    "jsCode": "\nconst crypto = require('crypto');\n\n// Get context from Webhook node\n// Try different ways to access webhook data safely\nlet body = {};\nlet requestHeaders = {};\n\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n    requestHeaders = webhookData.headers || {};\n} catch(e) {\n    // Fallback if direct access fails (e.g. testing)\n    body = $json.body || {};\n}\n\nconst email = body.email;\nconst secret = 'BLOOM_AUTH_SECRET_V1'; \nconst expires = Date.now() + 3600000; // 1 hour\n\nconst payload = Buffer.from(JSON.stringify({ email, expires })).toString('base64');\nconst signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');\nconst token = `${payload}.${signature}`;\n\n// Determine Frontend URL dynamically from Origin header\nlet frontendUrl = 'http://localhost:5173';\nif (requestHeaders && requestHeaders.origin) {\n    frontendUrl = requestHeaders.origin;\n}\n\nconst resetLink = `${frontendUrl}/reset-password?token=${token}&email=${email}`;\n\n// Construct Email Body\nconst emailBody = `\n<div style=\"font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;\">\n    <h2 style=\"color: #ff4d4d;\">Recupero Password</h2>\n    <p>Ciao,</p>\n    <p>Hai richiesto di reimpostare la tua password per il tuo account Bloom AI.</p>\n    <p>Clicca sul pulsante qui sotto per procedere:</p>\n    <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"${resetLink}\" style=\"background-color: #ff4d4d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">Reimposta Password</a>\n    </div>\n    <p style=\"font-size: 14px; color: #666;\">Se il pulsante non funziona, copia e incolla questo link nel tuo browser:</p>\n    <p style=\"font-size: 12px; color: #888; word-break: break-all;\">${resetLink}</p>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\">\n    <p style=\"font-size: 12px; color: #aaa;\">Se non hai richiesto tu il ripristino, ignora questa email.</p>\n</div>\n`;\n\nreturn [{ \n    json: { \n        token, \n        resetLink, \n        email,\n        emailBody\n    } \n}];\n"
+                },
+                "id": "63bbcd7f-80f7-4a9c-8afa-e85fc76d0f84",
+                "name": "Generate Token",
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 1,
+                "position": [
+                    1300,
+                    750
+                ]
+            },
+            {
+                "parameters": {
+                    "fromEmail": "serra.emanuele09@gmail.com",
+                    "toEmail": "={{ $json.email }}",
+                    "subject": "Reset Password - Bloom AI",
+                    "options": {},
+                    "text": "={{ 'Reset link: ' + $json.resetLink }}",
+                    "html": "={{ $json.emailBody }}"
+                },
+                "id": "35701625-7808-4416-9413-acfd33bceb0a",
+                "name": "Send Reset Email",
+                "type": "n8n-nodes-base.emailSend",
+                "typeVersion": 2.1,
+                "position": [
+                    1500,
+                    750
+                ],
+                "credentials": {
+                    "smtp": {
+                        "id": "3jxHADCw51qvxr54",
+                        "name": "SMTP Gmail Serra Personal"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "respondWith": "json",
+                    "responseBody": "={\n  \"success\": true,\n  \"message\": \"If the email exists, a reset link has been sent.\"\n}",
+                    "options": {}
+                },
+                "id": "cefb7535-e480-4bc0-aa75-c8934dde3cd4",
+                "name": "Respond Success (Forgot)",
+                "type": "n8n-nodes-base.respondToWebhook",
+                "typeVersion": 1,
+                "position": [
+                    1700,
+                    750
+                ]
+            },
+            {
+                "parameters": {
+                    "jsCode": "\nconst crypto = require('crypto');\n\n// Try different ways to access webhook data safely\nlet body = {};\ntry {\n    const webhookData = $('Webhook').first().json;\n    body = webhookData.body || {};\n} catch(e) {\n    body = $json.body || {};\n}\n\nconst token = body.token;\n// Email might come from body param or encoded in token\n// For verification logic we use body email if present, or extract from token\nlet email = body.email;\n\n// Password might be passed as 'password' or 'new_password'\nconst newPassword = body.password || body.new_password;\n\nif (!token || !token.includes('.')) throw new Error('Invalid Token Format');\n\nconst [payloadB64, signature] = token.split('.');\nconst secret = 'BLOOM_AUTH_SECRET_V1';\nconst expectedSig = crypto.createHmac('sha256', secret).update(payloadB64).digest('hex');\n\nif (signature !== expectedSig) throw new Error('Invalid Token Signature');\n\nconst payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'));\n\nif (Date.now() > payload.expires) throw new Error('Token Expired');\n\n// If email provided in body, check match. Otherwise verify token email is valid.\nif (email && payload.email !== email) throw new Error('Email Mismatch');\n\n// Use email from token payload as the source of truth\nemail = payload.email;\n\nreturn [{ \n    json: { \n        email, \n        newPassword,\n        valid: true\n    } \n}];\n"
+                },
+                "id": "b9a5fea1-2495-4723-bc9b-3e572a70df69",
+                "name": "Verify Token",
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 1,
+                "position": [
+                    900,
+                    1000
+                ]
+            },
+            {
+                "parameters": {
+                    "resource": "databasePage",
+                    "operation": "getAll",
+                    "databaseId": {
+                        "__rl": true,
+                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                        "mode": "list",
+                        "cachedResultName": "Marketing Profile Database"
+                    },
+                    "filterType": "manual",
+                    "matchType": "all",
+                    "filters": {
+                        "conditions": [
+                            {
+                                "key": "Email|email",
+                                "condition": "equals",
+                                "emailValue": "={{ $json.email }}"
+                            }
+                        ]
+                    }
+                },
+                "id": "5be755a2-d95c-437b-9cd7-0be74bd314a3",
+                "name": "Get User To Update",
+                "type": "n8n-nodes-base.notion",
+                "typeVersion": 2.1,
+                "position": [
+                    1100,
+                    1000
+                ],
+                "credentials": {
+                    "notionApi": {
+                        "id": "jNP7bHIu6NZaobB0",
+                        "name": "Notion account"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "resource": "databasePage",
+                    "operation": "update",
+                    "pageId": {
+                        "__rl": true,
+                        "value": "={{ $json.id }}",
+                        "mode": "id"
+                    },
+                    "propertiesUi": {
+                        "propertyValues": [
+                            {
+                                "key": "Password|rich_text",
+                                "type": "rich_text",
+                                "textContent": "={{ $('Verify Token').item.json.newPassword }}"
+                            }
+                        ]
+                    },
+                    "databaseId": {
+                        "__rl": true,
+                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                        "mode": "list",
+                        "cachedResultName": "Marketing Profile Database"
+                    }
                 },
                 "id": "2021582d-83fa-4fd4-9554-2b28c712ce64",
                 "name": "Update Password",
@@ -1640,15 +2021,14 @@
                 "typeVersion": 2.1,
                 "position": [
                     1300,
-                    1440
+                    1000
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Aggiorna il campo Password nel record Notion"
+                }
             },
             {
                 "parameters": {
@@ -1661,10 +2041,9 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1560,
-                    1440
-                ],
-                "notes": "200 OK - Password aggiornata con successo"
+                    1500,
+                    1000
+                ]
             },
             {
                 "parameters": {
@@ -1675,10 +2054,9 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    760,
-                    600
-                ],
-                "notes": "Estrae l'email dal body del Webhook"
+                    780,
+                    500
+                ]
             },
             {
                 "parameters": {
@@ -1689,23 +2067,24 @@
                         "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
                         "mode": "list"
                     },
-                    "options": {}
+                    "options": {
+                        "alwaysOutputData": true
+                    }
                 },
                 "id": "check-email-notion-v65",
                 "name": "Check Existing Email (Marketing DB)",
                 "type": "n8n-nodes-base.notion",
                 "typeVersion": 2,
                 "position": [
-                    1040,
-                    600
+                    950,
+                    500
                 ],
                 "credentials": {
                     "notionApi": {
                         "id": "jNP7bHIu6NZaobB0",
                         "name": "Notion account"
                     }
-                },
-                "notes": "Scarica tutti i profili dal Marketing DB per confronto email"
+                }
             },
             {
                 "parameters": {
@@ -1716,10 +2095,9 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 1,
                 "position": [
-                    1300,
-                    600
-                ],
-                "notes": "Verifica se l'email esiste gia' confrontando con i record Notion"
+                    1150,
+                    500
+                ]
             },
             {
                 "parameters": {
@@ -1737,10 +2115,9 @@
                 "type": "n8n-nodes-base.if",
                 "typeVersion": 1,
                 "position": [
-                    1560,
-                    600
-                ],
-                "notes": "True = email gia' registrata, False = nuova registrazione"
+                    1350,
+                    500
+                ]
             },
             {
                 "parameters": {
@@ -1755,15 +2132,14 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    1820,
-                    500
-                ],
-                "notes": "409 Conflict - Email gia' esistente"
+                    1550,
+                    400
+                ]
             },
             {
                 "parameters": {
                     "respondWith": "json",
-                    "responseBody": "={\n  \"success\": true,\n  \"message\": \"Registrazione completata\",\n  \"username\": \"{{ $('Webhook').first().json.body.username }}\",\n  \"email\": \"{{ $('Webhook').first().json.body.email }}\"\n}",
+                    "responseBody": "{\"message\": \"User registered successfully\", \"email\": \"{{ $json.email }}\"}",
                     "options": {
                         "responseCode": 200
                     }
@@ -1773,89 +2149,8 @@
                 "type": "n8n-nodes-base.respondToWebhook",
                 "typeVersion": 1,
                 "position": [
-                    2100,
-                    720
-                ],
-                "notes": "200 OK - Registrazione completata con success + username + email"
-            },
-            {
-                "parameters": {
-                    "content": "## Bloom AI Unified Auth\n**Endpoint:** `POST /webhook/auth`\n\nGestisce 4 modalita':\n- `login` - Autenticazione utente\n- `register` - Registrazione nuovo account\n- `forgot_password` - Invio email di recupero\n- `reset_password` - Reset con token",
-                    "height": 260,
-                    "width": 320,
-                    "color": 1
-                },
-                "id": "sticky-header",
-                "name": "Sticky Note",
-                "type": "n8n-nodes-base.stickyNote",
-                "typeVersion": 1,
-                "position": [
-                    100,
-                    340
-                ]
-            },
-            {
-                "parameters": {
-                    "content": "## LOGIN\nCerca l'utente in entrambi i DB (Brand + Marketing), valida la password e risponde con success/error.",
-                    "height": 420,
-                    "width": 1340,
-                    "color": 4
-                },
-                "id": "sticky-login",
-                "name": "Sticky Note1",
-                "type": "n8n-nodes-base.stickyNote",
-                "typeVersion": 1,
-                "position": [
-                    680,
-                    20
-                ]
-            },
-            {
-                "parameters": {
-                    "content": "## REGISTRAZIONE\nVerifica se l'email esiste gia'. Se no, crea il profilo su Notion e risponde con successo.",
-                    "height": 420,
-                    "width": 1620,
-                    "color": 5
-                },
-                "id": "sticky-register",
-                "name": "Sticky Note2",
-                "type": "n8n-nodes-base.stickyNote",
-                "typeVersion": 1,
-                "position": [
-                    680,
-                    440
-                ]
-            },
-            {
-                "parameters": {
-                    "content": "## RECUPERO PASSWORD\nGenera un token sicuro, costruisce il link di reset e invia l'email via SMTP.",
-                    "height": 400,
-                    "width": 1340,
-                    "color": 2
-                },
-                "id": "sticky-forgot",
-                "name": "Sticky Note3",
-                "type": "n8n-nodes-base.stickyNote",
-                "typeVersion": 1,
-                "position": [
-                    680,
-                    880
-                ]
-            },
-            {
-                "parameters": {
-                    "content": "## RESET PASSWORD\nValida il token (firma + scadenza), trova l'utente e aggiorna la password su Notion.",
-                    "height": 340,
-                    "width": 1080,
-                    "color": 6
-                },
-                "id": "sticky-reset",
-                "name": "Sticky Note4",
-                "type": "n8n-nodes-base.stickyNote",
-                "typeVersion": 1,
-                "position": [
-                    680,
-                    1320
+                    1700,
+                    580
                 ]
             }
         ],
@@ -1941,6 +2236,28 @@
                     ]
                 ]
             },
+            "Get Marketing Profile": {
+                "main": [
+                    [
+                        {
+                            "node": "Create User",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Create User": {
+                "main": [
+                    [
+                        {
+                            "node": "Respond Registration Success",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
             "Validate User": {
                 "main": [
                     [
@@ -1956,7 +2273,7 @@
                 "main": [
                     [
                         {
-                            "node": "Respond Login Success",
+                            "node": "Respond Success",
                             "type": "main",
                             "index": 0
                         }
@@ -1964,68 +2281,6 @@
                     [
                         {
                             "node": "Respond Error",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "Set Email": {
-                "main": [
-                    [
-                        {
-                            "node": "Check Existing Email (Marketing DB)",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "Check Existing Email (Marketing DB)": {
-                "main": [
-                    [
-                        {
-                            "node": "Check Logic",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "Check Logic": {
-                "main": [
-                    [
-                        {
-                            "node": "If Exists",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "If Exists": {
-                "main": [
-                    [
-                        {
-                            "node": "Respond Conflict",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ],
-                    [
-                        {
-                            "node": "Create User",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "Create User": {
-                "main": [
-                    [
-                        {
-                            "node": "Respond Registration Success",
                             "type": "main",
                             "index": 0
                         }
@@ -2123,10 +2378,18 @@
         "autosaved": false,
         "workflowPublishHistory": [
             {
-                "createdAt": "2026-02-10T06:50:00.960Z",
-                "id": 547,
+                "createdAt": "2026-02-09T15:20:56.550Z",
+                "id": 521,
                 "workflowId": "uYNin7KcptmBF8Nw",
-                "versionId": "276a6ceb-973a-4802-a6bf-8a15f43f92cf",
+                "versionId": "268a57b6-5163-4827-98f9-15b22c32d144",
+                "event": "activated",
+                "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+            },
+            {
+                "createdAt": "2026-02-09T15:20:57.271Z",
+                "id": 522,
+                "workflowId": "uYNin7KcptmBF8Nw",
+                "versionId": "268a57b6-5163-4827-98f9-15b22c32d144",
                 "event": "activated",
                 "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
             }

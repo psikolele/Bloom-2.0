@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { Lock, User, Mail, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();
     const [isRegistering, setIsRegistering] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const [formData, setFormData] = useState({
         username: '',
@@ -65,6 +66,10 @@ export default function Login() {
                 }
             }
 
+            if (!data) {
+                throw new Error('Risposta non valida dal server.');
+            }
+
             if (data.success) {
                 // Save auth state
                 localStorage.setItem('bloom_user', JSON.stringify({
@@ -73,8 +78,14 @@ export default function Login() {
                     email: data.email || formData.email || '',
                     timestamp: new Date().toISOString()
                 }));
-                // Redirect to Dashboard
-                navigate('/');
+
+                if (isRegistering) {
+                    // Show success popup, then redirect after delay
+                    setShowSuccess(true);
+                    setTimeout(() => navigate('/'), 2000);
+                } else {
+                    navigate('/');
+                }
             } else {
                 setError(data.message || 'Credenziali non valide.');
             }
@@ -87,6 +98,17 @@ export default function Login() {
 
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-void relative overflow-hidden">
+            {/* Registration Success Popup */}
+            {showSuccess && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-reveal">
+                    <div className="bg-white/[0.05] border border-accent/30 rounded-2xl p-8 shadow-[0_0_40px_rgba(255,107,53,0.2)] text-center max-w-sm mx-4">
+                        <CheckCircle className="mx-auto mb-4 text-accent drop-shadow-[0_0_10px_rgba(255,107,53,0.5)]" size={48} />
+                        <h2 className="text-xl font-bold font-mono text-white mb-2">Registrazione effettuata</h2>
+                        <p className="text-sm font-mono text-gray-400">Benvenuto nell'ecosistema Bloom</p>
+                    </div>
+                </div>
+            )}
+
             {/* Background Effects */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
             <div className="ambient-light"></div>
