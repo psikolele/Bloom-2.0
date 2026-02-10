@@ -17,7 +17,7 @@ export default function ForgotPassword() {
         const webhookUrl = import.meta.env.VITE_AUTH_WEBHOOK_URL || 'https://emanueleserra.app.n8n.cloud/webhook/auth';
 
         try {
-            const response = await fetch(webhookUrl, {
+            await fetch(webhookUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -26,21 +26,13 @@ export default function ForgotPassword() {
                 })
             });
 
-            const data = await response.json().catch(() => ({}));
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Errore durante la richiesta.');
-            }
-
-            if (data.success) {
-                setStatus('success');
-                setMessage('Se l\'email esiste, riceverai un link per reimpostare la password.');
-            } else {
-                throw new Error(data.message || 'Impossibile processare la richiesta.');
-            }
+            // Always show generic success message to prevent email enumeration
+            setStatus('success');
+            setMessage('Se l\'email è associata a un account, riceverai un link per reimpostare la password.');
         } catch (err: any) {
-            setStatus('error');
-            setMessage(err.message || 'Errore di connessione. Riprova.');
+            // Even on network errors, show success to prevent information leakage
+            setStatus('success');
+            setMessage('Se l\'email è associata a un account, riceverai un link per reimpostare la password.');
         } finally {
             setIsLoading(false);
         }

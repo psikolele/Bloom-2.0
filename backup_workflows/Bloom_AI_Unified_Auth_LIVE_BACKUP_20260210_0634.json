@@ -387,8 +387,10 @@
                 "operation": "getAll",
                 "databaseId": {
                     "__rl": true,
-                    "value": "2f5fa85c-0d03-81b5-b333-cdb74b8ce81b",
-                    "mode": "list"
+                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                    "mode": "list",
+                    "cachedResultName": "Marketing Profile Database",
+                    "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
                 },
                 "filterType": "manual",
                 "matchType": "all",
@@ -400,6 +402,9 @@
                             "emailValue": "={{ $('Webhook').item.json.body.email }}"
                         }
                     ]
+                },
+                "options": {
+                    "alwaysOutputData": true
                 }
             },
             "id": "c1b780f9-5f0c-4d38-8bc3-4c09bb093502",
@@ -422,7 +427,7 @@
                 "conditions": {
                     "boolean": [
                         {
-                            "value1": "={{ $items().length > 0 }}",
+                            "value1": "={{ $json.id !== undefined && $json.id !== '' }}",
                             "value2": true
                         }
                     ]
@@ -600,8 +605,10 @@
                 "operation": "getAll",
                 "databaseId": {
                     "__rl": true,
-                    "value": "2f5fa85c-0d03-81b5-b333-cdb74b8ce81b",
-                    "mode": "list"
+                    "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                    "mode": "list",
+                    "cachedResultName": "Marketing Profile Database",
+                    "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
                 },
                 "filterType": "manual",
                 "matchType": "all",
@@ -613,6 +620,9 @@
                             "emailValue": "={{ $('Webhook').item.json.body.email }}"
                         }
                     ]
+                },
+                "options": {
+                    "alwaysOutputData": true
                 }
             },
             "id": "8460384d-880d-453c-ad9f-3c625c32449c",
@@ -635,7 +645,7 @@
                 "conditions": {
                     "boolean": [
                         {
-                            "value1": "={{ $items().length > 0 }}",
+                            "value1": "={{ $json.id !== undefined && $json.id !== '' }}",
                             "value2": true
                         }
                     ]
@@ -1625,8 +1635,10 @@
                     "operation": "getAll",
                     "databaseId": {
                         "__rl": true,
-                        "value": "2f5fa85c-0d03-81b5-b333-cdb74b8ce81b",
-                        "mode": "list"
+                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                        "mode": "list",
+                        "cachedResultName": "Marketing Profile Database",
+                        "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
                     },
                     "filterType": "manual",
                     "matchType": "all",
@@ -1638,6 +1650,9 @@
                                 "emailValue": "={{ $('Webhook').item.json.body.email }}"
                             }
                         ]
+                    },
+                    "options": {
+                        "alwaysOutputData": false
                     }
                 },
                 "id": "c1b780f9-5f0c-4d38-8bc3-4c09bb093502",
@@ -1660,7 +1675,7 @@
                     "conditions": {
                         "boolean": [
                             {
-                                "value1": "={{ $items().length > 0 }}",
+                                "value1": "={{ $json.id !== undefined && $json.id !== '' }}",
                                 "value2": true
                             }
                         ]
@@ -1838,8 +1853,10 @@
                     "operation": "getAll",
                     "databaseId": {
                         "__rl": true,
-                        "value": "2f5fa85c-0d03-81b5-b333-cdb74b8ce81b",
-                        "mode": "list"
+                        "value": "16ae5358-46dd-4846-b2fb-2c1f56bd596d",
+                        "mode": "list",
+                        "cachedResultName": "Marketing Profile Database",
+                        "cachedResultUrl": "https://www.notion.so/16ae535846dd4846b2fb2c1f56bd596d"
                     },
                     "filterType": "manual",
                     "matchType": "all",
@@ -1851,6 +1868,9 @@
                                 "emailValue": "={{ $('Webhook').item.json.body.email }}"
                             }
                         ]
+                    },
+                    "options": {
+                        "alwaysOutputData": false
                     }
                 },
                 "id": "8460384d-880d-453c-ad9f-3c625c32449c",
@@ -1873,7 +1893,7 @@
                     "conditions": {
                         "boolean": [
                             {
-                                "value1": "={{ $items().length > 0 }}",
+                                "value1": "={{ $json.id !== undefined && $json.id !== '' }}",
                                 "value2": true
                             }
                         ]
