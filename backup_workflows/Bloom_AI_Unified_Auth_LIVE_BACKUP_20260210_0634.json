@@ -1,5 +1,5 @@
 {
-    "updatedAt": "2026-02-10T19:45:53.156Z",
+    "updatedAt": "2026-02-10T20:24:16.274Z",
     "createdAt": "2026-01-19T21:01:43.242Z",
     "id": "uYNin7KcptmBF8Nw",
     "name": "Bloom AI Unified Auth V7.1",
@@ -757,6 +757,23 @@
                 688,
                 1328
             ]
+        },
+        {
+            "id": "respond-not-found-forgot",
+            "name": "Respond User Not Found",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1660,
+                880
+            ],
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={\n  \"success\": false,\n  \"user_not_found\": true,\n  \"message\": \"Nessun account associato a questa email.\"\n}",
+                "options": {
+                    "responseCode": 404
+                }
+            }
         }
     ],
     "connections": {
@@ -954,7 +971,7 @@
                 ],
                 [
                     {
-                        "node": "Respond Success (Forgot)",
+                        "node": "Respond User Not Found",
                         "type": "main",
                         "index": 0
                     }
@@ -1064,9 +1081,9 @@
             }
         ]
     },
-    "versionId": "913a683b-a170-422b-a4e7-638fd6777759",
-    "activeVersionId": "913a683b-a170-422b-a4e7-638fd6777759",
-    "versionCounter": 486,
+    "versionId": "083f827b-b93f-4829-a7a2-832123ff9394",
+    "activeVersionId": "083f827b-b93f-4829-a7a2-832123ff9394",
+    "versionCounter": 489,
     "triggerCount": 1,
     "shared": [
         {
@@ -1136,9 +1153,9 @@
         }
     ],
     "activeVersion": {
-        "updatedAt": "2026-02-10T19:45:53.158Z",
-        "createdAt": "2026-02-10T19:45:53.158Z",
-        "versionId": "913a683b-a170-422b-a4e7-638fd6777759",
+        "updatedAt": "2026-02-10T20:24:16.276Z",
+        "createdAt": "2026-02-10T20:24:16.276Z",
+        "versionId": "083f827b-b93f-4829-a7a2-832123ff9394",
         "workflowId": "uYNin7KcptmBF8Nw",
         "nodes": [
             {
@@ -1891,6 +1908,23 @@
                     688,
                     1328
                 ]
+            },
+            {
+                "id": "respond-not-found-forgot",
+                "name": "Respond User Not Found",
+                "type": "n8n-nodes-base.respondToWebhook",
+                "typeVersion": 1,
+                "position": [
+                    1660,
+                    880
+                ],
+                "parameters": {
+                    "respondWith": "json",
+                    "responseBody": "={\n  \"success\": false,\n  \"user_not_found\": true,\n  \"message\": \"Nessun account associato a questa email.\"\n}",
+                    "options": {
+                        "responseCode": 404
+                    }
+                }
             }
         ],
         "connections": {
@@ -2088,7 +2122,7 @@
                     ],
                     [
                         {
-                            "node": "Respond Success (Forgot)",
+                            "node": "Respond User Not Found",
                             "type": "main",
                             "index": 0
                         }
@@ -2157,10 +2191,10 @@
         "autosaved": false,
         "workflowPublishHistory": [
             {
-                "createdAt": "2026-02-10T19:45:53.419Z",
-                "id": 555,
+                "createdAt": "2026-02-10T20:24:16.504Z",
+                "id": 558,
                 "workflowId": "uYNin7KcptmBF8Nw",
-                "versionId": "913a683b-a170-422b-a4e7-638fd6777759",
+                "versionId": "083f827b-b93f-4829-a7a2-832123ff9394",
                 "event": "activated",
                 "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
             }
