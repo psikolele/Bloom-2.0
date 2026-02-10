@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowRight, Loader2, ArrowLeft, XCircle } from 'lucide-react';
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
+    const [showNotFound, setShowNotFound] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -17,7 +18,7 @@ export default function ForgotPassword() {
         const webhookUrl = import.meta.env.VITE_AUTH_WEBHOOK_URL || 'https://emanueleserra.app.n8n.cloud/webhook/auth';
 
         try {
-            await fetch(webhookUrl, {
+            const response = await fetch(webhookUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -26,13 +27,18 @@ export default function ForgotPassword() {
                 })
             });
 
-            // Always show generic success message to prevent email enumeration
-            setStatus('success');
-            setMessage('Se l\'email è associata a un account, riceverai un link per reimpostare la password.');
+            const data = await response.json().catch(() => ({}));
+
+            if (data.user_not_found) {
+                setShowNotFound(true);
+                setTimeout(() => setShowNotFound(false), 4000);
+            } else {
+                setStatus('success');
+                setMessage('Ti abbiamo inviato le istruzioni per reimpostare la password. Controlla la tua casella email.');
+            }
         } catch (err: any) {
-            // Even on network errors, show success to prevent information leakage
-            setStatus('success');
-            setMessage('Se l\'email è associata a un account, riceverai un link per reimpostare la password.');
+            setStatus('error');
+            setMessage('Errore di connessione. Riprova più tardi.');
         } finally {
             setIsLoading(false);
         }
@@ -40,6 +46,23 @@ export default function ForgotPassword() {
 
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-void relative overflow-hidden">
+            {/* User Not Found Popup - same style as registration success */}
+            {showNotFound && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-reveal">
+                    <div className="bg-white/[0.05] border border-red-500/30 rounded-2xl p-8 shadow-[0_0_40px_rgba(239,68,68,0.2)] text-center max-w-sm mx-4">
+                        <XCircle className="mx-auto mb-4 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" size={48} />
+                        <h2 className="text-xl font-bold font-mono text-white mb-2">Account non trovato</h2>
+                        <p className="text-sm font-mono text-gray-400">Nessun account è associato a questa email. Verifica l'indirizzo o registrati.</p>
+                        <Link
+                            to="/login"
+                            className="inline-flex items-center text-accent hover:text-accent-hover font-mono text-sm mt-6 group"
+                        >
+                            Vai alla registrazione
+                            <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+                </div>
+            )}
             {/* Background Effects */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
             <div className="ambient-light"></div>
