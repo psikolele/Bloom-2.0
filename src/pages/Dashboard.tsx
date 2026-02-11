@@ -1,7 +1,9 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MessageSquare, Briefcase, ExternalLink } from 'lucide-react';
 import RAGUpload from '../components/RAGUpload';
+import type { DriveFolder } from '../components/RAGUpload';
+import RAGChat from '../components/RAGChat';
 
 
 // Reusing global styles from index.css
@@ -73,11 +75,49 @@ const handleLogout = () => {
 };
 
 export default function Dashboard() {
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [folders, setFolders] = useState<DriveFolder[]>([]);
+    const [selectedFolderId, setSelectedFolderId] = useState<string>('');
+    const [loadingFolders, setLoadingFolders] = useState<boolean>(true);
+    const [folderError, setFolderError] = useState<string | null>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1500);
         return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        const LIST_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-folders';
+        console.log(`[RAG] Fetching folders from: ${LIST_FOLDERS_WEBHOOK}`);
+
+        fetch(LIST_FOLDERS_WEBHOOK)
+            .then(res => {
+                console.log(`[RAG] Response status: ${res.status} ${res.statusText}`);
+                if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log('[RAG] Data received:', data);
+                let items: DriveFolder[] = [];
+                if (Array.isArray(data)) items = data;
+                else if (Array.isArray((data as any)?.documents)) items = (data as any).documents;
+                else items = Object.values(data).find(v => Array.isArray(v)) as DriveFolder[] || [];
+
+                console.log(`[RAG] Parsed ${items.length} folders.`);
+                if (items.length === 0) console.warn('[RAG] No folders found in response.');
+
+                setFolders(items);
+                setLoadingFolders(false);
+            })
+            .catch(err => {
+                console.error("[RAG] Error fetching folders:", err);
+                let errorMsg = err.message;
+                if (err instanceof TypeError && err.message === 'Failed to fetch') {
+                    errorMsg = 'CORS/Network Error (Check Console)';
+                }
+                setFolderError(errorMsg);
+                setLoadingFolders(false);
+            });
     }, []);
 
     return (
@@ -141,9 +181,19 @@ export default function Dashboard() {
                     delay="0.3s"
                 />
 
-                {/* RAG Upload Widget */}
-                <div className="md:col-span-3 lg:col-span-1">
-                    <RAGUpload />
+                {/* RAG Section - Upload + Chat side by side */}
+                <div className="md:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <RAGUpload
+                        folders={folders}
+                        selectedFolderId={selectedFolderId}
+                        setSelectedFolderId={setSelectedFolderId}
+                        loadingFolders={loadingFolders}
+                        folderError={folderError}
+                    />
+                    <RAGChat
+                        folders={folders}
+                        selectedFolderId={selectedFolderId}
+                    />
                 </div>
             </main>
 

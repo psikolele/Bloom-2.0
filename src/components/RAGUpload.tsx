@@ -1,60 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Upload, Folder, FileUp, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import './RAGUpload.css';
 
-interface DriveFolder {
+export interface DriveFolder {
     id: string;
     name: string;
 }
 
-const RAGUpload: React.FC = () => {
-    const [folders, setFolders] = useState<DriveFolder[]>([]);
-    const [selectedFolderId, setSelectedFolderId] = useState<string>('');
+interface RAGUploadProps {
+    folders: DriveFolder[];
+    selectedFolderId: string;
+    setSelectedFolderId: (id: string) => void;
+    loadingFolders: boolean;
+    folderError: string | null;
+}
+
+const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSelectedFolderId, loadingFolders, folderError }) => {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-    const [loadingFolders, setLoadingFolders] = useState<boolean>(true);
     const [debugError, setDebugError] = useState<string | null>(null);
 
-    // Using the same webhooks as before
-    const LIST_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-folders';
     const UPLOAD_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-upload';
-
-    useEffect(() => {
-        console.log(`[RAG] Fetching folders from: ${LIST_FOLDERS_WEBHOOK}`);
-        setDebugError(null);
-
-        fetch(LIST_FOLDERS_WEBHOOK)
-            .then(res => {
-                console.log(`[RAG] Response status: ${res.status} ${res.statusText}`);
-                if (!res.ok) {
-                    throw new Error(`Server returned ${res.status} ${res.statusText}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                console.log('[RAG] Data received:', data);
-                let items: DriveFolder[] = [];
-                if (Array.isArray(data)) items = data;
-                else if (Array.isArray((data as any)?.documents)) items = (data as any).documents;
-                else items = Object.values(data).find(v => Array.isArray(v)) as DriveFolder[] || [];
-
-                console.log(`[RAG] Parsed ${items.length} folders.`);
-                if (items.length === 0) console.warn('[RAG] No folders found in response.');
-
-                setFolders(items);
-                setLoadingFolders(false);
-            })
-            .catch(err => {
-                console.error("[RAG] Error fetching folders:", err);
-                let errorMsg = err.message;
-                if (err instanceof TypeError && err.message === 'Failed to fetch') {
-                    errorMsg = 'CORS/Network Error (Check Console)';
-                    console.error("[RAG] 'Failed to fetch' usually means CORS error or Network unreachable. Verify Webhook URL and N8N Active status.");
-                }
-                setDebugError(errorMsg);
-                setLoadingFolders(false);
-            });
-    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -128,7 +94,7 @@ const RAGUpload: React.FC = () => {
                             <option key={f.id} value={f.id}>{f.name}</option>
                         ))}
                     </select>
-                    {debugError && <p className="text-xs text-red-400 mt-1">Error: {debugError}</p>}
+                    {(folderError || debugError) && <p className="text-xs text-red-400 mt-1">Error: {folderError || debugError}</p>}
                 </div>
 
                 {/* File Input - Compact */}
