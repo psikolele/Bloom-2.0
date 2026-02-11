@@ -75,7 +75,7 @@ export default function Login() {
                 localStorage.setItem('bloom_user', JSON.stringify({
                     username: data.username || formData.username,
                     loginName: formData.username,
-                    email: data.email || formData.email || '',
+                    email: data.email || formData.email || '', // Save Email
                     timestamp: new Date().toISOString()
                 }));
 
