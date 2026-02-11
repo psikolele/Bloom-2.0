@@ -1,0 +1,2642 @@
+{
+  "updatedAt": "2026-02-11T08:56:43.569Z",
+  "createdAt": "2026-01-29T09:31:45.511Z",
+  "id": "XmCaI5Q9MxNf0EP_65UvB",
+  "name": "RAG | Google Drive to Pinecone via OpenRouter & Gemini | Chat with RAG",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rag-pessina-db",
+          "mode": "list",
+          "cachedResultName": "rag-pessina-db"
+        },
+        "options": {}
+      },
+      "id": "6dd9af6a-8286-477b-80b3-847306176ac6",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "position": [
+        1664,
+        0
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "pineconeApi": {
+          "id": "pg8MVmRWeGRWKAH9",
+          "name": "PineconeApi account Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "id": "57f8dd50-fdcf-4075-8e9a-18f6bdbec57c",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        1808,
+        256
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "id": "d152c1b2-046a-4e27-959a-65968fcb0ef7",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        1808,
+        400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.id }}",
+        "options": {}
+      },
+      "id": "download-file-node-custom",
+      "name": "Download Binary",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        912,
+        128
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.mimeType }}",
+              "operation": "regex",
+              "value2": "application/vnd\\.google-apps\\.(document|spreadsheet|presentation)"
+            }
+          ]
+        }
+      },
+      "id": "check-mime-type-custom",
+      "name": "Check If GDoc",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "merge-files-custom",
+      "name": "Merge Files",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "name = 'RAG Database Pessina' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+        "limit": 1,
+        "options": {}
+      },
+      "id": "find-folder-v2-replace",
+      "name": "Find RAG Database Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "={{ \"'\" + $json.id + \"' in parents and trashed = false\" }}",
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType"
+          ]
+        }
+      },
+      "id": "list-files-v2-replace",
+      "name": "List Files In RAG Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/export?mimeType=application/pdf",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "export-gdoc-http-node",
+      "name": "Export Google Doc (HTTP)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        912,
+        -96
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2e9de835-d5e2-4753-b987-4760fb188400",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -32,
+        1392
+      ],
+      "id": "f88f6416-4a09-4b46-ad63-9d1c66eb5a5d",
+      "name": "When chat message received",
+      "webhookId": "a98a1762-17ba-4157-8da0-b734e6bcfda8"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        1392
+      ],
+      "id": "4a79aed2-5112-4339-9de5-bb7418de9731",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool to retrieve information about training courses, professional orientation, and internal company documents",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rag-pessina-db",
+          "mode": "list",
+          "cachedResultName": "rag-pessina-db"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        1616
+      ],
+      "id": "ebe1ce97-42ac-45bb-9193-86eeb43bb59b",
+      "name": "Pinecone Vector Store2",
+      "credentials": {
+        "pineconeApi": {
+          "id": "pg8MVmRWeGRWKAH9",
+          "name": "PineconeApi account Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "rag-folders",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4dnzzqhvxufv61rtf819mr",
+      "name": "Webhook Get Folders",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "4a44b789-7add-441f-a6d2-7cf39db3392f"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "returnAll": true,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "id": "qrkos5gb3dlua4kes0nmc",
+      "name": "List Drive Folders",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        400
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      documents: $input.all().map(item => item.json)\n    }\n  }\n];"
+      },
+      "id": "s2kcwppr9lib5x8fq6zp8",
+      "name": "Aggregate Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.documents }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "6p57rrfgzpklmatwl5qpzh",
+      "name": "Respond Folders",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        672,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rag-upload",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wtr2h3ge5ehrqcinlbckf",
+      "name": "Webhook Upload File",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        912
+      ],
+      "webhookId": "c797138d-d440-436c-a761-07e60838dd86"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "file",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.body.folderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "4df1jiosu7xroj7oost5v",
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        912
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.error ? { success: false, error: $json.error } : { success: true, fileId: $json.id, name: $json.name } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "h9795jlxccmp6nxdbof4m",
+      "name": "Respond Upload Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        448,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        208
+      ],
+      "id": "bb315999-8e48-4907-8d23-cd936deb02a6",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1616
+      ],
+      "id": "d45a1560-9b81-406e-8a62-11cbbc512851",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "bPejUNztelVUXKU1",
+          "name": "OpenRouter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        1824
+      ],
+      "id": "ccddb72a-d4ae-48a9-b8c8-ef396cb671ea",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udcc2 1. RAG Ingestion Pipeline (Admin)\nQuesto flusso gestisce l'indicizzazione dei documenti.\n\n1. **Trigger Manuale**: Avviato dall'amministratore.\n2. **Google Drive**: Cerca la cartella 'RAG Database Pessina' e scarica i file (supporta PDF, GDoc, File binari).\n3. **Parsing**: Converte i file Google Doc in PDF/Testo se necessario.\n4. **Chunking**: Suddivide il testo in frammenti pi\u00f9 piccoli (Chunk Size: 1000, Overlap: 100).\n5. **Embedding**: Genera vettori usando il modello OpenAI/Gemini.\n6. **Upsert**: Carica i vettori nel database Pinecone per la ricerca semantica.",
+        "height": 492,
+        "width": 1900,
+        "color": 4
+      },
+      "id": "note-ingestion",
+      "name": "Sticky Note Ingestion",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## \ufffd\ufffd\ufffd 2. API: Get Folders (Frontend)\nEndpoint chiamato dal frontend (es. React/Bubble) per ottenere la lista delle cartelle disponibili.\n\n- **Webhook GET**: Riceve la richiesta.\n- **List Folders**: Interroga Google Drive per ottenere i nomi e ID delle cartelle.\n- **Response**: Restituisce un JSON formattato per popolare il menu a tendina della chat.",
+        "height": 364,
+        "width": 912,
+        "color": 3
+      },
+      "id": "note-folders",
+      "name": "Sticky Note Folders",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udce4 3. API: Upload File (Frontend)\nPermette agli utenti di caricare nuovi documenti direttamente dalla chat.\n\n- **Webhook POST**: Riceve il file in multipart/form-data.\n- **Upload to Drive**: Salva il file nella cartella specifica su Google Drive.\n- **Feedback**: Restituisce un messaggio di successo o errore al frontend.",
+        "height": 460,
+        "width": 896,
+        "color": 2
+      },
+      "id": "note-upload",
+      "name": "Sticky Note Upload",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## \ud83e\udd16 4. RAG Chat Agent (Core)\nIl cuore intelligente del sistema.\n\n- **Chat Trigger**: Attende messaggi dall'interfaccia utente.\n- **AI Agent**: Un agente LangChain che orchestra la conversazione.\n- **Retrieval Tool**: Usa Pinecone per cercare contesti rilevanti (Documenti, Corsi, Info aziendali) basati sulla domanda dell'utente.\n- **LLM**: (OpenRouter/OpenAI) Genera la risposta finale arricchita dai dati recuperati (Retrieval Augmented Generation).",
+        "height": 594,
+        "width": 900,
+        "color": 7
+      },
+      "id": "note-agent",
+      "name": "Sticky Note Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.fileId }}",
+        "options": {}
+      },
+      "name": "Auto Download New File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -816,
+        1088
+      ],
+      "id": "download-new-file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "={{ $json.targetIndex }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Auto Upsert to Pinecone",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        1088
+      ],
+      "id": "pinecone-upsert",
+      "credentials": {
+        "pineconeApi": {
+          "id": "pg8MVmRWeGRWKAH9",
+          "name": "PineconeApi account Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {
+          "dimensions": 1536
+        }
+      },
+      "name": "Auto Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        1344
+      ],
+      "id": "embeddings-openai",
+      "credentials": {
+        "openAiApi": {
+          "id": "kjETjzJF05kUBRFk",
+          "name": "OpenRouter_Auto_Fixed"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 50,
+        "options": {}
+      },
+      "name": "Auto Recursive Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        1536
+      ],
+      "id": "text-splitter-rec"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "name": "Auto Scheduled Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1360,
+        672
+      ],
+      "id": "auto-schedule-trigger"
+    },
+    {
+      "parameters": {
+        "content": "## \ud83d\udd04 5. Auto Ingestion Pipeline\nQuesto flusso monitora automaticamente TUTTI i file modificati nelle cartelle RAG.\n\n- **Schedule Trigger**: Esegue ogni 5 minuti.\n- **Search Recent Files**: Cerca file modificati negli ultimi 10 minuti.\n- **Filter & Check**: Filtra solo file validi nelle cartelle RAG.\n- **Download \u2192 Extract \u2192 Prepare \u2192 Pinecone**: Processa e indicizza automaticamente.\n\n> \u26a0\ufe0f Latenza: Fino a 5 minuti per rilevare nuovi file.",
+        "height": 1436,
+        "width": 1428,
+        "color": 5
+      },
+      "name": "Sticky Note Auto Pipeline",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1504,
+        272
+      ],
+      "id": "sticky-auto-pipeline"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst now = new Date();\n// Imposta il controllo agli ultimi 20 minuti\n// (15 minuti di intervallo + 5 minuti di margine di sicurezza)\nnow.setMinutes(now.getMinutes() - 20);\n\nreturn {\n  json: {\n    timestamp: now.toISOString()\n  }\n};\n"
+      },
+      "name": "Auto Generate Timestamp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1136,
+        768
+      ],
+      "id": "auto-generate-timestamp"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst results = [];\nconst items = $input.all();\nconst ragFolders = $('Auto Find RAG Folders').all();\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const file = item.json;\n  \n  // Salta se l'item \u00e8 vuoto o se manca il nome del file\n  if (file.isEmpty) continue;\n  if (!file.name) continue; // <--- QUESTA RIGA FIXA L'ERRORE\n\n  let folderName = null;\n  \n  // 1. Try Parents ID matching (if available)\n  if (file.parents && file.parents.length > 0) {\n       const parentId = file.parents[0];\n       // Cerca il folder ID corrispondente\n       const match = ragFolders.find(f => {\n           const fId = f.json.id && f.json.id.id ? f.json.id.id : f.json.id;\n           return fId === parentId;\n       });\n       if (match) folderName = match.json.name;\n  }\n\n  // 2. Robust Heuristics (Regex matching)\n  if (!folderName) {\n      const name = file.name.toLowerCase();\n      \n      if (/job[ _-]?courier/.test(name)) {\n          folderName = 'RAG Database JobCourier';\n      } else if (/blc/.test(name)) {\n          folderName = 'RAG Database BLC';\n      } else if (/walmoss/.test(name)) {\n          folderName = 'RAG Database Walmoss';\n      } else if (/pessina/.test(name)) {\n          folderName = 'RAG Database Pessina';\n      } else if (/foot[ _-]?easy/.test(name)) {\n          folderName = 'RAG Database Foot Easy';\n      }\n  }\n\n  if (folderName) {\n      let dbNamePart = folderName.replace(\"RAG Database\", \"\").trim();\n      // Assicuriamoci che dbNamePart esista prima di fare toLowerCase\n      if (dbNamePart) {\n          const indexName = \"rag-\" + dbNamePart.toLowerCase().replace(/\\s+/g, '-') + \"-db\";\n          \n          results.push({\n            json: {\n              targetIndex: indexName,\n              parentFolder: folderName,\n              fileId: file.id,\n              fileName: file.name,\n              mimeType: file.mimeType\n            }\n          });\n      }\n  }\n}\n\nreturn results;\n"
+      },
+      "name": "Auto Determine Index",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        1088
+      ],
+      "id": "auto-determine-index"
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "id": "auto-data-loader",
+      "name": "Auto Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        -416,
+        1344
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "path": "manual-ingest-trigger-fix",
+        "options": {}
+      },
+      "name": "Manual Trigger Webhook Fix",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1360,
+        864
+      ],
+      "webhookId": "manual-ingest-trigger-fix",
+      "id": "7317a784-78a8-4f04-8f63-c6591621246c"
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "name contains 'RAG Database' and trashed = false and mimeType = 'application/vnd.google-apps.folder'",
+        "options": {
+          "corpora": "allDrives"
+        }
+      },
+      "name": "Auto Find RAG Folders",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [
+        -912,
+        768
+      ],
+      "id": "d9cffa36-77e1-4df2-8fcd-0a26815ab885",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": "={{ '\"' + $json.id + '\" in parents and (modifiedTime > \"' + $('Auto Generate Timestamp').first().json.timestamp + '\" or createdTime > \"' + $('Auto Generate Timestamp').first().json.timestamp + '\") and trashed = false and mimeType != \"application/vnd.google-apps.folder\"' }}",
+        "options": {
+          "fields": [
+            "*",
+            "parents"
+          ],
+          "corpora": "allDrives"
+        }
+      },
+      "name": "Auto List Files In RAG",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        768
+      ],
+      "id": "d6711086-f0b1-48dd-95fc-2042a622cfe1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SJ46HET6LBfzlEsT",
+          "name": "Google Drive Didattica BLC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !$json.isEmpty }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-if-files-exist-node",
+      "name": "Check If Files Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        768
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { message: \"No new files found in RAG folders\", timestamp: new Date().toISOString(), checkedFolders: $(\"Auto Find RAG Folders\").all().length } }];"
+      },
+      "id": "no-new-files-node",
+      "name": "No New Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Always return data, even if input is empty\nconst items = $input.all();\n\nif (items.length === 0) {\n  // Return a single item with isEmpty flag\n  return [{ json: { isEmpty: true, checkedAt: new Date().toISOString() } }];\n}\n\n// Return the original items unchanged\nreturn items;"
+      },
+      "id": "pass-through-always-execute",
+      "name": "Pass Through Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -464,
+        768
+      ],
+      "alwaysOutputData": true
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Find RAG Database Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find RAG Database Folder": {
+      "main": [
+        [
+          {
+            "node": "List Files In RAG Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Files In RAG Folder": {
+      "main": [
+        [
+          {
+            "node": "Check If GDoc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If GDoc": {
+      "main": [
+        [
+          {
+            "node": "Export Google Doc (HTTP)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export Google Doc (HTTP)": {
+      "main": [
+        [
+          {
+            "node": "Merge Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Binary": {
+      "main": [
+        [
+          {
+            "node": "Merge Files",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Files": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Find RAG Database Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Get Folders": {
+      "main": [
+        [
+          {
+            "node": "List Drive Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Drive Folders": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Folders": {
+      "main": [
+        [
+          {
+            "node": "Respond Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Upload File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Respond Upload Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Download New File": {
+      "main": [
+        [
+          {
+            "node": "Auto Upsert to Pinecone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Auto Upsert to Pinecone",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Recursive Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Auto Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Scheduled Check": {
+      "main": [
+        [
+          {
+            "node": "Auto Generate Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Generate Timestamp": {
+      "main": [
+        [
+          {
+            "node": "Auto Find RAG Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Determine Index": {
+      "main": [
+        [
+          {
+            "node": "Auto Download New File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Auto Upsert to Pinecone",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger Webhook Fix": {
+      "main": [
+        [
+          {
+            "node": "Auto Generate Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Find RAG Folders": {
+      "main": [
+        [
+          {
+            "node": "Auto List Files In RAG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto List Files In RAG": {
+      "main": [
+        [
+          {
+            "node": "Pass Through Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Files Found": {
+      "main": [
+        [
+          {
+            "node": "Auto Determine Index",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No New Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Through Data": {
+      "main": [
+        [
+          {
+            "node": "Check If Files Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner",
+    "timeSavedMode": "fixed"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When clicking \u2018Test workflow\u2019": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Webhook Get Folders": [
+      {
+        "json": {
+          "headers": {
+            "host": "emanueleserra.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, br",
+            "accept-language": "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "62.97.45.186",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IT",
+            "cf-ray": "9c8a2d02b5a94c3e-MXP",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "cookie": "rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX184CSnlkqRqNILEaDDlUBSyJ%2FuJdnCUUXw%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX1%2FMoIxhzuyZ2aaMeHpZCBLuKOrPFAxJmBY%3D; ph_phc_4URIAm1uYfJO7j8kWSe0J8lc8IqnstRLS7Jx8NcakHo_posthog=%7B%22%24device_id%22%3A%22019b8065-63a1-7621-9aeb-3efe3fc1acfd%22%2C%22distinct_id%22%3A%22e5459adf084e0b764333f427ee8633be16fa471f7fe96c27a52702936cadc1d7%2302df7494-a65c-4c90-9190-46eb9b88898b%22%2C%22%24sesid%22%3A%5B1768507525495%2C%22019bc343-49a0-7cd7-b2e7-e0450eca3081%22%2C1768507525495%5D%2C%22%24epp%22%3Atrue%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22https%3A%2F%2Femanueleserra.app.n8n.cloud%2Fhome%2Fworkflows%22%7D%7D; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2BYX4TAUAQ5oHuKAyNwWw%2B39Y2HYxcZQpDVYkrs%2FqYyEO2xDgoxEUdOBjLzRuAPfRhU9HJ%2FekAcww%3D%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2B5vwZL0%2Fo85owIjizYtXJtcaFvn%2Biskb%2BLsvKax4LaZWJ18dEUVzAYttJL%2B6JiqUT%2BmqAMmm9Ft0J%2FPiAnS0dy6ewEyF9707NuIbHhs%2Fs%2BExyrj53nY99tzIZynTnf3hG4QHawlcWOaK9XckWT93S7IFnTvEgYkU4%3D; rl_trait=RudderEncrypt%3AU2FsdGVkX18tNq7hye86nvRa6LWziJxWtnJkI6DdpAX%2FTwmEbQGXJvHVJJhozUxatY1%2FAemrr8xTcqsM2seZlzZGXClVNzHelCWdMKyD%2BmteN49CEy35XVRBQJQyWGbzP5EEOCuY3JQAkY6lr3BA%2FWpRzPEyIokjD58ESycamTGZfm7Jouvw5isgJzle23kMB9PglT5a2Wyd64WqlMh1Zw%3D%3D; n8n_anonymous_id=9fbc0183-1299-4ed3-abd0-0e1fc18e8c3b; rl_session=RudderEncrypt%3AU2FsdGVkX1%2B%2FTgIGkUCihnCL2VRIj30Qblut%2F2LiWnYN%2FtYiFD5gXdwx67Vbon9gbo5cGa1Mclen5rsCJZ2E%2BkblUL%2Bff%2BdswFu1ieAEElJvETOzLz68DqqYX2802T1H72sddHJOaL8hfA0PVcmFbQ%3D%3D",
+            "if-none-match": "W/\"38-3JzLBKibWyfJS251Fk97fHmb2/0\"",
+            "priority": "u=0, i",
+            "sec-ch-ua": "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "none",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "x-forwarded-for": "62.97.45.186, 172.71.114.26",
+            "x-forwarded-host": "emanueleserra.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-16-6f778b7769-zs7bd",
+            "x-is-trusted": "yes",
+            "x-real-ip": "62.97.45.186"
+          },
+          "params": {},
+          "query": {},
+          "webhookUrl": "https://emanueleserra.app.n8n.cloud/webhook/rag-folders",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Webhook Upload File": [
+      {
+        "json": {
+          "headers": {
+            "host": "emanueleserra.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
+            "content-length": "133413",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "it,it-IT;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "87.14.40.1",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IT",
+            "cf-ray": "9cbe52dd06b7eea3-MXP",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryIuo4A9W0BJ10efAy",
+            "origin": "https://bloom-2-0.vercel.app",
+            "priority": "u=1, i",
+            "referer": "https://bloom-2-0.vercel.app/",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Microsoft Edge\";v=\"144\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "87.14.40.1, 172.69.68.140",
+            "x-forwarded-host": "emanueleserra.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-16-6f778b7769-6vgpr",
+            "x-is-trusted": "yes",
+            "x-real-ip": "87.14.40.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "folderId": "1McMg9rriVUx6qpkZpfNwhVtd36ht6Nbe"
+          },
+          "webhookUrl": "https://emanueleserra.app.n8n.cloud/webhook/rag-upload",
+          "executionMode": "production"
+        },
+        "binary": {
+          "file": {
+            "mimeType": "application/pdf",
+            "fileType": "pdf",
+            "fileExtension": "pdf",
+            "data": "filesystem-v2",
+            "fileName": "Servizi-sanita-e-ass-sociale.pdf",
+            "id": "filesystem-v2:workflows/XmCaI5Q9MxNf0EP_65UvB/executions/temp/binary_data/7ccefd0a-24ce-4b19-8db2-9071c4e93000",
+            "fileSize": "133 kB"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Auto Embeddings OpenAI": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Auto Recursive Splitter": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Auto Data Loader": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Manual Trigger Webhook Fix": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Auto Scheduled Check": [
+      {
+        "json": {
+          "timestamp": "2026-02-11T09:45:05.007+01:00",
+          "Readable date": "February 11th 2026, 9:45:05 am",
+          "Readable time": "9:45:05 am",
+          "Day of week": "Wednesday",
+          "Year": "2026",
+          "Month": "February",
+          "Day of month": "11",
+          "Hour": "09",
+          "Minute": "45",
+          "Second": "05",
+          "Timezone": "Europe/Rome (UTC+01:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "3061dafa-c171-48ca-b5d4-2f26e9d49ce4",
+  "activeVersionId": "3061dafa-c171-48ca-b5d4-2f26e9d49ce4",
+  "versionCounter": 318,
+  "triggerCount": 5,
+  "shared": [
+    {
+      "updatedAt": "2026-02-02T07:48:00.104Z",
+      "createdAt": "2026-02-02T07:48:00.104Z",
+      "role": "workflow:owner",
+      "workflowId": "XmCaI5Q9MxNf0EP_65UvB",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2025-11-19T15:56:02.592Z",
+            "createdAt": "2025-11-19T15:56:02.592Z",
+            "userId": "02df7494-a65c-4c90-9190-46eb9b88898b",
+            "projectId": "7JnMVxQZVo4xtdpO",
+            "user": {
+              "updatedAt": "2026-02-11T09:17:49.000Z",
+              "createdAt": "2025-08-29T09:34:03.029Z",
+              "id": "02df7494-a65c-4c90-9190-46eb9b88898b",
+              "email": "e.serra@blc-sa.ch",
+              "firstName": "Emanule",
+              "lastName": "Serra",
+              "personalizationAnswers": null,
+              "settings": {
+                "userActivated": true,
+                "firstSuccessfulWorkflowId": "cdVSfCLCBuR453xM",
+                "userActivatedAt": 1758101937782,
+                "easyAIWorkflowOnboarded": true,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1759426818315
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-10",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [
+    {
+      "updatedAt": "2026-02-06T15:19:13.431Z",
+      "createdAt": "2026-02-06T15:19:13.431Z",
+      "id": "AUQsgzkNhpPuRAaC",
+      "name": "Database"
+    },
+    {
+      "updatedAt": "2025-11-28T20:42:38.923Z",
+      "createdAt": "2025-11-28T20:42:38.923Z",
+      "id": "toA0pH2gwX57UxWi",
+      "name": "Arca 24"
+    },
+    {
+      "updatedAt": "2026-02-06T15:19:03.577Z",
+      "createdAt": "2026-02-06T15:19:03.577Z",
+      "id": "xEAUFi4dP6BL9gHf",
+      "name": "RAG"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-02-11T08:56:43.572Z",
+    "createdAt": "2026-02-11T08:56:43.572Z",
+    "versionId": "3061dafa-c171-48ca-b5d4-2f26e9d49ce4",
+    "workflowId": "XmCaI5Q9MxNf0EP_65UvB",
+    "nodes": [
+      {
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "rag-pessina-db",
+            "mode": "list",
+            "cachedResultName": "rag-pessina-db"
+          },
+          "options": {}
+        },
+        "id": "6dd9af6a-8286-477b-80b3-847306176ac6",
+        "name": "Pinecone Vector Store",
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "position": [
+          1664,
+          0
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "pineconeApi": {
+            "id": "pg8MVmRWeGRWKAH9",
+            "name": "PineconeApi account Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "dataType": "binary",
+          "options": {}
+        },
+        "id": "57f8dd50-fdcf-4075-8e9a-18f6bdbec57c",
+        "name": "Default Data Loader",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "position": [
+          1808,
+          256
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "chunkOverlap": 100,
+          "options": {}
+        },
+        "id": "d152c1b2-046a-4e27-959a-65968fcb0ef7",
+        "name": "Recursive Character Text Splitter",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "position": [
+          1808,
+          400
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": "={{ $json.id }}",
+          "options": {}
+        },
+        "id": "download-file-node-custom",
+        "name": "Download Binary",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          912,
+          128
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "string": [
+              {
+                "value1": "={{ $json.mimeType }}",
+                "operation": "regex",
+                "value2": "application/vnd\\.google-apps\\.(document|spreadsheet|presentation)"
+              }
+            ]
+          }
+        },
+        "id": "check-mime-type-custom",
+        "name": "Check If GDoc",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [
+          672,
+          0
+        ]
+      },
+      {
+        "parameters": {},
+        "id": "merge-files-custom",
+        "name": "Merge Files",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 2,
+        "position": [
+          1152,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "list",
+          "useQueryString": true,
+          "queryString": "name = 'RAG Database Pessina' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+          "limit": 1,
+          "options": {}
+        },
+        "id": "find-folder-v2-replace",
+        "name": "Find RAG Database Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 2,
+        "position": [
+          224,
+          0
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "list",
+          "useQueryString": true,
+          "queryString": "={{ \"'\" + $json.id + \"' in parents and trashed = false\" }}",
+          "options": {
+            "fields": [
+              "id",
+              "name",
+              "mimeType"
+            ]
+          }
+        },
+        "id": "list-files-v2-replace",
+        "name": "List Files In RAG Folder",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 2,
+        "position": [
+          448,
+          0
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/export?mimeType=application/pdf",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleDriveOAuth2Api",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file"
+              }
+            }
+          }
+        },
+        "id": "export-gdoc-http-node",
+        "name": "Export Google Doc (HTTP)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          912,
+          -96
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "2e9de835-d5e2-4753-b987-4760fb188400",
+        "name": "When clicking \u2018Execute workflow\u2019"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.4,
+        "position": [
+          -32,
+          1392
+        ],
+        "id": "f88f6416-4a09-4b46-ad63-9d1c66eb5a5d",
+        "name": "When chat message received",
+        "webhookId": "a98a1762-17ba-4157-8da0-b734e6bcfda8"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          224,
+          1392
+        ],
+        "id": "4a79aed2-5112-4339-9de5-bb7418de9731",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "mode": "retrieve-as-tool",
+          "toolDescription": "Use this tool to retrieve information about training courses, professional orientation, and internal company documents",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "rag-pessina-db",
+            "mode": "list",
+            "cachedResultName": "rag-pessina-db"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1.3,
+        "position": [
+          320,
+          1616
+        ],
+        "id": "ebe1ce97-42ac-45bb-9193-86eeb43bb59b",
+        "name": "Pinecone Vector Store2",
+        "credentials": {
+          "pineconeApi": {
+            "id": "pg8MVmRWeGRWKAH9",
+            "name": "PineconeApi account Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "path": "rag-folders",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "4dnzzqhvxufv61rtf819mr",
+        "name": "Webhook Get Folders",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          400
+        ],
+        "webhookId": "4a44b789-7add-441f-a6d2-7cf39db3392f"
+      },
+      {
+        "parameters": {
+          "resource": "fileFolder",
+          "returnAll": true,
+          "filter": {
+            "whatToSearch": "folders"
+          },
+          "options": {}
+        },
+        "id": "qrkos5gb3dlua4kes0nmc",
+        "name": "List Drive Folders",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          224,
+          400
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "jsCode": "return [\n  {\n    json: {\n      documents: $input.all().map(item => item.json)\n    }\n  }\n];"
+        },
+        "id": "s2kcwppr9lib5x8fq6zp8",
+        "name": "Aggregate Folders",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          448,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json.documents }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "name": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, OPTIONS"
+                },
+                {
+                  "name": "Access-Control-Allow-Headers",
+                  "value": "*"
+                }
+              ]
+            }
+          }
+        },
+        "id": "6p57rrfgzpklmatwl5qpzh",
+        "name": "Respond Folders",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          672,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "rag-upload",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "wtr2h3ge5ehrqcinlbckf",
+        "name": "Webhook Upload File",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          912
+        ],
+        "webhookId": "c797138d-d440-436c-a761-07e60838dd86"
+      },
+      {
+        "parameters": {
+          "inputDataFieldName": "file",
+          "driveId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "={{ $json.body.folderId }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "id": "4df1jiosu7xroj7oost5v",
+        "name": "Upload to Drive",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          224,
+          912
+        ],
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json.error ? { success: false, error: $json.error } : { success: true, fileId: $json.id, name: $json.name } }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "name": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, OPTIONS"
+                },
+                {
+                  "name": "Access-Control-Allow-Headers",
+                  "value": "*"
+                }
+              ]
+            }
+          }
+        },
+        "id": "h9795jlxccmp6nxdbof4m",
+        "name": "Respond Upload Success",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [
+          448,
+          912
+        ]
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          1408,
+          208
+        ],
+        "id": "bb315999-8e48-4907-8d23-cd936deb02a6",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          192,
+          1616
+        ],
+        "id": "d45a1560-9b81-406e-8a62-11cbbc512851",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "bPejUNztelVUXKU1",
+            "name": "OpenRouter"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          400,
+          1824
+        ],
+        "id": "ccddb72a-d4ae-48a9-b8c8-ef396cb671ea",
+        "name": "Embeddings OpenAI1",
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## \ud83d\udcc2 1. RAG Ingestion Pipeline (Admin)\nQuesto flusso gestisce l'indicizzazione dei documenti.\n\n1. **Trigger Manuale**: Avviato dall'amministratore.\n2. **Google Drive**: Cerca la cartella 'RAG Database Pessina' e scarica i file (supporta PDF, GDoc, File binari).\n3. **Parsing**: Converte i file Google Doc in PDF/Testo se necessario.\n4. **Chunking**: Suddivide il testo in frammenti pi\u00f9 piccoli (Chunk Size: 1000, Overlap: 100).\n5. **Embedding**: Genera vettori usando il modello OpenAI/Gemini.\n6. **Upsert**: Carica i vettori nel database Pinecone per la ricerca semantica.",
+          "height": 492,
+          "width": 1900,
+          "color": 4
+        },
+        "id": "note-ingestion",
+        "name": "Sticky Note Ingestion",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -48,
+          -288
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## \ufffd\ufffd\ufffd 2. API: Get Folders (Frontend)\nEndpoint chiamato dal frontend (es. React/Bubble) per ottenere la lista delle cartelle disponibili.\n\n- **Webhook GET**: Riceve la richiesta.\n- **List Folders**: Interroga Google Drive per ottenere i nomi e ID delle cartelle.\n- **Response**: Restituisce un JSON formattato per popolare il menu a tendina della chat.",
+          "height": 364,
+          "width": 912,
+          "color": 3
+        },
+        "id": "note-folders",
+        "name": "Sticky Note Folders",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -48,
+          224
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## \ud83d\udce4 3. API: Upload File (Frontend)\nPermette agli utenti di caricare nuovi documenti direttamente dalla chat.\n\n- **Webhook POST**: Riceve il file in multipart/form-data.\n- **Upload to Drive**: Salva il file nella cartella specifica su Google Drive.\n- **Feedback**: Restituisce un messaggio di successo o errore al frontend.",
+          "height": 460,
+          "width": 896,
+          "color": 2
+        },
+        "id": "note-upload",
+        "name": "Sticky Note Upload",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -48,
+          656
+        ]
+      },
+      {
+        "parameters": {
+          "content": "## \ud83e\udd16 4. RAG Chat Agent (Core)\nIl cuore intelligente del sistema.\n\n- **Chat Trigger**: Attende messaggi dall'interfaccia utente.\n- **AI Agent**: Un agente LangChain che orchestra la conversazione.\n- **Retrieval Tool**: Usa Pinecone per cercare contesti rilevanti (Documenti, Corsi, Info aziendali) basati sulla domanda dell'utente.\n- **LLM**: (OpenRouter/OpenAI) Genera la risposta finale arricchita dai dati recuperati (Retrieval Augmented Generation).",
+          "height": 594,
+          "width": 900,
+          "color": 7
+        },
+        "id": "note-agent",
+        "name": "Sticky Note Agent",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -48,
+          1152
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": "={{ $json.fileId }}",
+          "options": {}
+        },
+        "name": "Auto Download New File",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          -816,
+          1088
+        ],
+        "id": "download-new-file",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "={{ $json.targetIndex }}",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "name": "Auto Upsert to Pinecone",
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1,
+        "position": [
+          -480,
+          1088
+        ],
+        "id": "pinecone-upsert",
+        "credentials": {
+          "pineconeApi": {
+            "id": "pg8MVmRWeGRWKAH9",
+            "name": "PineconeApi account Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "text-embedding-3-small",
+          "options": {
+            "dimensions": 1536
+          }
+        },
+        "name": "Auto Embeddings OpenAI",
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1,
+        "position": [
+          -576,
+          1344
+        ],
+        "id": "embeddings-openai",
+        "credentials": {
+          "openAiApi": {
+            "id": "kjETjzJF05kUBRFk",
+            "name": "OpenRouter_Auto_Fixed"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "chunkSize": 500,
+          "chunkOverlap": 50,
+          "options": {}
+        },
+        "name": "Auto Recursive Splitter",
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "typeVersion": 1,
+        "position": [
+          -304,
+          1536
+        ],
+        "id": "text-splitter-rec"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 15
+              }
+            ]
+          }
+        },
+        "name": "Auto Scheduled Check",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -1360,
+          672
+        ],
+        "id": "auto-schedule-trigger"
+      },
+      {
+        "parameters": {
+          "content": "## \ud83d\udd04 5. Auto Ingestion Pipeline\nQuesto flusso monitora automaticamente TUTTI i file modificati nelle cartelle RAG.\n\n- **Schedule Trigger**: Esegue ogni 5 minuti.\n- **Search Recent Files**: Cerca file modificati negli ultimi 10 minuti.\n- **Filter & Check**: Filtra solo file validi nelle cartelle RAG.\n- **Download \u2192 Extract \u2192 Prepare \u2192 Pinecone**: Processa e indicizza automaticamente.\n\n> \u26a0\ufe0f Latenza: Fino a 5 minuti per rilevare nuovi file.",
+          "height": 1436,
+          "width": 1428,
+          "color": 5
+        },
+        "name": "Sticky Note Auto Pipeline",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -1504,
+          272
+        ],
+        "id": "sticky-auto-pipeline"
+      },
+      {
+        "parameters": {
+          "jsCode": "\nconst now = new Date();\n// Imposta il controllo agli ultimi 20 minuti\n// (15 minuti di intervallo + 5 minuti di margine di sicurezza)\nnow.setMinutes(now.getMinutes() - 20);\n\nreturn {\n  json: {\n    timestamp: now.toISOString()\n  }\n};\n"
+        },
+        "name": "Auto Generate Timestamp",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1136,
+          768
+        ],
+        "id": "auto-generate-timestamp"
+      },
+      {
+        "parameters": {
+          "jsCode": "\nconst results = [];\nconst items = $input.all();\nconst ragFolders = $('Auto Find RAG Folders').all();\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const file = item.json;\n  \n  // Salta se l'item \u00e8 vuoto o se manca il nome del file\n  if (file.isEmpty) continue;\n  if (!file.name) continue; // <--- QUESTA RIGA FIXA L'ERRORE\n\n  let folderName = null;\n  \n  // 1. Try Parents ID matching (if available)\n  if (file.parents && file.parents.length > 0) {\n       const parentId = file.parents[0];\n       // Cerca il folder ID corrispondente\n       const match = ragFolders.find(f => {\n           const fId = f.json.id && f.json.id.id ? f.json.id.id : f.json.id;\n           return fId === parentId;\n       });\n       if (match) folderName = match.json.name;\n  }\n\n  // 2. Robust Heuristics (Regex matching)\n  if (!folderName) {\n      const name = file.name.toLowerCase();\n      \n      if (/job[ _-]?courier/.test(name)) {\n          folderName = 'RAG Database JobCourier';\n      } else if (/blc/.test(name)) {\n          folderName = 'RAG Database BLC';\n      } else if (/walmoss/.test(name)) {\n          folderName = 'RAG Database Walmoss';\n      } else if (/pessina/.test(name)) {\n          folderName = 'RAG Database Pessina';\n      } else if (/foot[ _-]?easy/.test(name)) {\n          folderName = 'RAG Database Foot Easy';\n      }\n  }\n\n  if (folderName) {\n      let dbNamePart = folderName.replace(\"RAG Database\", \"\").trim();\n      // Assicuriamoci che dbNamePart esista prima di fare toLowerCase\n      if (dbNamePart) {\n          const indexName = \"rag-\" + dbNamePart.toLowerCase().replace(/\\s+/g, '-') + \"-db\";\n          \n          results.push({\n            json: {\n              targetIndex: indexName,\n              parentFolder: folderName,\n              fileId: file.id,\n              fileName: file.name,\n              mimeType: file.mimeType\n            }\n          });\n      }\n  }\n}\n\nreturn results;\n"
+        },
+        "name": "Auto Determine Index",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -1072,
+          1088
+        ],
+        "id": "auto-determine-index"
+      },
+      {
+        "parameters": {
+          "dataType": "binary",
+          "options": {}
+        },
+        "id": "auto-data-loader",
+        "name": "Auto Data Loader",
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "position": [
+          -416,
+          1344
+        ],
+        "typeVersion": 1
+      },
+      {
+        "parameters": {
+          "path": "manual-ingest-trigger-fix",
+          "options": {}
+        },
+        "name": "Manual Trigger Webhook Fix",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          -1360,
+          864
+        ],
+        "webhookId": "manual-ingest-trigger-fix",
+        "id": "7317a784-78a8-4f04-8f63-c6591621246c"
+      },
+      {
+        "parameters": {
+          "operation": "list",
+          "useQueryString": true,
+          "queryString": "name contains 'RAG Database' and trashed = false and mimeType = 'application/vnd.google-apps.folder'",
+          "options": {
+            "corpora": "allDrives"
+          }
+        },
+        "name": "Auto Find RAG Folders",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 2,
+        "position": [
+          -912,
+          768
+        ],
+        "id": "d9cffa36-77e1-4df2-8fcd-0a26815ab885",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "list",
+          "useQueryString": true,
+          "queryString": "={{ '\"' + $json.id + '\" in parents and (modifiedTime > \"' + $('Auto Generate Timestamp').first().json.timestamp + '\" or createdTime > \"' + $('Auto Generate Timestamp').first().json.timestamp + '\") and trashed = false and mimeType != \"application/vnd.google-apps.folder\"' }}",
+          "options": {
+            "fields": [
+              "*",
+              "parents"
+            ],
+            "corpora": "allDrives"
+          }
+        },
+        "name": "Auto List Files In RAG",
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 2,
+        "position": [
+          -688,
+          768
+        ],
+        "id": "d6711086-f0b1-48dd-95fc-2042a622cfe1",
+        "alwaysOutputData": true,
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "SJ46HET6LBfzlEsT",
+            "name": "Google Drive Didattica BLC"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{ !$json.isEmpty }}",
+                "value2": true
+              }
+            ]
+          }
+        },
+        "id": "check-if-files-exist-node",
+        "name": "Check If Files Found",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [
+          -240,
+          768
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "return [{ json: { message: \"No new files found in RAG folders\", timestamp: new Date().toISOString(), checkedFolders: $(\"Auto Find RAG Folders\").all().length } }];"
+        },
+        "id": "no-new-files-node",
+        "name": "No New Files",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -256,
+          608
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Always return data, even if input is empty\nconst items = $input.all();\n\nif (items.length === 0) {\n  // Return a single item with isEmpty flag\n  return [{ json: { isEmpty: true, checkedAt: new Date().toISOString() } }];\n}\n\n// Return the original items unchanged\nreturn items;"
+        },
+        "id": "pass-through-always-execute",
+        "name": "Pass Through Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -464,
+          768
+        ],
+        "alwaysOutputData": true
+      }
+    ],
+    "connections": {
+      "When clicking 'Test workflow'": {
+        "main": [
+          [
+            {
+              "node": "Find RAG Database Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Find RAG Database Folder": {
+        "main": [
+          [
+            {
+              "node": "List Files In RAG Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List Files In RAG Folder": {
+        "main": [
+          [
+            {
+              "node": "Check If GDoc",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check If GDoc": {
+        "main": [
+          [
+            {
+              "node": "Export Google Doc (HTTP)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Download Binary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Export Google Doc (HTTP)": {
+        "main": [
+          [
+            {
+              "node": "Merge Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download Binary": {
+        "main": [
+          [
+            {
+              "node": "Merge Files",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Merge Files": {
+        "main": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When clicking \u2018Execute workflow\u2019": {
+        "main": [
+          [
+            {
+              "node": "Find RAG Database Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store2": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook Get Folders": {
+        "main": [
+          [
+            {
+              "node": "List Drive Folders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List Drive Folders": {
+        "main": [
+          [
+            {
+              "node": "Aggregate Folders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Aggregate Folders": {
+        "main": [
+          [
+            {
+              "node": "Respond Folders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook Upload File": {
+        "main": [
+          [
+            {
+              "node": "Upload to Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upload to Drive": {
+        "main": [
+          [
+            {
+              "node": "Respond Upload Success",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store2",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Download New File": {
+        "main": [
+          [
+            {
+              "node": "Auto Upsert to Pinecone",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Auto Upsert to Pinecone",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Recursive Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Auto Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Scheduled Check": {
+        "main": [
+          [
+            {
+              "node": "Auto Generate Timestamp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Generate Timestamp": {
+        "main": [
+          [
+            {
+              "node": "Auto Find RAG Folders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Determine Index": {
+        "main": [
+          [
+            {
+              "node": "Auto Download New File",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Auto Upsert to Pinecone",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Manual Trigger Webhook Fix": {
+        "main": [
+          [
+            {
+              "node": "Auto Generate Timestamp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto Find RAG Folders": {
+        "main": [
+          [
+            {
+              "node": "Auto List Files In RAG",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Auto List Files In RAG": {
+        "main": [
+          [
+            {
+              "node": "Pass Through Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check If Files Found": {
+        "main": [
+          [
+            {
+              "node": "Auto Determine Index",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No New Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pass Through Data": {
+        "main": [
+          [
+            {
+              "node": "Check If Files Found",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Emanule Serra",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-11T08:56:43.955Z",
+        "id": 577,
+        "workflowId": "XmCaI5Q9MxNf0EP_65UvB",
+        "versionId": "3061dafa-c171-48ca-b5d4-2f26e9d49ce4",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
+  }
+}
