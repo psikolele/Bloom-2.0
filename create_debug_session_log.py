@@ -197,12 +197,6 @@ def create_debug_log_page(project_id):
             ]}
         },
 
-        {
-            "object": "block",
-            "type": "divider",
-            "divider": {}
-        },
-
         # ========== SESSIONE 2 (Corrente) ==========
         {
             "object": "block",
@@ -409,12 +403,6 @@ def create_debug_log_page(project_id):
                 {"type": "text", "text": {"content": "Risultato"}, "annotations": {"bold": True}},
                 {"type": "text", "text": {"content": ": ✅ Sistema RAG completamente funzionante. Chunk contengono contenuto reale, dimensioni ottimali per retrieval, nessun metadata-only chunk. Il chatbot RAG può ora rispondere con informazioni dettagliate dai documenti."}}
             ]}
-        },
-
-        {
-            "object": "block",
-            "type": "divider",
-            "divider": {}
         },
 
         # 🎯 Decisioni Chiave
