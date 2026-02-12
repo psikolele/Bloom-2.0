@@ -119,10 +119,11 @@ Solo con questo parametro l'API restituisce:
 
 ## 📚 Fix Correlati
 
-Questo fix si aggiunge ai fix precedenti applicati al workflow:
+Questo fix si aggiunge ai fix precedenti e successivi applicati al workflow:
 
 1. **Execution #6900**: Aggiunto `chunkSize: 1500` al "Recursive Character Text Splitter"
 2. **Execution #6903** (questo): Rimosso parametro `loader: "auto"` dai Data Loaders
+3. **Pipeline Disconnessa**: Connesso `Auto Download New File → Auto Data Loader` (vedi `FIX_RAG_PIPELINE_DISCONNECTED.md`)
 
 ## 🔗 File di Riferimento
 
