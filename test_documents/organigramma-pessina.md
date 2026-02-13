@@ -1,10 +1,10 @@
-# Organigramma – Istituto Professionale di Stato "Gaetano Pessina" per i Servizi Commerciali, Turistici e Sociali [page:1]
+# Organigramma Istituto Pessina Como
 
-L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica Istituto Professionale di Stato "Gaetano Pessina" per i Servizi Commerciali, Turistici e Sociali di Como. [page:1]
+Organigramma completo dell'Istituto Professionale di Stato "Gaetano Pessina" per i Servizi Commerciali, Turistici e Sociali di Como.
 
 ---
 
-## Ruoli di direzione e gestione [page:1]
+## Ruoli di Direzione e Gestione
 
 - Ruolo: Dirigente scolastico
     Nome: Nora Calzolaio
@@ -29,7 +29,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Funzioni strumentali e referenti principali [page:1]
+## Funzioni strumentali e referenti principali
 
 - Ruolo: Funzione strumentale area 1 – PTOF
     Nome: Professor Luca Della Sale
@@ -135,7 +135,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Coordinatori consigli di classe – Sede Centrale [page:1]
+## Coordinatori consigli di classe – Sede Centrale
 
 - Classe: 1A
     Indirizzo: Servizi Commerciali
@@ -219,7 +219,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Coordinatori consigli di classe – Sede Scalabrini [page:1]
+## Coordinatori consigli di classe – Sede Scalabrini
 
 - Classe: 1B
     Indirizzo: Servizi per la Sanità e l'assistenza Sociale
@@ -283,7 +283,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Coordinatori consigli di classe – Sede associata Appiano Gentile [page:1]
+## Coordinatori consigli di classe – Sede associata Appiano Gentile
 
 - Classe: 1M
     Indirizzo: Servizi per la Sanità e l'assistenza Sociale
@@ -347,7 +347,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Coordinatori di dipartimento per disciplina [page:1]
+## Coordinatori di dipartimento per disciplina
 
 - Dipartimento: Lettere e storia
     Coordinatore: C. Clerici
@@ -399,7 +399,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Contatti istituto [page:1]
+## Contatti istituto
 
 - Denominazione: Istituto Professionale di Stato "Gaetano Pessina" per i Servizi Commerciali, Turistici e Sociali
 - Indirizzo: Via Milano 182, 22100 Como (CO) – Italia
@@ -411,7 +411,7 @@ L'organigramma descrive l'organizzazione complessa dell'Istituzione Scolastica I
 
 ---
 
-## Metadati pagina organigramma [page:1]
+## Metadati pagina organigramma
 
 - Pubblicato il: 23/05/2023
 - Ultima revisione: 25/11/2025
