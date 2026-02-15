@@ -1155,11 +1155,6 @@
       "main": [
         [
           {
-            "node": "3a. Generate Content Concept (Gemini)",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Map Account to RAG DB",
             "type": "main",
             "index": 0
