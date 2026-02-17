@@ -186,3 +186,6 @@ if r2.status_code == 200:
     print(f"   Flusso: Check IF PDF → Convert→Export→Prepare→Delete→Upsert")
 else:
     print(f"\n❌ ERRORE {r2.status_code}: {r2.text[:500]}")
+
+# Patch: add credential ID to all 3 new HTTP Request nodes
+# Applied inline after initial deploy due to "Credentials not found" error
