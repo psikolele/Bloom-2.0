@@ -189,3 +189,9 @@ else:
 
 # Patch: add credential ID to all 3 new HTTP Request nodes
 # Applied inline after initial deploy due to "Credentials not found" error
+
+# v2: Properly added 5 OCR nodes to workflow (were missing from canvas):
+# Is PDF? (IF) → Convert PDF to GDoc OCR (HTTP copy) → Export GDoc as Text (HTTP export)
+# → Restore OCR Metadata (Code, preserves targetIndex) → Auto Upsert to Pinecone
+#                                                       → Delete Temp GDoc (HTTP delete)
+# Non-PDF branch: Is PDF? false → Auto Upsert to Pinecone (unchanged)
