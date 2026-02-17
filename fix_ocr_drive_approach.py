@@ -195,3 +195,8 @@ else:
 # → Restore OCR Metadata (Code, preserves targetIndex) → Auto Upsert to Pinecone
 #                                                       → Delete Temp GDoc (HTTP delete)
 # Non-PDF branch: Is PDF? false → Auto Upsert to Pinecone (unchanged)
+
+# CRITICAL FIX: Auto Data Loader was missing dataType: "binary"
+# It was embedding JSON metadata (targetIndex, fileId, fileName) instead of file content
+# All existing auto-pipeline Pinecone entries are corrupt and need to be re-indexed
+# Fix: set parameters.dataType = "binary" (same as Default Data Loader in manual pipeline)
