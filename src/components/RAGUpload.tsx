@@ -13,9 +13,11 @@ interface RAGUploadProps {
     setSelectedFolderId: (id: string) => void;
     loadingFolders: boolean;
     folderError: string | null;
+    username: string;
+    isAdmin: boolean;
 }
 
-const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSelectedFolderId, loadingFolders, folderError }) => {
+const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSelectedFolderId, loadingFolders, folderError, username, isAdmin }) => {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
     const [debugError, setDebugError] = useState<string | null>(null);
@@ -38,6 +40,7 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folderId', selectedFolderId);
+        formData.append('username', username);
 
         try {
             console.log('[RAG] Starting upload to:', UPLOAD_WEBHOOK);
@@ -79,8 +82,20 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
                 <h3>Quick RAG Upload</h3>
             </div>
 
-            <div className="rag-body">
-                {/* Folder Select */}
+            {/* No RAG configured for this non-admin user */}
+        {!isAdmin && !selectedFolderId && !loadingFolders && (
+            <div style={{ textAlign: 'center', padding: '1.5rem 1rem', color: '#6b7280' }}>
+                <Upload size={32} strokeWidth={1} style={{ margin: '0 auto 0.5rem' }} />
+                <p style={{ fontSize: '0.8rem' }}>
+                    Nessun database RAG configurato per il tuo account.
+                </p>
+            </div>
+        )}
+
+        {(isAdmin || selectedFolderId) && (
+        <div className="rag-body">
+                {/* Folder Select: admin sees the full dropdown; non-admin sees a read-only label */}
+                {isAdmin ? (
                 <div className="rag-input-group">
                     <label><Folder size={14} /> Target</label>
                     <select
@@ -96,6 +111,14 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
                     </select>
                     {(folderError || debugError) && <p className="text-xs text-red-400 mt-1">Error: {folderError || debugError}</p>}
                 </div>
+                ) : (
+                <div className="rag-input-group">
+                    <label><Folder size={14} /> Database</label>
+                    <span style={{ fontSize: '0.85rem', color: '#a78bfa', padding: '0.25rem 0', display: 'block' }}>
+                        {folders[0]?.name ?? ''}
+                    </span>
+                </div>
+                )}
 
                 {/* File Input - Compact */}
                 <div className="rag-input-group">
@@ -117,7 +140,9 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
                         status === 'success' ? <CheckCircle size={16} /> :
                             status === 'error' ? <AlertCircle size={16} /> : 'Upload'}
                 </button>
+                {debugError && <p className="text-xs text-red-400 mt-1">Error: {debugError}</p>}
             </div>
+        )}
         </div>
     );
 };

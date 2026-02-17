@@ -80,17 +80,45 @@ export default function Dashboard() {
     const [selectedFolderId, setSelectedFolderId] = useState<string>('');
     const [loadingFolders, setLoadingFolders] = useState<boolean>(true);
     const [folderError, setFolderError] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<{ username: string } | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1500);
         return () => clearTimeout(timer);
     }, []);
 
+    // Read authenticated user from localStorage
     useEffect(() => {
-        const LIST_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-folders';
-        console.log(`[RAG] Fetching folders from: ${LIST_FOLDERS_WEBHOOK}`);
+        const userStr = localStorage.getItem('bloom_user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                const uname = (user.username || '').toLowerCase();
+                setCurrentUser({ username: uname });
+                setIsAdmin(uname === 'admin');
+            } catch (e) {
+                console.error('[RAG] Failed to parse bloom_user', e);
+                setCurrentUser({ username: '' });
+            }
+        } else {
+            setCurrentUser({ username: '' });
+        }
+    }, []);
 
-        fetch(LIST_FOLDERS_WEBHOOK)
+    // Fetch folders once user is known; pass username so n8n can filter per-user
+    useEffect(() => {
+        if (currentUser === null) return; // Wait for user state to be initialized
+
+        const LIST_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-folders';
+        const username = currentUser.username;
+        const url = username
+            ? `${LIST_FOLDERS_WEBHOOK}?username=${encodeURIComponent(username)}`
+            : LIST_FOLDERS_WEBHOOK;
+
+        console.log(`[RAG] Fetching folders for user "${username}" from: ${url}`);
+
+        fetch(url)
             .then(res => {
                 console.log(`[RAG] Response status: ${res.status} ${res.statusText}`);
                 if (!res.ok) throw new Error(`Server returned ${res.status} ${res.statusText}`);
@@ -107,6 +135,12 @@ export default function Dashboard() {
                 if (items.length === 0) console.warn('[RAG] No folders found in response.');
 
                 setFolders(items);
+
+                // Non-admin: auto-select the single folder returned for their account
+                if (username !== 'admin' && items.length > 0) {
+                    setSelectedFolderId(items[0].id);
+                }
+
                 setLoadingFolders(false);
             })
             .catch(err => {
@@ -118,7 +152,7 @@ export default function Dashboard() {
                 setFolderError(errorMsg);
                 setLoadingFolders(false);
             });
-    }, []);
+    }, [currentUser]);
 
     return (
         <div className="min-h-screen relative font-sans text-gray-200 overflow-x-hidden p-6 md:p-12 flex flex-col">
@@ -186,13 +220,17 @@ export default function Dashboard() {
                     <RAGUpload
                         folders={folders}
                         selectedFolderId={selectedFolderId}
-                        setSelectedFolderId={setSelectedFolderId}
+                        setSelectedFolderId={isAdmin ? setSelectedFolderId : () => {}}
                         loadingFolders={loadingFolders}
                         folderError={folderError}
+                        username={currentUser?.username ?? ''}
+                        isAdmin={isAdmin}
                     />
                     <RAGChat
                         folders={folders}
                         selectedFolderId={selectedFolderId}
+                        username={currentUser?.username ?? ''}
+                        isAdmin={isAdmin}
                     />
                 </div>
             </main>
