@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-18T10:31:51.584Z",
+  "updatedAt": "2026-02-18T08:13:02.152Z",
   "createdAt": "2026-01-29T09:31:45.511Z",
   "id": "XmCaI5Q9MxNf0EP_65UvB",
   "name": "RAG | Google Drive to Pinecone | Chat with RAG [ACCESS CONTROL]",
@@ -679,7 +679,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = [];\nconst items = $input.all();\nconst ragFolders = $('Auto Find RAG Folders').all();\n\n// Early exit se non ci sono items o sono tutti vuoti\nif (!items || items.length === 0) {\n  return results;\n}\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const file = item.json;\n\n  // Validazione migliorata: controlla oggetto vuoto o campi mancanti\n  if (!file || Object.keys(file).length === 0) continue;\n  if (file.isEmpty === true) continue;\n  if (!file.name || typeof file.name !== 'string') continue;\n  if (!file.id) continue;\n\n  // BLOCKLIST: Skip files with known OCR issues\n  const BLOCKLIST = ['Banner pubblicitari.pdf'];\n  if (BLOCKLIST.some(blocked => file.name.includes(blocked))) {\n    console.log('Skipping blocklisted file: ' + file.name);\n    continue;\n  }\n\n  // Salta i file temporanei OCR\n  if (file.name.startsWith('temp_ocr_')) continue;\n\n  let folderName = null;\n\n  // 1. Matching basato su Parents ID (se disponibile)\n  if (file.parents && Array.isArray(file.parents) && file.parents.length > 0) {\n    const parentId = file.parents[0];\n    const match = ragFolders.find(f => {\n      const fId = f.json.id && f.json.id.id ? f.json.id.id : f.json.id;\n      return fId === parentId;\n    });\n    if (match && match.json.name) {\n      folderName = match.json.name;\n    }\n  }\n\n  // 2. Euristica robusta (Regex matching come fallback)\n  if (!folderName) {\n    const name = file.name.toLowerCase();\n\n    if (/job[ _-]?courier/.test(name)) {\n      folderName = 'RAG Database JobCourier';\n    } else if (/blc/.test(name)) {\n      folderName = 'RAG Database BLC';\n    } else if (/walmoss/.test(name)) {\n      folderName = 'RAG Database Walmoss';\n    } else if (/pessina/.test(name)) {\n      folderName = 'RAG Database Pessina';\n    } else if (/foot[ _-]?easy/.test(name)) {\n      folderName = 'RAG Database Foot Easy';\n    }\n  }\n\n  if (folderName) {\n    let dbNamePart = folderName.replace(\"RAG Database\", \"\").trim();\n\n    // Safety check aggiuntivo per dbNamePart\n    if (dbNamePart && typeof dbNamePart === 'string' && dbNamePart.length > 0) {\n      const indexName = \"rag-\" + dbNamePart.toLowerCase().replace(/\\s+/g, '-') + \"-db\";\n\n      results.push({\n        json: {\n          targetIndex: indexName,\n          parentFolder: folderName,\n          fileId: file.id,\n          fileName: file.name,\n          mimeType: file.mimeType || 'unknown'\n        }\n      });\n    }\n  }\n}\n\nreturn results;"
+        "jsCode": "const results = [];\nconst items = $input.all();\nconst ragFolders = $('Auto Find RAG Folders').all();\n\n// Early exit se non ci sono items o sono tutti vuoti\nif (!items || items.length === 0) {\n  return results;\n}\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const file = item.json;\n\n  // Validazione migliorata: controlla oggetto vuoto o campi mancanti\n  if (!file || Object.keys(file).length === 0) continue;\n  if (file.isEmpty === true) continue;\n  if (!file.name || typeof file.name !== 'string') continue;\n  if (!file.id) continue;\n  // Salta i file temporanei OCR\n  if (file.name.startsWith('temp_ocr_')) continue;\n\n  let folderName = null;\n\n  // 1. Matching basato su Parents ID (se disponibile)\n  if (file.parents && Array.isArray(file.parents) && file.parents.length > 0) {\n    const parentId = file.parents[0];\n    const match = ragFolders.find(f => {\n      const fId = f.json.id && f.json.id.id ? f.json.id.id : f.json.id;\n      return fId === parentId;\n    });\n    if (match && match.json.name) {\n      folderName = match.json.name;\n    }\n  }\n\n  // 2. Euristica robusta (Regex matching come fallback)\n  if (!folderName) {\n    const name = file.name.toLowerCase();\n\n    if (/job[ _-]?courier/.test(name)) {\n      folderName = 'RAG Database JobCourier';\n    } else if (/blc/.test(name)) {\n      folderName = 'RAG Database BLC';\n    } else if (/walmoss/.test(name)) {\n      folderName = 'RAG Database Walmoss';\n    } else if (/pessina/.test(name)) {\n      folderName = 'RAG Database Pessina';\n    } else if (/foot[ _-]?easy/.test(name)) {\n      folderName = 'RAG Database Foot Easy';\n    }\n  }\n\n  if (folderName) {\n    let dbNamePart = folderName.replace(\"RAG Database\", \"\").trim();\n\n    // Safety check aggiuntivo per dbNamePart\n    if (dbNamePart && typeof dbNamePart === 'string' && dbNamePart.length > 0) {\n      const indexName = \"rag-\" + dbNamePart.toLowerCase().replace(/\\s+/g, '-') + \"-db\";\n\n      results.push({\n        json: {\n          targetIndex: indexName,\n          parentFolder: folderName,\n          fileId: file.id,\n          fileName: file.name,\n          mimeType: file.mimeType || 'unknown'\n        }\n      });\n    }\n  }\n}\n\nreturn results;"
       },
       "name": "Auto Determine Index",
       "type": "n8n-nodes-base.code",
@@ -1470,19 +1470,6 @@
           "name": "Google Drive Didattica BLC"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Delete existing Pinecone chunks before upserting (prevents duplicates)\nconst PINECONE_API_KEY = \"pcsk_2LUTsV_Q1CHVucguzS6Hf2v5udstb4V8F3L5umsCcrZDXDUhD3FELjdcE51TeJCn63H4sN\";\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const { targetIndex, fileName } = item.json;\n  if (targetIndex && fileName) {\n    try {\n      const indexResp = await fetch('https://api.pinecone.io/indexes/' + targetIndex, {\n        headers: { 'Api-Key': PINECONE_API_KEY }\n      });\n      const indexData = await indexResp.json();\n      const host = indexData.host;\n      if (host) {\n        await fetch('https://' + host + '/vectors/delete', {\n          method: 'POST',\n          headers: { 'Api-Key': PINECONE_API_KEY, 'Content-Type': 'application/json' },\n          body: JSON.stringify({ filter: { source: { '$eq': fileName } }, namespace: '' })\n        });\n      }\n    } catch(e) {\n      console.log('Delete pre-upsert skip (' + fileName + '): ' + e.message);\n    }\n  }\n  results.push(item);\n}\nreturn results;"
-      },
-      "id": "e5de647f-4b09-4d6a-ae97-c54c69838a0e",
-      "name": "Delete Existing Chunks",
-      "type": "n8n-nodes-base.code",
-      "position": [
-        -944,
-        1088
-      ],
-      "typeVersion": 2
     }
   ],
   "connections": {
@@ -1766,7 +1753,7 @@
       "main": [
         [
           {
-            "node": "Delete Existing Chunks",
+            "node": "Auto Download New File",
             "type": "main",
             "index": 0
           }
@@ -2124,17 +2111,6 @@
           }
         ]
       ]
-    },
-    "Delete Existing Chunks": {
-      "main": [
-        [
-          {
-            "node": "Auto Download New File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "settings": {
@@ -2344,9 +2320,9 @@
       }
     ]
   },
-  "versionId": "2e2e82b0-5377-429b-beab-d06b3bd1f493",
-  "activeVersionId": "2e2e82b0-5377-429b-beab-d06b3bd1f493",
-  "versionCounter": 549,
+  "versionId": "782899e8-3d27-484a-964f-1a18088424ff",
+  "activeVersionId": "782899e8-3d27-484a-964f-1a18088424ff",
+  "versionCounter": 513,
   "triggerCount": 8,
   "shared": [
     {
@@ -2422,9 +2398,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-02-18T10:31:51.586Z",
-    "createdAt": "2026-02-18T10:31:51.586Z",
-    "versionId": "2e2e82b0-5377-429b-beab-d06b3bd1f493",
+    "updatedAt": "2026-02-18T08:13:02.154Z",
+    "createdAt": "2026-02-18T08:13:02.154Z",
+    "versionId": "782899e8-3d27-484a-964f-1a18088424ff",
     "workflowId": "XmCaI5Q9MxNf0EP_65UvB",
     "nodes": [
       {
@@ -3099,7 +3075,7 @@
       },
       {
         "parameters": {
-          "jsCode": "const results = [];\nconst items = $input.all();\nconst ragFolders = $('Auto Find RAG Folders').all();\n\n// Early exit se non ci sono items o sono tutti vuoti\nif (!items || items.length === 0) {\n  return results;\n}\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const file = item.json;\n\n  // Validazione migliorata: controlla oggetto vuoto o campi mancanti\n  if (!file || Object.keys(file).length === 0) continue;\n  if (file.isEmpty === true) continue;\n  if (!file.name || typeof file.name !== 'string') continue;\n  if (!file.id) continue;\n\n  // BLOCKLIST: Skip files with known OCR issues\n  const BLOCKLIST = ['Banner pubblicitari.pdf'];\n  if (BLOCKLIST.some(blocked => file.name.includes(blocked))) {\n    console.log('Skipping blocklisted file: ' + file.name);\n    continue;\n  }\n\n  // Salta i file temporanei OCR\n  if (file.name.startsWith('temp_ocr_')) continue;\n\n  let folderName = null;\n\n  // 1. Matching basato su Parents ID (se disponibile)\n  if (file.parents && Array.isArray(file.parents) && file.parents.length > 0) {\n    const parentId = file.parents[0];\n    const match = ragFolders.find(f => {\n      const fId = f.json.id && f.json.id.id ? f.json.id.id : f.json.id;\n      return fId === parentId;\n    });\n    if (match && match.json.name) {\n      folderName = match.json.name;\n    }\n  }\n\n  // 2. Euristica robusta (Regex matching come fallback)\n  if (!folderName) {\n    const name = file.name.toLowerCase();\n\n    if (/job[ _-]?courier/.test(name)) {\n      folderName = 'RAG Database JobCourier';\n    } else if (/blc/.test(name)) {\n      folderName = 'RAG Database BLC';\n    } else if (/walmoss/.test(name)) {\n      folderName = 'RAG Database Walmoss';\n    } else if (/pessina/.test(name)) {\n      folderName = 'RAG Database Pessina';\n    } else if (/foot[ _-]?easy/.test(name)) {\n      folderName = 'RAG Database Foot Easy';\n    }\n  }\n\n  if (folderName) {\n    let dbNamePart = folderName.replace(\"RAG Database\", \"\").trim();\n\n    // Safety check aggiuntivo per dbNamePart\n    if (dbNamePart && typeof dbNamePart === 'string' && dbNamePart.length > 0) {\n      const indexName = \"rag-\" + dbNamePart.toLowerCase().replace(/\\s+/g, '-') + \"-db\";\n\n      results.push({\n        json: {\n          targetIndex: indexName,\n          parentFolder: folderName,\n          fileId: file.id,\n          fileName: file.name,\n          mimeType: file.mimeType || 'unknown'\n        }\n      });\n    }\n  }\n}\n\nreturn results;"
+          "jsCode": "const results = [];\nconst items = $input.all();\nconst ragFolders = $('Auto Find RAG Folders').all();\n\n// Early exit se non ci sono items o sono tutti vuoti\nif (!items || items.length === 0) {\n  return results;\n}\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const file = item.json;\n\n  // Validazione migliorata: controlla oggetto vuoto o campi mancanti\n  if (!file || Object.keys(file).length === 0) continue;\n  if (file.isEmpty === true) continue;\n  if (!file.name || typeof file.name !== 'string') continue;\n  if (!file.id) continue;\n  // Salta i file temporanei OCR\n  if (file.name.startsWith('temp_ocr_')) continue;\n\n  let folderName = null;\n\n  // 1. Matching basato su Parents ID (se disponibile)\n  if (file.parents && Array.isArray(file.parents) && file.parents.length > 0) {\n    const parentId = file.parents[0];\n    const match = ragFolders.find(f => {\n      const fId = f.json.id && f.json.id.id ? f.json.id.id : f.json.id;\n      return fId === parentId;\n    });\n    if (match && match.json.name) {\n      folderName = match.json.name;\n    }\n  }\n\n  // 2. Euristica robusta (Regex matching come fallback)\n  if (!folderName) {\n    const name = file.name.toLowerCase();\n\n    if (/job[ _-]?courier/.test(name)) {\n      folderName = 'RAG Database JobCourier';\n    } else if (/blc/.test(name)) {\n      folderName = 'RAG Database BLC';\n    } else if (/walmoss/.test(name)) {\n      folderName = 'RAG Database Walmoss';\n    } else if (/pessina/.test(name)) {\n      folderName = 'RAG Database Pessina';\n    } else if (/foot[ _-]?easy/.test(name)) {\n      folderName = 'RAG Database Foot Easy';\n    }\n  }\n\n  if (folderName) {\n    let dbNamePart = folderName.replace(\"RAG Database\", \"\").trim();\n\n    // Safety check aggiuntivo per dbNamePart\n    if (dbNamePart && typeof dbNamePart === 'string' && dbNamePart.length > 0) {\n      const indexName = \"rag-\" + dbNamePart.toLowerCase().replace(/\\s+/g, '-') + \"-db\";\n\n      results.push({\n        json: {\n          targetIndex: indexName,\n          parentFolder: folderName,\n          fileId: file.id,\n          fileName: file.name,\n          mimeType: file.mimeType || 'unknown'\n        }\n      });\n    }\n  }\n}\n\nreturn results;"
         },
         "name": "Auto Determine Index",
         "type": "n8n-nodes-base.code",
@@ -3890,19 +3866,6 @@
             "name": "Google Drive Didattica BLC"
           }
         }
-      },
-      {
-        "parameters": {
-          "jsCode": "// Delete existing Pinecone chunks before upserting (prevents duplicates)\nconst PINECONE_API_KEY = \"pcsk_2LUTsV_Q1CHVucguzS6Hf2v5udstb4V8F3L5umsCcrZDXDUhD3FELjdcE51TeJCn63H4sN\";\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const { targetIndex, fileName } = item.json;\n  if (targetIndex && fileName) {\n    try {\n      const indexResp = await fetch('https://api.pinecone.io/indexes/' + targetIndex, {\n        headers: { 'Api-Key': PINECONE_API_KEY }\n      });\n      const indexData = await indexResp.json();\n      const host = indexData.host;\n      if (host) {\n        await fetch('https://' + host + '/vectors/delete', {\n          method: 'POST',\n          headers: { 'Api-Key': PINECONE_API_KEY, 'Content-Type': 'application/json' },\n          body: JSON.stringify({ filter: { source: { '$eq': fileName } }, namespace: '' })\n        });\n      }\n    } catch(e) {\n      console.log('Delete pre-upsert skip (' + fileName + '): ' + e.message);\n    }\n  }\n  results.push(item);\n}\nreturn results;"
-        },
-        "id": "e5de647f-4b09-4d6a-ae97-c54c69838a0e",
-        "name": "Delete Existing Chunks",
-        "type": "n8n-nodes-base.code",
-        "position": [
-          -944,
-          1088
-        ],
-        "typeVersion": 2
       }
     ],
     "connections": {
@@ -4186,7 +4149,7 @@
         "main": [
           [
             {
-              "node": "Delete Existing Chunks",
+              "node": "Auto Download New File",
               "type": "main",
               "index": 0
             }
@@ -4544,17 +4507,6 @@
             }
           ]
         ]
-      },
-      "Delete Existing Chunks": {
-        "main": [
-          [
-            {
-              "node": "Auto Download New File",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
       }
     },
     "authors": "Emanule Serra",
@@ -4563,10 +4515,10 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-02-18T10:31:52.163Z",
-        "id": 663,
+        "createdAt": "2026-02-18T08:13:02.680Z",
+        "id": 651,
         "workflowId": "XmCaI5Q9MxNf0EP_65UvB",
-        "versionId": "2e2e82b0-5377-429b-beab-d06b3bd1f493",
+        "versionId": "782899e8-3d27-484a-964f-1a18088424ff",
         "event": "activated",
         "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
       }
