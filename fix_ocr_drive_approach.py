@@ -200,3 +200,28 @@ else:
 # It was embedding JSON metadata (targetIndex, fileId, fileName) instead of file content
 # All existing auto-pipeline Pinecone entries are corrupt and need to be re-indexed
 # Fix: set parameters.dataType = "binary" (same as Default Data Loader in manual pipeline)
+
+# ==========================================
+# ADDITIONAL FIXES APPLIED DURING RE-INDEX
+# ==========================================
+
+# Fix 4: Is PDF? branch connections were SWAPPED
+# branch[0] (PDF=TRUE) was → Auto Upsert to Pinecone (WRONG)
+# branch[1] (PDF=FALSE) was → Convert PDF to GDoc OCR (WRONG)
+# Fixed: branch[0] → Convert PDF to GDoc OCR, branch[1] → Auto Upsert to Pinecone
+
+# Fix 5: Auto Determine Index - added filter for temp_ocr_ files
+# Orphan GDoc temp files from failed execs were being indexed as real documents
+# Added: if (file.name.startsWith('temp_ocr_')) continue;
+
+# Fix 6: Convert PDF to GDoc OCR - embed targetIndex in GDoc name
+# Changed name format from: temp_ocr_<fileName>
+# To: temp_ocr___<targetIndex>___<fileName>
+# This allows Restore OCR Metadata to reconstruct targetIndex without crossing branches
+
+# Fix 7: Restore OCR Metadata - rewritten with $input.all() loop
+# Was: single-item code using $('Is PDF?').item.json (fails across branches)
+# Now: iterates $input.all(), parses targetIndex from GDoc name format ___idx___
+# Also now correctly passes all 6 items to Delete Temp GDoc (was only 1)
+
+# Fix 8: Delete Temp GDoc - now correctly deletes ALL temp GDocs (6/6 instead of 1/6)
