@@ -1,0 +1,100 @@
+{
+  "timestamp": "2026-02-16T12:13:48.059874",
+  "index": "rag-jobcourier-db",
+  "namespace": "",
+  "total_chunks": 6,
+  "chunks": [
+    {
+      "id": "bb07244b-ace5-45f6-983d-5ac023dfe579",
+      "score": 0.00368019729,
+      "metadata": {
+        "blobType": "text/markdown",
+        "loc.lines.from": 1,
+        "loc.lines.to": 30,
+        "source": "blob",
+        "text": "# Job Courier\n\n## Summary\n\nJob Courier è una piattaforma online svizzera specializzata nel reclutamento e nelle risorse umane, che connette candidati in cerca di lavoro con aziende e agenzie di reclutamento. Opera principalmente in Svizzera con focus sul Ticino, rivolgendosi a professionisti tra i 25 e 55 anni in settori diversificati come amministrazione, IT, ingegneria, marketing, medicina e ristorazione. La value proposition principale è facilitare l'incontro tra domanda e offerta di lavoro attraverso opportunità aggiornate e processi semplificati.\n\n## Informazioni Brand\n\n- **Nome:** Job Courier\n- **Sito Web:** https://www.jobcourier.ch/\n- **Settore:** Risorse Umane, Reclutamento\n- **Tono di Voce:** Professionale, Diretto\n\n## Target Audience\n\n- **Età:** 25-55 anni\n- **Professione:** Candidati in cerca di lavoro in diversi settori (amministrazione, IT, ingegneria, marketing, medicina, ristorazione) e aziende/agenzie di reclutamento in Svizzera\n- **Area Geografica:** Svizzera, con particolare attenzione al Ticino\n\n## Pain Points\n\n- Difficoltà nel trovare offerte di lavoro pertinenti e aggiornate in Svizzera\n- Processo di candidatura lungo e complesso\n- Difficoltà per le aziende nel raggiungere candidati qualificati e ridurre i tempi di reclutamento\n\n## Value Proposition\n\nPiattaforma online che facilita l'incontro tra domanda e offerta di lavoro in Svizzera, offrendo un'ampia gamma di opportunità e soluzioni per candidati e aziende.\n\n## Keywords Strategiche"
+      },
+      "text_length": 1481
+    },
+    {
+      "id": "2afe773e-7dd7-4eb7-aebd-32624e64f382",
+      "score": 0.00361814699,
+      "metadata": {
+        "blobType": "text/markdown",
+        "loc.lines.from": 1,
+        "loc.lines.to": 30,
+        "source": "blob",
+        "text": "# Job Courier\n\n## Summary\n\nJob Courier è una piattaforma online svizzera specializzata nel reclutamento e nelle risorse umane, che connette candidati in cerca di lavoro con aziende e agenzie di reclutamento. Opera principalmente in Svizzera con focus sul Ticino, rivolgendosi a professionisti tra i 25 e 55 anni in settori diversificati come amministrazione, IT, ingegneria, marketing, medicina e ristorazione. La value proposition principale è facilitare l'incontro tra domanda e offerta di lavoro attraverso opportunità aggiornate e processi semplificati.\n\n## Informazioni Brand\n\n- **Nome:** Job Courier\n- **Sito Web:** https://www.jobcourier.ch/\n- **Settore:** Risorse Umane, Reclutamento\n- **Tono di Voce:** Professionale, Diretto\n\n## Target Audience\n\n- **Età:** 25-55 anni\n- **Professione:** Candidati in cerca di lavoro in diversi settori (amministrazione, IT, ingegneria, marketing, medicina, ristorazione) e aziende/agenzie di reclutamento in Svizzera\n- **Area Geografica:** Svizzera, con particolare attenzione al Ticino\n\n## Pain Points\n\n- Difficoltà nel trovare offerte di lavoro pertinenti e aggiornate in Svizzera\n- Processo di candidatura lungo e complesso\n- Difficoltà per le aziende nel raggiungere candidati qualificati e ridurre i tempi di reclutamento\n\n## Value Proposition\n\nPiattaforma online che facilita l'incontro tra domanda e offerta di lavoro in Svizzera, offrendo un'ampia gamma di opportunità e soluzioni per candidati e aziende.\n\n## Keywords Strategiche"
+      },
+      "text_length": 1481
+    },
+    {
+      "id": "1f35c253-2cf4-4862-86be-592b63fc9778",
+      "score": 0.00123565469,
+      "metadata": {
+        "blobType": "application/pdf",
+        "loc.lines.from": 1,
+        "loc.lines.to": 2,
+        "pdf.info.CreationDate": "D:20250605190815+02'00'",
+        "pdf.info.Creator": "Adobe Photoshop 26.5 (Macintosh)",
+        "pdf.info.IsAcroFormPresent": false,
+        "pdf.info.IsXFAPresent": false,
+        "pdf.info.ModDate": "D:20250606073530Z",
+        "pdf.info.PDFFormatVersion": "1.6",
+        "pdf.info.Producer": "iLovePDF",
+        "pdf.info.Title": "",
+        "pdf.totalPages": 4,
+        "pdf.version": "1.10.100",
+        "source": "blob",
+        "text": "Il tuo partner strategico per la ricerca\ndi personale in tutta la Svizzera"
+      },
+      "text_length": 74
+    },
+    {
+      "id": "35905eda-aa06-4fef-aec2-bdbbdcc404a7",
+      "score": 0.00114635075,
+      "metadata": {
+        "blobType": "application/pdf",
+        "loc.lines.from": 1,
+        "loc.lines.to": 2,
+        "pdf.info.CreationDate": "D:20250605190815+02'00'",
+        "pdf.info.Creator": "Adobe Photoshop 26.5 (Macintosh)",
+        "pdf.info.IsAcroFormPresent": false,
+        "pdf.info.IsXFAPresent": false,
+        "pdf.info.ModDate": "D:20250606073530Z",
+        "pdf.info.PDFFormatVersion": "1.6",
+        "pdf.info.Producer": "iLovePDF",
+        "pdf.info.Title": "",
+        "pdf.totalPages": 4,
+        "pdf.version": "1.10.100",
+        "source": "blob",
+        "text": "Il tuo partner strategico per la ricerca\ndi personale in tutta la Svizzera"
+      },
+      "text_length": 74
+    },
+    {
+      "id": "fff75b5d-4e9f-45a9-9e38-921dbbc04a48",
+      "score": -0.014086172,
+      "metadata": {
+        "blobType": "text/markdown",
+        "loc.lines.from": 28,
+        "loc.lines.to": 55,
+        "source": "blob",
+        "text": "Piattaforma online che facilita l'incontro tra domanda e offerta di lavoro in Svizzera, offrendo un'ampia gamma di opportunità e soluzioni per candidati e aziende.\n\n## Keywords Strategiche\n\n- lavoro\n- offerte di lavoro\n- Svizzera\n- Ticino\n- reclutamento\n- carriera\n- aziende\n- agenzie\n- CV\n- candidati\n\n## Contenuti Social\n\n**Testo Post:** Ti senti perso nel labirinto del mondo del lavoro? 😵‍💫 Trova la tua direzione con Job Courier! 🧭 Il supporto giusto può fare la differenza per orientarti verso il successo. ✨\n\n**Hook Creativo:** Una foto artistica di un labirinto di specchi, con una frase del tipo: \"Ti senti perso nel mondo del lavoro? Trova la tua direzione con Job Courier\". L'immagine deve evocare smarrimento ma anche la possibilità di trovare una via d'uscita con il giusto supporto.\n\n**Image Prompt:** Close-up, artistic photograph of a mirror maze. Reflections of distorted human figures, partially obscured. Neutral color palette: beige, gray, muted brown. Vintage filter, soft focus. Low-key lighting, emphasizing shadows and creating a somber mood. Shallow depth of field. Intricate details of mirror edges and smudges. Evokes feelings of confusion and disorientation. Cinematic, 35mm lens.\n\n## Metriche e Note\n\n- **Max Emoji per Post:** 1\n- **Confidence Score:** 8/10\n- **Note:** Nessuna informazione sui prezzi o dati demografici specifici. Targeting basato su deduzioni dal contenuto del sito."
+      },
+      "text_length": 1414
+    },
+    {
+      "id": "66ce274e-5ede-4b65-ae53-442279d21257",
+      "score": -0.0143801207,
+      "metadata": {
+        "blobType": "text/markdown",
+        "loc.lines.from": 28,
+        "loc.lines.to": 55,
+        "source": "blob",
+        "text": "Piattaforma online che facilita l'incontro tra domanda e offerta di lavoro in Svizzera, offrendo un'ampia gamma di opportunità e soluzioni per candidati e aziende.\n\n## Keywords Strategiche\n\n- lavoro\n- offerte di lavoro\n- Svizzera\n- Ticino\n- reclutamento\n- carriera\n- aziende\n- agenzie\n- CV\n- candidati\n\n## Contenuti Social\n\n**Testo Post:** Ti senti perso nel labirinto del mondo del lavoro? 😵‍💫 Trova la tua direzione con Job Courier! 🧭 Il supporto giusto può fare la differenza per orientarti verso il successo. ✨\n\n**Hook Creativo:** Una foto artistica di un labirinto di specchi, con una frase del tipo: \"Ti senti perso nel mondo del lavoro? Trova la tua direzione con Job Courier\". L'immagine deve evocare smarrimento ma anche la possibilità di trovare una via d'uscita con il giusto supporto.\n\n**Image Prompt:** Close-up, artistic photograph of a mirror maze. Reflections of distorted human figures, partially obscured. Neutral color palette: beige, gray, muted brown. Vintage filter, soft focus. Low-key lighting, emphasizing shadows and creating a somber mood. Shallow depth of field. Intricate details of mirror edges and smudges. Evokes feelings of confusion and disorientation. Cinematic, 35mm lens.\n\n## Metriche e Note\n\n- **Max Emoji per Post:** 1\n- **Confidence Score:** 8/10\n- **Note:** Nessuna informazione sui prezzi o dati demografici specifici. Targeting basato su deduzioni dal contenuto del sito."
+      },
+      "text_length": 1414
+    }
+  ]
+}
