@@ -95,8 +95,14 @@ export default function Dashboard() {
             try {
                 const user = JSON.parse(userStr);
                 const uname = (user.username || '').toLowerCase();
-                setCurrentUser({ username: uname });
-                setIsAdmin(uname === 'admin');
+                // loginName is what the user typed at login; use it as fallback for admin detection
+                // in case the auth webhook returns a different username (e.g. real name from Notion)
+                const loginName = (user.loginName || '').toLowerCase();
+                const isAdminUser = uname === 'admin' || loginName === 'admin';
+                // If admin, always use 'admin' as the effective username for RAG filtering
+                const effectiveUsername = isAdminUser ? 'admin' : uname;
+                setCurrentUser({ username: effectiveUsername });
+                setIsAdmin(isAdminUser);
             } catch (e) {
                 console.error('[RAG] Failed to parse bloom_user', e);
                 setCurrentUser({ username: '' });
