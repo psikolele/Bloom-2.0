@@ -12,11 +12,13 @@ interface ChatMessage {
 interface RAGChatProps {
     folders: DriveFolder[];
     selectedFolderId: string;
+    username: string;
+    isAdmin: boolean;
 }
 
 const QUERY_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-query';
 
-const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId }) => {
+const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId, username, isAdmin }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +46,7 @@ const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId }) => {
             const res = await fetch(QUERY_WEBHOOK, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query, folderId: selectedFolderId }),
+                body: JSON.stringify({ query, folderId: selectedFolderId, username }),
             });
 
             if (!res.ok) {
@@ -106,9 +108,15 @@ const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId }) => {
                     <MessageSquare size={32} strokeWidth={1} />
                     <p>Ask questions about your uploaded documents</p>
                     {!selectedFolderId && (
-                        <p style={{ color: '#a78bfa', fontSize: '0.75rem' }}>
-                            Select a folder first
-                        </p>
+                        !isAdmin ? (
+                            <p style={{ color: '#a78bfa', fontSize: '0.75rem' }}>
+                                Nessun database RAG configurato. Contatta l&apos;amministratore.
+                            </p>
+                        ) : (
+                            <p style={{ color: '#a78bfa', fontSize: '0.75rem' }}>
+                                Select a folder first
+                            </p>
+                        )
                     )}
                 </div>
             ) : (
@@ -144,7 +152,7 @@ const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId }) => {
                 <input
                     className="rag-chat-input"
                     type="text"
-                    placeholder={selectedFolderId ? 'Ask a question...' : 'Select a folder first'}
+                    placeholder={selectedFolderId ? 'Ask a question...' : (isAdmin ? 'Select a folder first' : 'No RAG database configured')}
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
