@@ -202,7 +202,7 @@
         0
       ],
       "id": "2e9de835-d5e2-4753-b987-4760fb188400",
-      "name": "When clicking ‘Execute workflow’"
+      "name": "When clicking \u2018Execute workflow\u2019"
     },
     {
       "parameters": {
@@ -301,7 +301,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const username = ($('Webhook Get Folders').first().json.query?.username || '').toLowerCase();\n\nconst allFolders = $input.all()\n  .map(item => item.json);\n\n// No username supplied → return nothing\nif (!username) {\n  return [{ json: { documents: [] } }];\n}\n\n// Admin sees all folders\nif (username === 'admin') {\n  return [{ json: { documents: allFolders } }];\n}\n\n// Per-user folder mapping\nconst folderNameMap = {\n  'job_courier': 'RAG Database JobCourier',\n  'jobcourier':  'RAG Database JobCourier',\n  'pessina':     'RAG Database Pessina',\n  'walmoss':     'RAG Database Walmoss',\n  'foot_easy':   'RAG Database Foot Easy',\n  'blc':         'RAG Database BLC'\n};\n\nconst targetName = folderNameMap[username];\nif (!targetName) return [{ json: { documents: [] } }];\n\nconst filtered = allFolders.filter(f => f.name === targetName);\nreturn [{ json: { documents: filtered } }];"
+        "jsCode": "const username = ($('Webhook Get Folders').first().json.query?.username || '').toLowerCase();\n\nconst allFolders = $input.all()\n  .map(item => item.json);\n\n// No username supplied \u2192 return nothing\nif (!username) {\n  return [{ json: { documents: [] } }];\n}\n\n// Admin sees all folders\nif (username === 'admin') {\n  return [{ json: { documents: allFolders } }];\n}\n\n// Per-user folder mapping\nconst folderNameMap = {\n  'job_courier': 'RAG Database JobCourier',\n  'jobcourier':  'RAG Database JobCourier',\n  'pessina':     'RAG Database Pessina',\n  'walmoss':     'RAG Database Walmoss',\n  'foot_easy':   'RAG Database Foot Easy',\n  'blc':         'RAG Database BLC'\n};\n\nconst targetName = folderNameMap[username];\nif (!targetName) return [{ json: { documents: [] } }];\n\nconst filtered = allFolders.filter(f => f.name === targetName);\nreturn [{ json: { documents: filtered } }];"
       },
       "id": "s2kcwppr9lib5x8fq6zp8",
       "name": "Aggregate Folders",
@@ -483,7 +483,7 @@
     },
     {
       "parameters": {
-        "content": "## 📂 1. RAG Ingestion Pipeline (Admin)\nQuesto flusso gestisce l'indicizzazione dei documenti.\n\n1. **Trigger Manuale**: Avviato dall'amministratore.\n2. **Google Drive**: Cerca la cartella 'RAG Database Pessina' e scarica i file (supporta PDF, GDoc, File binari).\n3. **Parsing**: Converte i file Google Doc in PDF/Testo se necessario.\n4. **Chunking**: Suddivide il testo in frammenti più piccoli (Chunk Size: 1000, Overlap: 100).\n5. **Embedding**: Genera vettori usando il modello OpenAI/Gemini.\n6. **Upsert**: Carica i vettori nel database Pinecone per la ricerca semantica.",
+        "content": "## \ud83d\udcc2 1. RAG Ingestion Pipeline (Admin)\nQuesto flusso gestisce l'indicizzazione dei documenti.\n\n1. **Trigger Manuale**: Avviato dall'amministratore.\n2. **Google Drive**: Cerca la cartella 'RAG Database Pessina' e scarica i file (supporta PDF, GDoc, File binari).\n3. **Parsing**: Converte i file Google Doc in PDF/Testo se necessario.\n4. **Chunking**: Suddivide il testo in frammenti pi\u00f9 piccoli (Chunk Size: 1000, Overlap: 100).\n5. **Embedding**: Genera vettori usando il modello OpenAI/Gemini.\n6. **Upsert**: Carica i vettori nel database Pinecone per la ricerca semantica.",
         "height": 492,
         "width": 1900,
         "color": 4
@@ -499,7 +499,7 @@
     },
     {
       "parameters": {
-        "content": "## ���� 2. API: Get Folders (Frontend)\nEndpoint chiamato dal frontend (es. React/Bubble) per ottenere la lista delle cartelle disponibili.\n\n- **Webhook GET**: Riceve la richiesta.\n- **List Folders**: Interroga Google Drive per ottenere i nomi e ID delle cartelle.\n- **Response**: Restituisce un JSON formattato per popolare il menu a tendina della chat.",
+        "content": "## \ufffd\ufffd\ufffd\ufffd 2. API: Get Folders (Frontend)\nEndpoint chiamato dal frontend (es. React/Bubble) per ottenere la lista delle cartelle disponibili.\n\n- **Webhook GET**: Riceve la richiesta.\n- **List Folders**: Interroga Google Drive per ottenere i nomi e ID delle cartelle.\n- **Response**: Restituisce un JSON formattato per popolare il menu a tendina della chat.",
         "height": 364,
         "width": 912,
         "color": 3
@@ -515,7 +515,7 @@
     },
     {
       "parameters": {
-        "content": "## 📤 3. API: Upload File (Frontend)\nPermette agli utenti di caricare nuovi documenti direttamente dalla chat.\n\n- **Webhook POST**: Riceve il file in multipart/form-data.\n- **Upload to Drive**: Salva il file nella cartella specifica su Google Drive.\n- **Feedback**: Restituisce un messaggio di successo o errore al frontend.",
+        "content": "## \ud83d\udce4 3. API: Upload File (Frontend)\nPermette agli utenti di caricare nuovi documenti direttamente dalla chat.\n\n- **Webhook POST**: Riceve il file in multipart/form-data.\n- **Upload to Drive**: Salva il file nella cartella specifica su Google Drive.\n- **Feedback**: Restituisce un messaggio di successo o errore al frontend.",
         "height": 460,
         "width": 896,
         "color": 2
@@ -531,7 +531,7 @@
     },
     {
       "parameters": {
-        "content": "## 🤖 4. RAG Chat Agent (Core)\nIl cuore intelligente del sistema.\n\n- **Chat Trigger**: Attende messaggi dall'interfaccia utente.\n- **AI Agent**: Un agente LangChain che orchestra la conversazione.\n- **Retrieval Tool**: Usa Pinecone per cercare contesti rilevanti (Documenti, Corsi, Info aziendali) basati sulla domanda dell'utente.\n- **LLM**: (OpenRouter/OpenAI) Genera la risposta finale arricchita dai dati recuperati (Retrieval Augmented Generation).",
+        "content": "## \ud83e\udd16 4. RAG Chat Agent (Core)\nIl cuore intelligente del sistema.\n\n- **Chat Trigger**: Attende messaggi dall'interfaccia utente.\n- **AI Agent**: Un agente LangChain che orchestra la conversazione.\n- **Retrieval Tool**: Usa Pinecone per cercare contesti rilevanti (Documenti, Corsi, Info aziendali) basati sulla domanda dell'utente.\n- **LLM**: (OpenRouter/OpenAI) Genera la risposta finale arricchita dai dati recuperati (Retrieval Augmented Generation).",
         "height": 594,
         "width": 900,
         "color": 7
@@ -650,7 +650,7 @@
     },
     {
       "parameters": {
-        "content": "## 🔄 5. Auto Ingestion Pipeline\nQuesto flusso monitora automaticamente TUTTI i file modificati nelle cartelle RAG.\n\n- **Schedule Trigger**: Esegue ogni 5 minuti.\n- **Search Recent Files**: Cerca file modificati negli ultimi 10 minuti.\n- **Filter & Check**: Filtra solo file validi nelle cartelle RAG.\n- **Download → Extract → Prepare → Pinecone**: Processa e indicizza automaticamente.\n\n> ⚠️ Latenza: Fino a 5 minuti per rilevare nuovi file.",
+        "content": "## \ud83d\udd04 5. Auto Ingestion Pipeline\nQuesto flusso monitora automaticamente TUTTI i file modificati nelle cartelle RAG.\n\n- **Schedule Trigger**: Esegue ogni 5 minuti.\n- **Search Recent Files**: Cerca file modificati negli ultimi 10 minuti.\n- **Filter & Check**: Filtra solo file validi nelle cartelle RAG.\n- **Download \u2192 Extract \u2192 Prepare \u2192 Pinecone**: Processa e indicizza automaticamente.\n\n> \u26a0\ufe0f Latenza: Fino a 5 minuti per rilevare nuovi file.",
         "height": 1596,
         "width": 1428,
         "color": 5
@@ -820,7 +820,7 @@
     },
     {
       "parameters": {
-        "content": "## 🔍 6. API: RAG Query (Frontend)\nEndpoint chiamato dal frontend per effettuare query RAG sui documenti indicizzati.\n\n- **Webhook POST** (`/webhook/rag-query`): Riceve la query e il `folderId` dall’interfaccia chat.\n- **Get Folder Name**: Recupera il nome della cartella da Google Drive tramite API.\n- **Prepare Query**: Mappa la cartella al corretto indice Pinecone e prepara l’input per l’agente.\n- **AI Agent**: Un agente LangChain che cerca nei documenti rilevanti e genera la risposta.\n- **Response**: Restituisce un JSON con `answer` e `sources` al frontend.\n\n> ⚡ Chiamato da: `RAGChat.tsx` → `POST /webhook/rag-query`",
+        "content": "## \ud83d\udd0d 6. API: RAG Query (Frontend)\nEndpoint chiamato dal frontend per effettuare query RAG sui documenti indicizzati.\n\n- **Webhook POST** (`/webhook/rag-query`): Riceve la query e il `folderId` dall\u2019interfaccia chat.\n- **Get Folder Name**: Recupera il nome della cartella da Google Drive tramite API.\n- **Prepare Query**: Mappa la cartella al corretto indice Pinecone e prepara l\u2019input per l\u2019agente.\n- **AI Agent**: Un agente LangChain che cerca nei documenti rilevanti e genera la risposta.\n- **Response**: Restituisce un JSON con `answer` e `sources` al frontend.\n\n> \u26a1 Chiamato da: `RAGChat.tsx` \u2192 `POST /webhook/rag-query`",
         "height": 932,
         "width": 2088,
         "color": 6
@@ -875,7 +875,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $('Webhook RAG Query').first().json.body || {};\nconst query = body.query || '';\nconst folderName = ($json.name || '').toLowerCase();\n\n// Map folder name to Pinecone index\nlet targetIndex = 'rag-pessina-db'; // default\n\nif (folderName.includes('jobcourier') || folderName.includes('job courier')) {\n  targetIndex = 'rag-jobcourier-db';\n} else if (folderName.includes('blc')) {\n  targetIndex = 'rag-blc-db';\n} else if (folderName.includes('walmoss')) {\n  targetIndex = 'rag-walmoss-db';\n} else if (folderName.includes('pessina')) {\n  targetIndex = 'rag-pessina-db';\n} else if (folderName.includes('foot') && folderName.includes('easy')) {\n  targetIndex = 'rag-foot-easy-db';\n}\n\nreturn [{\n  json: {\n    chatInput: query,\n    targetIndex: targetIndex,\n    folderName: $json.name || 'Unknown'\n  }\n}];"
+        "jsCode": "const body = $('Webhook RAG Query').first().json.body || {};\nconst query = body.query || '';\n\n// Non-admin path: Resolve Index By Username already computed targetIndex\nif ($json.targetIndex) {\n  return [{\n    json: {\n      chatInput: query,\n      targetIndex: $json.targetIndex,\n      folderName: $json.folderName || $json.username || 'unknown'\n    }\n  }];\n}\n\n// Admin path: map folder name (from Get Folder Name) to Pinecone index\nconst folderName = ($json.name || '').toLowerCase();\nlet targetIndex = 'rag-pessina-db'; // default\n\nif (folderName.includes('jobcourier') || folderName.includes('job courier')) {\n  targetIndex = 'rag-jobcourier-db';\n} else if (folderName.includes('blc')) {\n  targetIndex = 'rag-blc-db';\n} else if (folderName.includes('walmoss')) {\n  targetIndex = 'rag-walmoss-db';\n} else if (folderName.includes('pessina')) {\n  targetIndex = 'rag-pessina-db';\n} else if (folderName.includes('foot') && folderName.includes('easy')) {\n  targetIndex = 'rag-foot-easy-db';\n}\n\nreturn [{\n  json: {\n    chatInput: query,\n    targetIndex: targetIndex,\n    folderName: $json.name || 'Unknown'\n  }\n}];"
       },
       "id": "prepare-rag-query",
       "name": "Prepare RAG Query",
@@ -1200,7 +1200,7 @@
     },
     {
       "parameters": {
-        "content": "## Google Drive Webhook Pipeline (FASE 2)\n\n**Real-time ingestion** quando file vengono caricati/modificati nelle cartelle RAG Database.\n\n### Come Funziona:\n1. Google Drive invia notifica push a webhook\n2. Parser estrae info (folder ID, change type)\n3. Trigger flusso esistente di ingestion\n\n### Configurazione Iniziale:\n1. Eseguire manualmente \"Prepare Watch Setup Data\" → \"Setup Drive Watch\"\n2. Prima esecuzione: sostituire REPLACE_WITH_ACTUAL_ID con folder IDs reali\n3. Salvare resourceId dalla response nel nodo \"Prepare Watch Renewal Data\"\n\n### Manutenzione:\nSchedule automatico ogni 20h rinnova watch token (scade ogni 24h)",
+        "content": "## Google Drive Webhook Pipeline (FASE 2)\n\n**Real-time ingestion** quando file vengono caricati/modificati nelle cartelle RAG Database.\n\n### Come Funziona:\n1. Google Drive invia notifica push a webhook\n2. Parser estrae info (folder ID, change type)\n3. Trigger flusso esistente di ingestion\n\n### Configurazione Iniziale:\n1. Eseguire manualmente \"Prepare Watch Setup Data\" \u2192 \"Setup Drive Watch\"\n2. Prima esecuzione: sostituire REPLACE_WITH_ACTUAL_ID con folder IDs reali\n3. Salvare resourceId dalla response nel nodo \"Prepare Watch Renewal Data\"\n\n### Manutenzione:\nSchedule automatico ogni 20h rinnova watch token (scade ogni 24h)",
         "height": 480,
         "width": 420
       },
@@ -1428,7 +1428,7 @@
         ]
       ]
     },
-    "When clicking ‘Execute workflow’": {
+    "When clicking \u2018Execute workflow\u2019": {
       "main": [
         [
           {
@@ -1920,7 +1920,7 @@
         ],
         [
           {
-            "node": "RAG Query Agent",
+            "node": "Prepare RAG Query",
             "type": "main",
             "index": 0
           }
@@ -1939,7 +1939,7 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {
-    "When clicking ‘Test workflow’": [
+    "When clicking \u2018Test workflow\u2019": [
       {
         "json": {},
         "pairedItem": {
@@ -2420,7 +2420,7 @@
           0
         ],
         "id": "2e9de835-d5e2-4753-b987-4760fb188400",
-        "name": "When clicking ‘Execute workflow’"
+        "name": "When clicking \u2018Execute workflow\u2019"
       },
       {
         "parameters": {
@@ -2701,7 +2701,7 @@
       },
       {
         "parameters": {
-          "content": "## 📂 1. RAG Ingestion Pipeline (Admin)\nQuesto flusso gestisce l'indicizzazione dei documenti.\n\n1. **Trigger Manuale**: Avviato dall'amministratore.\n2. **Google Drive**: Cerca la cartella 'RAG Database Pessina' e scarica i file (supporta PDF, GDoc, File binari).\n3. **Parsing**: Converte i file Google Doc in PDF/Testo se necessario.\n4. **Chunking**: Suddivide il testo in frammenti più piccoli (Chunk Size: 1000, Overlap: 100).\n5. **Embedding**: Genera vettori usando il modello OpenAI/Gemini.\n6. **Upsert**: Carica i vettori nel database Pinecone per la ricerca semantica.",
+          "content": "## \ud83d\udcc2 1. RAG Ingestion Pipeline (Admin)\nQuesto flusso gestisce l'indicizzazione dei documenti.\n\n1. **Trigger Manuale**: Avviato dall'amministratore.\n2. **Google Drive**: Cerca la cartella 'RAG Database Pessina' e scarica i file (supporta PDF, GDoc, File binari).\n3. **Parsing**: Converte i file Google Doc in PDF/Testo se necessario.\n4. **Chunking**: Suddivide il testo in frammenti pi\u00f9 piccoli (Chunk Size: 1000, Overlap: 100).\n5. **Embedding**: Genera vettori usando il modello OpenAI/Gemini.\n6. **Upsert**: Carica i vettori nel database Pinecone per la ricerca semantica.",
           "height": 492,
           "width": 1900,
           "color": 4
@@ -2717,7 +2717,7 @@
       },
       {
         "parameters": {
-          "content": "## ���� 2. API: Get Folders (Frontend)\nEndpoint chiamato dal frontend (es. React/Bubble) per ottenere la lista delle cartelle disponibili.\n\n- **Webhook GET**: Riceve la richiesta.\n- **List Folders**: Interroga Google Drive per ottenere i nomi e ID delle cartelle.\n- **Response**: Restituisce un JSON formattato per popolare il menu a tendina della chat.",
+          "content": "## \ufffd\ufffd\ufffd\ufffd 2. API: Get Folders (Frontend)\nEndpoint chiamato dal frontend (es. React/Bubble) per ottenere la lista delle cartelle disponibili.\n\n- **Webhook GET**: Riceve la richiesta.\n- **List Folders**: Interroga Google Drive per ottenere i nomi e ID delle cartelle.\n- **Response**: Restituisce un JSON formattato per popolare il menu a tendina della chat.",
           "height": 364,
           "width": 912,
           "color": 3
@@ -2733,7 +2733,7 @@
       },
       {
         "parameters": {
-          "content": "## 📤 3. API: Upload File (Frontend)\nPermette agli utenti di caricare nuovi documenti direttamente dalla chat.\n\n- **Webhook POST**: Riceve il file in multipart/form-data.\n- **Upload to Drive**: Salva il file nella cartella specifica su Google Drive.\n- **Feedback**: Restituisce un messaggio di successo o errore al frontend.",
+          "content": "## \ud83d\udce4 3. API: Upload File (Frontend)\nPermette agli utenti di caricare nuovi documenti direttamente dalla chat.\n\n- **Webhook POST**: Riceve il file in multipart/form-data.\n- **Upload to Drive**: Salva il file nella cartella specifica su Google Drive.\n- **Feedback**: Restituisce un messaggio di successo o errore al frontend.",
           "height": 460,
           "width": 896,
           "color": 2
@@ -2749,7 +2749,7 @@
       },
       {
         "parameters": {
-          "content": "## 🤖 4. RAG Chat Agent (Core)\nIl cuore intelligente del sistema.\n\n- **Chat Trigger**: Attende messaggi dall'interfaccia utente.\n- **AI Agent**: Un agente LangChain che orchestra la conversazione.\n- **Retrieval Tool**: Usa Pinecone per cercare contesti rilevanti (Documenti, Corsi, Info aziendali) basati sulla domanda dell'utente.\n- **LLM**: (OpenRouter/OpenAI) Genera la risposta finale arricchita dai dati recuperati (Retrieval Augmented Generation).",
+          "content": "## \ud83e\udd16 4. RAG Chat Agent (Core)\nIl cuore intelligente del sistema.\n\n- **Chat Trigger**: Attende messaggi dall'interfaccia utente.\n- **AI Agent**: Un agente LangChain che orchestra la conversazione.\n- **Retrieval Tool**: Usa Pinecone per cercare contesti rilevanti (Documenti, Corsi, Info aziendali) basati sulla domanda dell'utente.\n- **LLM**: (OpenRouter/OpenAI) Genera la risposta finale arricchita dai dati recuperati (Retrieval Augmented Generation).",
           "height": 594,
           "width": 900,
           "color": 7
@@ -2868,7 +2868,7 @@
       },
       {
         "parameters": {
-          "content": "## 🔄 5. Auto Ingestion Pipeline\nQuesto flusso monitora automaticamente TUTTI i file modificati nelle cartelle RAG.\n\n- **Schedule Trigger**: Esegue ogni 5 minuti.\n- **Search Recent Files**: Cerca file modificati negli ultimi 10 minuti.\n- **Filter & Check**: Filtra solo file validi nelle cartelle RAG.\n- **Download → Extract → Prepare → Pinecone**: Processa e indicizza automaticamente.\n\n> ⚠️ Latenza: Fino a 5 minuti per rilevare nuovi file.",
+          "content": "## \ud83d\udd04 5. Auto Ingestion Pipeline\nQuesto flusso monitora automaticamente TUTTI i file modificati nelle cartelle RAG.\n\n- **Schedule Trigger**: Esegue ogni 5 minuti.\n- **Search Recent Files**: Cerca file modificati negli ultimi 10 minuti.\n- **Filter & Check**: Filtra solo file validi nelle cartelle RAG.\n- **Download \u2192 Extract \u2192 Prepare \u2192 Pinecone**: Processa e indicizza automaticamente.\n\n> \u26a0\ufe0f Latenza: Fino a 5 minuti per rilevare nuovi file.",
           "height": 1436,
           "width": 1428,
           "color": 5
@@ -3038,7 +3038,7 @@
       },
       {
         "parameters": {
-          "content": "## 🔍 6. API: RAG Query (Frontend)\nEndpoint chiamato dal frontend per effettuare query RAG sui documenti indicizzati.\n\n- **Webhook POST** (`/webhook/rag-query`): Riceve la query e il `folderId` dall’interfaccia chat.\n- **Get Folder Name**: Recupera il nome della cartella da Google Drive tramite API.\n- **Prepare Query**: Mappa la cartella al corretto indice Pinecone e prepara l’input per l’agente.\n- **AI Agent**: Un agente LangChain che cerca nei documenti rilevanti e genera la risposta.\n- **Response**: Restituisce un JSON con `answer` e `sources` al frontend.\n\n> ⚡ Chiamato da: `RAGChat.tsx` → `POST /webhook/rag-query`",
+          "content": "## \ud83d\udd0d 6. API: RAG Query (Frontend)\nEndpoint chiamato dal frontend per effettuare query RAG sui documenti indicizzati.\n\n- **Webhook POST** (`/webhook/rag-query`): Riceve la query e il `folderId` dall\u2019interfaccia chat.\n- **Get Folder Name**: Recupera il nome della cartella da Google Drive tramite API.\n- **Prepare Query**: Mappa la cartella al corretto indice Pinecone e prepara l\u2019input per l\u2019agente.\n- **AI Agent**: Un agente LangChain che cerca nei documenti rilevanti e genera la risposta.\n- **Response**: Restituisce un JSON con `answer` e `sources` al frontend.\n\n> \u26a1 Chiamato da: `RAGChat.tsx` \u2192 `POST /webhook/rag-query`",
           "height": 932,
           "width": 2088,
           "color": 6
@@ -3433,7 +3433,7 @@
           96
         ],
         "parameters": {
-          "content": "## Google Drive Webhook Pipeline (FASE 2)\n\n**Real-time ingestion** quando file vengono caricati/modificati nelle cartelle RAG Database.\n\n### Come Funziona:\n1. Google Drive invia notifica push a webhook\n2. Parser estrae info (folder ID, change type)\n3. Trigger flusso esistente di ingestion\n\n### Configurazione Iniziale:\n1. Eseguire manualmente \"Prepare Watch Setup Data\" → \"Setup Drive Watch\"\n2. Prima esecuzione: sostituire REPLACE_WITH_ACTUAL_ID con folder IDs reali\n3. Salvare resourceId dalla response nel nodo \"Prepare Watch Renewal Data\"\n\n### Manutenzione:\nSchedule automatico ogni 20h rinnova watch token (scade ogni 24h)",
+          "content": "## Google Drive Webhook Pipeline (FASE 2)\n\n**Real-time ingestion** quando file vengono caricati/modificati nelle cartelle RAG Database.\n\n### Come Funziona:\n1. Google Drive invia notifica push a webhook\n2. Parser estrae info (folder ID, change type)\n3. Trigger flusso esistente di ingestion\n\n### Configurazione Iniziale:\n1. Eseguire manualmente \"Prepare Watch Setup Data\" \u2192 \"Setup Drive Watch\"\n2. Prima esecuzione: sostituire REPLACE_WITH_ACTUAL_ID con folder IDs reali\n3. Salvare resourceId dalla response nel nodo \"Prepare Watch Renewal Data\"\n\n### Manutenzione:\nSchedule automatico ogni 20h rinnova watch token (scade ogni 24h)",
           "height": 480,
           "width": 420
         }
@@ -3539,7 +3539,7 @@
           ]
         ]
       },
-      "When clicking ‘Execute workflow’": {
+      "When clicking \u2018Execute workflow\u2019": {
         "main": [
           [
             {
