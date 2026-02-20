@@ -704,13 +704,43 @@ async function handleSubmit(event) {
   showState('loading');
 
   // Prepare data
+
+  // Determine account BEFORE building the payload:
+  // - Non-admin users (e.g. job_courier): account is already known from login → read loginName from session
+  // - Admin users: account depends on the dropdown selection made on the form → read from accountSelect
+  let accountValue = null;
+  try {
+    const userJson = localStorage.getItem('bloom_user');
+    if (userJson) {
+      const user = JSON.parse(userJson);
+      const loginName = (user.loginName || '').toLowerCase().trim();
+      const username = (user.username || '').toLowerCase().trim();
+      const email = (user.email || '').toLowerCase().trim();
+      const isAdmin = loginName === 'admin'
+        || email.endsWith('@blc-sa.ch')
+        || username === 'admin'
+        || username === 'admin user'
+        || username === 'adminuser';
+
+      if (isAdmin) {
+        // Admin chooses the account from the dropdown (set after page load)
+        accountValue = elements.accountSelect?.value || null;
+      } else {
+        // Non-admin: account name is the login identifier (loginName), known before payload
+        accountValue = loginName || username || null;
+      }
+    }
+  } catch (e) {
+    console.error('[CaptionFlow] Error determining account:', e);
+  }
+
   const referenceLink = elements.linkInput ? elements.linkInput.value.trim() : '';
   const data = {
     Topic: elements.ideaInput.value.trim(),
     Platform: elements.socialSelect.value,
     Audience: elements.audienceSelect.value,
     Voice: elements.toneSelect.value,
-    Account: (elements.accountSelectContainer && !elements.accountSelectContainer.classList.contains('hidden')) ? elements.accountSelect.value : null,
+    Account: accountValue,
     ReferenceLink: referenceLink || null,
     format: elements.formatToggle && elements.formatToggle.checked ? 'video' : 'image',
     timestamp: new Date().toISOString(),
