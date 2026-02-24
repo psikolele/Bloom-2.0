@@ -722,8 +722,10 @@ async function handleSubmit(event) {
         || username === 'admin user'
         || username === 'adminuser';
 
-      if (isAdmin) {
-        // Admin chooses the account from the dropdown (set after page load)
+      const isLimitedAdmin = loginName === 'webstoreplus' || username === 'webstoreplus';
+
+      if (isAdmin || isLimitedAdmin) {
+        // Admin/limited-admin chooses the account from the dropdown (set after page load)
         accountValue = elements.accountSelect?.value || null;
       } else {
         // Non-admin: account name is the login identifier (loginName), known before payload
@@ -887,6 +889,19 @@ function init() {
       if (isAdmin) {
         elements.accountSelectContainer?.classList.remove('hidden');
         console.log('Admin detected — Account Selection enabled');
+      } else if (loginName === 'webstoreplus' || username === 'webstoreplus') {
+        // Filtra il dropdown: mostra solo Foot_Easy e Walmoss Interior Design
+        const allowedValues = ['Foot_Easy', 'walmoss_interior_design'];
+        const selectEl = elements.accountSelect;
+        if (selectEl) {
+          Array.from(selectEl.options).forEach(opt => {
+            if (opt.value && !allowedValues.includes(opt.value)) {
+              selectEl.removeChild(opt);
+            }
+          });
+        }
+        elements.accountSelectContainer?.classList.remove('hidden');
+        console.log('WebstorePlus detected — Limited Account Selection enabled (Foot_Easy + Walmoss)');
       }
     }
   } catch (e) {
