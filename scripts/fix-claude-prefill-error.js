@@ -1,26 +1,29 @@
 #!/usr/bin/env node
 /**
- * fix-claude-tool-use-ids.js
+ * fix-claude-prefill-error.js
  *
  * Patch per Claude Code CLI (v2.x) che aggiunge la gestione dell'errore:
  *   API Error: 400 {"type":"error","error":{"type":"invalid_request_error",
- *              "message":"messages.N.content.M: tool_use ids must be unique"}}
+ *              "message":"This model does not support assistant message prefill.
+ *               The conversation must end with a user message."}}
  *
  * PROBLEMA:
- *   L'API Anthropic rifiuta la richiesta quando la cronologia della
- *   conversazione contiene due blocchi tool_use con lo stesso ID.
- *   Questo accade quando Claude Code accumula messaggi duplicati nella
- *   sessione (es. dopo retry, compaction o errori di concorrenza).
+ *   L'API Anthropic rifiuta la richiesta quando l'array messages termina
+ *   con un messaggio di ruolo "assistant" anziché "user".
+ *   Questo accade quando Claude Code accumula messaggi durante una sessione
+ *   lunga: dopo un blocco tool_use completato, il cursore interno può
+ *   risultare su un messaggio assistant, e il successivo invio all'API
+ *   include quel trailing assistant message che alcuni modelli non accettano
+ *   in modalità prefill.
  *
  * SOLUZIONE:
  *   Aggiunge un handler specifico che:
- *   1. Scansiona l'array messages inviato all'API
- *   2. Individua gli ID tool_use duplicati
- *   3. Rimuove i blocchi duplicati (tool_use + relativi tool_result)
- *   4. Mostra un messaggio utile suggerendo di riprovare
+ *   1. Intercetta l'errore 400 con messaggio "does not support assistant message prefill"
+ *   2. Rimuove automaticamente i messaggi assistant in coda da K.messagesForAPI e K.messages
+ *   3. Mostra un messaggio chiaro suggerendo di riprovare
  *
  * UTILIZZO:
- *   node scripts/fix-claude-tool-use-ids.js
+ *   node scripts/fix-claude-prefill-error.js
  *
  * Da ri-eseguire dopo ogni aggiornamento di Claude Code.
  */
@@ -40,22 +43,15 @@ const TARGET = 'if(A instanceof Z4&&A.status===400&&A.message.includes("unexpect
 
 // Nuovo handler da inserire PRIMA del target
 const NEW_HANDLER = [
-  'if(A instanceof Z4&&A.status===400&&A.message.includes("tool_use ids must be unique")){',
+  'if(A instanceof Z4&&A.status===400&&A.message.includes("does not support assistant message prefill")){',
   'if(K?.messagesForAPI){',
-  'let Y=new Set,z=new Set;',
-  'for(let w of K.messagesForAPI)',
-  'if(w.role==="assistant"&&Array.isArray(w.content))',
-  'for(let H of w.content)',
-  'if(H.type==="tool_use"&&H.id){',
-  'if(Y.has(H.id))z.add(H.id);else Y.add(H.id)}',
-  'if(z.size>0)',
-  'for(let w of K.messagesForAPI)',
-  'if(Array.isArray(w.content))',
-  'w.content=w.content.filter((H)=>',
-  '!(H.type==="tool_use"&&z.has(H.id))&&',
-  '!(H.type==="tool_result"&&z.has(H.tool_use_id)))}',
+  'while(K.messagesForAPI.length>0&&K.messagesForAPI[K.messagesForAPI.length-1].role==="assistant")',
+  'K.messagesForAPI.pop()}',
+  'if(K?.messages){',
+  'while(K.messages.length>0&&K.messages[K.messages.length-1].role==="assistant")',
+  'K.messages.pop()}',
   'let Y=i7()?"":" Run /rewind to recover the conversation.";',
-  'return CY({content:"API Error: 400 due to duplicate tool_use IDs in conversation history. The conversation has been cleaned up - please retry your last message."+Y,error:"invalid_request"})}',
+  'return CY({content:"API Error: 400 - This model does not support assistant message prefill. Trailing assistant messages have been removed from conversation history - please retry your last message."+Y,error:"invalid_request"})}',
 ].join('');
 
 let cliPath = null;
@@ -77,7 +73,7 @@ console.log(`Trovato cli.js: ${cliPath}`);
 let content = readFileSync(cliPath, 'utf-8');
 
 // Controlla se la patch è già applicata
-if (content.includes('tool_use ids must be unique')) {
+if (content.includes('does not support assistant message prefill')) {
   console.log('✓ La patch è già applicata. Nessuna modifica necessaria.');
   process.exit(0);
 }
@@ -94,8 +90,8 @@ writeFileSync(cliPath, patched, 'utf-8');
 
 console.log('✓ Patch applicata con successo!');
 console.log('');
-console.log('FIX: Aggiunto handler per "tool_use ids must be unique"');
-console.log('  - Deduplicazione automatica degli ID tool_use duplicati');
+console.log('FIX: Aggiunto handler per "does not support assistant message prefill"');
+console.log('  - Rimozione automatica dei messaggi assistant in coda alla cronologia');
 console.log('  - Messaggio utente chiaro con suggerimento di retry');
 console.log('');
 console.log('Riavvia Claude Code per applicare le modifiche.');
