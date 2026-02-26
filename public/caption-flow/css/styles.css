@@ -1418,6 +1418,26 @@ body {
   background-position: right 12px center;
   background-size: 18px;
 }
+/* ==================== FORMAT SELECT ==================== */
+.format-select {
+  background: rgba(255, 107, 53, 0.06) !important;
+  border: 1px solid rgba(255, 107, 53, 0.35) !important;
+  box-shadow: 0 0 0 1px rgba(255, 107, 53, 0.08);
+}
+
+.format-select:hover {
+  background: rgba(255, 107, 53, 0.09) !important;
+  border-color: rgba(255, 107, 53, 0.55) !important;
+}
+
+.format-select:focus {
+  border-color: var(--accent-primary) !important;
+  background: rgba(255, 107, 53, 0.10) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15), 0 0 20px rgba(255, 107, 53, 0.15) !important;
+  outline: none;
+}
+
+
 
 /* -------------------- Toggle Switch -------------------- */
 .toggle-container {

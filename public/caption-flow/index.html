@@ -152,17 +152,18 @@
           </div>
 
 
-          <!-- Format Toggle -->
+          <!-- Format Select -->
           <div class="form-group">
-            <label class="form-label" for="formatToggle">FORMATO *</label>
-            <div class="toggle-container">
-              <label class="toggle-switch">
-                <input type="checkbox" id="formatToggle" class="toggle-input">
-                <span class="toggle-slider">
-                  <span class="toggle-label image">Image</span>
-                  <span class="toggle-label video">Video</span>
-                </span>
-              </label>
+            <label class="form-label" for="formatSelect">FORMATO *</label>
+            <div class="select-wrapper">
+              <select id="formatSelect" class="tech-select format-select" name="format">
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+              </select>
+              <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
           </div>
 
