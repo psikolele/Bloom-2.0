@@ -126,20 +126,15 @@ except Exception as e:
     sys.exit(1)
 
 # Build the payload that N8N API expects for PUT /workflows/{id}
-payload = {
-    "name": wf.get("name", "Caption Flow V.2"),
-    "nodes": wf.get("nodes", []),
-    "connections": wf.get("connections", {}),
-    "settings": wf.get("settings", {
-        "executionOrder": "v1",
-        "saveDataErrorExecution": "all",
-        "saveDataSuccessExecution": "all",
-        "saveExecutionProgress": True,
-        "saveManualExecutions": True,
-        "timezone": "Europe/Rome",
-    }),
-    "staticData": wf.get("staticData", None),
+# Keys accepted by the N8N PUT /workflows/{id} API
+ALLOWED = {
+    "callerPolicy", "errorWorkflow", "executionOrder",
+    "saveDataErrorExecution", "saveDataSuccessExecution",
+    "saveExecutionProgress", "saveManualExecutions", "timezone",
 }
+
+raw_settings = wf.get("settings", {})
+settings = {k: v for k, v in raw_settings.items() if k in ALLOWED}
 
 # Merge in safe defaults for settings
 defaults = {
@@ -150,7 +145,15 @@ defaults = {
     "timezone": "Europe/Rome",
 }
 for k, v in defaults.items():
-    payload["settings"].setdefault(k, v)
+    settings.setdefault(k, v)
+
+payload = {
+    "name": wf.get("name", "Caption Flow V.2"),
+    "nodes": wf.get("nodes", []),
+    "connections": wf.get("connections", {}),
+    "settings": settings,
+    "staticData": wf.get("staticData", None),
+}
 
 print(json.dumps(payload))
 PYEOF
