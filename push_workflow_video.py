@@ -86,9 +86,24 @@ def build_payload(workflow_data: dict) -> dict:
     Build the API payload from the workflow data.
 
     Extracts nodes, connections, settings, and name. Merges sensible
-    defaults into settings.
+    defaults into settings.  Only whitelisted settings keys are sent to
+    avoid HTTP 400 "must NOT have additional properties" from the N8N API.
     """
-    settings = workflow_data.get("settings", {})
+    raw_settings = workflow_data.get("settings", {})
+
+    # Keys accepted by the N8N PUT /workflows/{id} API
+    ALLOWED_SETTINGS = {
+        "callerPolicy",
+        "errorWorkflow",
+        "executionOrder",
+        "saveDataErrorExecution",
+        "saveDataSuccessExecution",
+        "saveExecutionProgress",
+        "saveManualExecutions",
+        "timezone",
+    }
+
+    settings = {k: v for k, v in raw_settings.items() if k in ALLOWED_SETTINGS}
 
     # Merge defaults (don't overwrite what the file already has)
     setting_defaults = {
