@@ -77,7 +77,7 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
         <div className="rag-upload-card">
             <div className="rag-header">
                 <div className="rag-icon">
-                    <FileUp size={20} color="#a78bfa" />
+                    <FileUp size={20} color="#FF6B35" />
                 </div>
                 <h3>Quick RAG Upload</h3>
             </div>
@@ -114,7 +114,7 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
                 ) : (
                 <div className="rag-input-group">
                     <label><Folder size={14} /> Database</label>
-                    <span style={{ fontSize: '0.85rem', color: '#a78bfa', padding: '0.25rem 0', display: 'block' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#FF9B75', padding: '0.25rem 0', display: 'block' }}>
                         {folders[0]?.name ?? ''}
                     </span>
                 </div>

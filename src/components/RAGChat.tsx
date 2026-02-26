@@ -88,15 +88,16 @@ const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId, username, 
         <div className="rag-chat-card">
             <div className="rag-chat-header">
                 <div className="rag-icon">
-                    <MessageSquare size={20} color="#a78bfa" />
+                    <MessageSquare size={20} color="#FF6B35" />
                 </div>
                 <h3>RAG Chat</h3>
                 {selectedFolderName && (
                     <span style={{
                         fontSize: '0.7rem',
-                        color: '#a78bfa',
+                        color: '#FF9B75',
                         marginLeft: 'auto',
                         opacity: 0.7,
+                        fontFamily: "'Space Grotesk', monospace",
                     }}>
                         {selectedFolderName}
                     </span>
@@ -109,11 +110,11 @@ const RAGChat: React.FC<RAGChatProps> = ({ folders, selectedFolderId, username, 
                     <p>Ask questions about your uploaded documents</p>
                     {!selectedFolderId && (
                         !isAdmin ? (
-                            <p style={{ color: '#a78bfa', fontSize: '0.75rem' }}>
+                            <p style={{ color: '#FF9B75', fontSize: '0.75rem' }}>
                                 Nessun database RAG configurato. Contatta l&apos;amministratore.
                             </p>
                         ) : (
-                            <p style={{ color: '#a78bfa', fontSize: '0.75rem' }}>
+                            <p style={{ color: '#FF9B75', fontSize: '0.75rem' }}>
                                 Select a folder first
                             </p>
                         )

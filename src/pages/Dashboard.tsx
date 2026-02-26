@@ -224,7 +224,13 @@ export default function Dashboard() {
                 />
 
                 {/* RAG Section - Upload + Chat side by side */}
-                <div className="md:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="md:col-span-3 mt-4 animate-reveal" style={{ animationDelay: '0.4s' }}>
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        <h2 className="text-sm font-mono font-bold text-gray-500 uppercase tracking-[0.2em]">Knowledge Base</h2>
+                        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <RAGUpload
                         folders={folders}
                         selectedFolderId={selectedFolderId}
@@ -240,6 +246,7 @@ export default function Dashboard() {
                         username={currentUser?.username ?? ''}
                         isAdmin={isAdmin}
                     />
+                    </div>
                 </div>
             </main>
 
