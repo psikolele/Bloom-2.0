@@ -18,7 +18,9 @@ Usage:
 
 import json
 import os
+import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -124,6 +126,81 @@ def build_payload(workflow_data: dict) -> dict:
     }
 
 
+CHANGELOG_NODE_NAME = "📋 CHANGELOG"
+CHANGELOG_COLOR = 4   # blue in n8n sticky note palette
+CHANGELOG_POSITION = [-1260, -220]
+CHANGELOG_WIDTH = 580
+CHANGELOG_HEIGHT = 460
+
+
+def _git_log(n: int = 8) -> list[str]:
+    """Return last n git commit messages (oneline format). Returns [] on failure."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(PROJECT_ROOT), "log", f"-{n}", "--pretty=format:%ad %s", "--date=short"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return [line for line in result.stdout.splitlines() if line.strip()]
+    except Exception:
+        pass
+    return []
+
+
+def inject_changelog(workflow_data: dict) -> None:
+    """
+    Create or update the CHANGELOG sticky note inside workflow_data (in-place).
+
+    The note is rebuilt on every deploy with:
+      - current date/time
+      - last N git commits as bullet list
+    """
+    deploy_ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    commits = _git_log(8)
+
+    if commits:
+        bullet_list = "\n".join(f"- {c}" for c in commits)
+        changes_section = f"### Ultimi commit\n{bullet_list}"
+    else:
+        changes_section = "_Nessun dato git disponibile_"
+
+    content = (
+        f"## 📋 Changelog — Caption Flow V3\n\n"
+        f"**Ultimo deploy:** {deploy_ts}\n\n"
+        f"**File sorgente:** `Caption_Flow_V3_VIDEO_MOD.json`\n\n"
+        f"---\n\n"
+        f"{changes_section}"
+    )
+
+    nodes: list = workflow_data.setdefault("nodes", [])
+
+    # Find existing changelog node (by name)
+    existing = next((n for n in nodes if n.get("name") == CHANGELOG_NODE_NAME), None)
+
+    if existing:
+        existing["parameters"]["content"] = content
+        existing["parameters"]["height"] = CHANGELOG_HEIGHT
+        existing["parameters"]["width"] = CHANGELOG_WIDTH
+        existing["parameters"]["color"] = CHANGELOG_COLOR
+    else:
+        import uuid
+        nodes.append({
+            "id": str(uuid.uuid4()),
+            "name": CHANGELOG_NODE_NAME,
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": CHANGELOG_POSITION,
+            "parameters": {
+                "content": content,
+                "height": CHANGELOG_HEIGHT,
+                "width": CHANGELOG_WIDTH,
+                "color": CHANGELOG_COLOR,
+            },
+        })
+
+
 def push_workflow(dry_run: bool = False) -> None:
     """Main entry point: load, build, and deploy the workflow."""
     # --- API key ---
@@ -138,6 +215,10 @@ def push_workflow(dry_run: bool = False) -> None:
 
     # --- Load workflow ---
     workflow_data = load_workflow()
+
+    # Inject/update changelog sticky note before building payload
+    inject_changelog(workflow_data)
+
     payload = build_payload(workflow_data)
 
     node_count = len(payload.get("nodes", []))
