@@ -89,8 +89,6 @@ def build_payload(workflow_data: dict) -> dict:
     defaults into settings.  Only whitelisted settings keys are sent to
     avoid HTTP 400 "must NOT have additional properties" from the N8N API.
     """
-    raw_settings = workflow_data.get("settings", {})
-
     # Keys accepted by the N8N PUT /workflows/{id} API
     ALLOWED_SETTINGS = {
         "callerPolicy",
@@ -103,6 +101,7 @@ def build_payload(workflow_data: dict) -> dict:
         "timezone",
     }
 
+    raw_settings = workflow_data.get("settings", {})
     settings = {k: v for k, v in raw_settings.items() if k in ALLOWED_SETTINGS}
 
     # Merge defaults (don't overwrite what the file already has)
