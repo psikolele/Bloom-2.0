@@ -50,7 +50,7 @@ const elements = {
   // Progress Elements
   progressSteps: document.querySelectorAll('.progress-step'),
   progressLines: document.querySelectorAll('.progress-line'),
-  formatToggle: document.getElementById('formatToggle')
+  formatSelect: document.getElementById('formatSelect')
 };
 
 // ============================================
@@ -461,7 +461,7 @@ function showState(stateName, data = null) {
       elements.submitBtn.disabled = true;
 
       // Check format and update message accordingly
-      const isVideoFormat = elements.formatToggle && elements.formatToggle.checked;
+      const isVideoFormat = elements.formatSelect?.value === 'video';
       updateLoadingMessage(isVideoFormat);
 
       // Start Snake game and progress
@@ -632,7 +632,7 @@ function resetForm() {
   elements.socialSelect.value = '';
   elements.toneSelect.value = '';
   elements.audienceSelect.value = '';
-  if (elements.formatToggle) elements.formatToggle.checked = false; // Reset to Image
+  if (elements.formatSelect) elements.formatSelect.value = 'image'; // Reset to Image
   showState('form');
   elements.ideaInput.focus();
 }
@@ -744,7 +744,7 @@ async function handleSubmit(event) {
     Voice: elements.toneSelect.value,
     Account: accountValue,
     ReferenceLink: referenceLink || null,
-    format: elements.formatToggle && elements.formatToggle.checked ? 'video' : 'image',
+    format: elements.formatSelect?.value || 'image',
     timestamp: new Date().toISOString(),
     source: 'CaptionFlow Web App'
   };

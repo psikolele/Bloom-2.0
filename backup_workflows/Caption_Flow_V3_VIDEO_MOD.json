@@ -74,7 +74,8 @@
                 32,
                 880
             ],
-            "typeVersion": 1.5
+            "typeVersion": 1.5,
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -132,7 +133,8 @@
                 784,
                 880
             ],
-            "typeVersion": 1.5
+            "typeVersion": 1.5,
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -190,7 +192,8 @@
                 -896,
                 1792
             ],
-            "typeVersion": 1.5
+            "typeVersion": 1.5,
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -389,7 +392,8 @@
                     "id": "VcArlZlpyjQDbJj5",
                     "name": "Google Sheets Didattica BLC"
                 }
-            }
+            },
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -527,7 +531,8 @@
                     "id": "FxDfGS3rzEZsvGhj",
                     "name": "Kie AI (Nano Banana)"
                 }
-            }
+            },
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -572,7 +577,8 @@
                     "id": "FxDfGS3rzEZsvGhj",
                     "name": "Kie AI (Nano Banana)"
                 }
-            }
+            },
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -605,7 +611,8 @@
             "position": [
                 736,
                 1792
-            ]
+            ],
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -651,13 +658,14 @@
             "position": [
                 1552,
                 1856
-            ]
+            ],
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
                 "operation": "sendAndWait",
                 "fromEmail": "serra.emanuele09@gmail.com",
-                "toEmail": "serra.emanuele09@gmail.com",
+                "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first().json.body.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
                 "subject": "=✅ Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
                 "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">⏰</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verrà pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">♡</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">○</td>\n          <td style=\"font-size: 26px; line-height: 1;\">⊳</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post • Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">📌 Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>ℹ️ Come funziona:</strong><br>\n      • <strong>PUBBLICA</strong> → Post online immediatamente<br>\n      • <strong>RIFIUTA</strong> → Post NON verrà mai pubblicato<br>\n      • <strong>Nessuna azione</strong> → Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
                 "approvalOptions": {
@@ -846,7 +854,8 @@
                     "id": "VcArlZlpyjQDbJj5",
                     "name": "Google Sheets Didattica BLC"
                 }
-            }
+            },
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -948,7 +957,8 @@
                 128
             ],
             "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
-            "name": "Text to Video2"
+            "name": "Text to Video2",
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -990,7 +1000,8 @@
             "name": "Get Video4",
             "retryOnFail": true,
             "maxTries": 3,
-            "waitBetweenTries": 2000
+            "waitBetweenTries": 2000,
+            "onError": "continueErrorOutput"
         },
         {
             "parameters": {
@@ -1167,6 +1178,52 @@
             ],
             "id": "kie-api-error-respond",
             "name": "Kie API Error"
+        },
+        {
+            "parameters": {
+                "fromEmail": "serra.emanuele09@gmail.com",
+                "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first()?.json?.body?.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
+                "subject": "=❌ Errore Caption Flow – {{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }} – {{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}",
+                "message": "=<div style='font-family:Arial,sans-serif;padding:20px;background:#fff3f3;border-left:4px solid #dc2626;max-width:600px'><h2 style='color:#dc2626;margin-top:0'>❌ Errore nel workflow Caption Flow</h2><table style='border-collapse:collapse;width:100%;font-size:14px'><tr style='border-bottom:1px solid #fca5a5'><td style='padding:8px 12px;font-weight:bold;width:30%;color:#7f1d1d'>Motivo</td><td style='padding:8px 12px'>{{ $execution.error?.message || 'Vedi log n8n per dettagli' }}</td></tr><tr style='border-bottom:1px solid #fca5a5;background:#fff7f7'><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Nodo</td><td style='padding:8px 12px'>{{ $execution.error?.node?.name || 'N/A' }}</td></tr><tr style='border-bottom:1px solid #fca5a5'><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Account</td><td style='padding:8px 12px'>{{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }}</td></tr><tr style='border-bottom:1px solid #fca5a5;background:#fff7f7'><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Topic</td><td style='padding:8px 12px'>{{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}</td></tr><tr><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Timestamp</td><td style='padding:8px 12px'>{{ new Date().toISOString() }}</td></tr></table><p style='margin-top:16px;font-size:12px;color:#991b1b'>Workflow: Caption Flow V3 – Controlla il pannello n8n per maggiori dettagli.</p></div>",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2.1,
+            "position": [
+                1300,
+                2200
+            ],
+            "id": "invia-email-errore",
+            "name": "Invia Email Errore",
+            "credentials": {
+                "smtp": {
+                    "id": "3jxHADCw51qvxr54",
+                    "name": "SMTP Gmail Serra Personal"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "fromEmail": "serra.emanuele09@gmail.com",
+                "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first()?.json?.body?.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
+                "subject": "=❌ Kie API Error (code: {{ $json.code }}) – Caption Flow",
+                "message": "=<div style='font-family:Arial,sans-serif;padding:20px;background:#fff3f3;border-left:4px solid #dc2626;max-width:600px'><h2 style='color:#dc2626;margin-top:0'>❌ Errore Kie AI – Codice {{ $json.code }}</h2><table style='border-collapse:collapse;width:100%;font-size:14px'><tr style='border-bottom:1px solid #fca5a5'><td style='padding:8px 12px;font-weight:bold;width:30%;color:#7f1d1d'>Motivo</td><td style='padding:8px 12px'>{{ $json.msg || 'Crediti esauriti o errore API Kie' }}</td></tr><tr style='border-bottom:1px solid #fca5a5;background:#fff7f7'><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Codice errore</td><td style='padding:8px 12px'>{{ $json.code }}</td></tr><tr style='border-bottom:1px solid #fca5a5'><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Account</td><td style='padding:8px 12px'>{{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }}</td></tr><tr style='border-bottom:1px solid #fca5a5;background:#fff7f7'><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Topic</td><td style='padding:8px 12px'>{{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}</td></tr><tr><td style='padding:8px 12px;font-weight:bold;color:#7f1d1d'>Timestamp</td><td style='padding:8px 12px'>{{ new Date().toISOString() }}</td></tr></table><p style='margin-top:16px;font-size:12px;color:#991b1b'>Possibili cause: crediti Kie esauriti (402), errore autenticazione, servizio non disponibile.</p></div>",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2.1,
+            "position": [
+                -300,
+                1950
+            ],
+            "id": "email-errore-kie",
+            "name": "Email Errore Kie",
+            "credentials": {
+                "smtp": {
+                    "id": "3jxHADCw51qvxr54",
+                    "name": "SMTP Gmail Serra Personal"
+                }
+            }
         }
     ],
     "connections": {
@@ -1255,6 +1312,13 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         },
@@ -1263,6 +1327,13 @@
                 [
                     {
                         "node": "3c. Generate Post Caption (Gemini)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
                         "type": "main",
                         "index": 0
                     }
@@ -1293,6 +1364,13 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         },
@@ -1315,6 +1393,13 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         },
@@ -1323,6 +1408,13 @@
                 [
                     {
                         "node": "7. Update Post Status in Sheet",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
                         "type": "main",
                         "index": 0
                     }
@@ -1339,6 +1431,13 @@
                     },
                     {
                         "node": "Check via Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
                         "type": "main",
                         "index": 0
                     }
@@ -1426,6 +1525,13 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         },
@@ -1445,6 +1551,13 @@
                 [
                     {
                         "node": "If4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
                         "type": "main",
                         "index": 0
                     }
@@ -1528,6 +1641,13 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         },
@@ -1551,6 +1671,41 @@
                         "index": 0
                     }
                 ],
+                [
+                    {
+                        "node": "Email Errore Kie",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Salva su Google Sheets": {
+            "main": [
+                [],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "7. Update Post Status in Sheet": {
+            "main": [
+                [],
+                [
+                    {
+                        "node": "Invia Email Errore",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Email Errore Kie": {
+            "main": [
                 [
                     {
                         "node": "Kie API Error",
