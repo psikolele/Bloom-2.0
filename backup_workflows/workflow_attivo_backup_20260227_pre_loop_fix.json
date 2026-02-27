@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-27T19:01:27.938Z",
+  "updatedAt": "2026-02-27T18:49:29.543Z",
   "createdAt": "2026-01-24T14:57:05.530Z",
   "id": "oRYSQ9tk63yPJaqt",
   "name": "Caption Flow V.2",
@@ -1293,40 +1293,6 @@
       ],
       "id": "check-task-created-node",
       "name": "Check Task Created"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "video-still-processing-001",
-              "leftValue": "={{ ($json.data?.state === 'waiting' || $json.data?.state === 'processing') && (Date.now() - new Date($('CaptionFlow Webhook').first().json.body?.timestamp).getTime()) < 600000 }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1984,
-        280
-      ],
-      "id": "video-still-processing-node",
-      "name": "Video Still Processing?"
     }
   ],
   "connections": {
@@ -1678,7 +1644,7 @@
         ],
         [
           {
-            "node": "Video Still Processing?",
+            "node": "Wait4",
             "type": "main",
             "index": 0
           }
@@ -1835,24 +1801,6 @@
           }
         ]
       ]
-    },
-    "Video Still Processing?": {
-      "main": [
-        [
-          {
-            "node": "Wait4",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Invia Email Errore",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "settings": {
@@ -1920,10 +1868,32 @@
       }
     ]
   },
-  "versionId": "1be50d1e-083e-40ed-a1cd-a692e11d4914",
-  "activeVersionId": "1be50d1e-083e-40ed-a1cd-a692e11d4914",
-  "versionCounter": 347,
+  "versionId": "ed248456-101b-474d-85d1-2f8447ee5d98",
+  "activeVersionId": "022620c9-2401-4f45-93ee-1c39d02f05ed",
+  "versionCounter": 346,
   "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-25T14:43:43.896Z",
+      "createdAt": "2026-01-25T14:43:43.896Z",
+      "role": "workflow:owner",
+      "workflowId": "oRYSQ9tk63yPJaqt",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null
+      }
+    }
+  ],
   "tags": [
     {
       "updatedAt": "2025-12-13T21:46:23.115Z",
@@ -1939,9 +1909,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-02-27T19:01:27.940Z",
-    "createdAt": "2026-02-27T19:01:27.940Z",
-    "versionId": "1be50d1e-083e-40ed-a1cd-a692e11d4914",
+    "updatedAt": "2026-02-27T18:36:02.000Z",
+    "createdAt": "2026-02-27T18:35:59.684Z",
+    "versionId": "022620c9-2401-4f45-93ee-1c39d02f05ed",
     "workflowId": "oRYSQ9tk63yPJaqt",
     "nodes": [
       {
@@ -2890,8 +2860,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1296,
-          96
+          1312,
+          80
         ],
         "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
         "name": "Text to Video2",
@@ -3062,7 +3032,7 @@
             "conditions": [
               {
                 "id": "a5599508-1194-41b5-956d-4092758847d4",
-                "leftValue": "={{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Format }}",
+                "leftValue": "={{ $json.Format }}",
                 "rightValue": "video",
                 "operator": {
                   "type": "string",
@@ -3080,8 +3050,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          448,
-          848
+          368,
+          800
         ]
       },
       {
@@ -3225,45 +3195,11 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1488,
-          32
+          1536,
+          80
         ],
         "id": "check-task-created-node",
         "name": "Check Task Created"
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "options": {
-              "caseSensitive": true,
-              "leftValue": "",
-              "typeValidation": "loose",
-              "version": 2
-            },
-            "conditions": [
-              {
-                "id": "video-still-processing-001",
-                "leftValue": "={{ ($json.data?.state === 'waiting' || $json.data?.state === 'processing') && (Date.now() - new Date($('CaptionFlow Webhook').first().json.body?.timestamp).getTime()) < 600000 }}",
-                "rightValue": true,
-                "operator": {
-                  "type": "boolean",
-                  "operation": "true",
-                  "singleValue": true
-                }
-              }
-            ],
-            "combinator": "and"
-          },
-          "options": {}
-        },
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2.2,
-        "position": [
-          1984,
-          280
-        ],
-        "id": "video-still-processing-node",
-        "name": "Video Still Processing?"
       }
     ],
     "connections": {
@@ -3615,7 +3551,7 @@
           ],
           [
             {
-              "node": "Video Still Processing?",
+              "node": "Wait4",
               "type": "main",
               "index": 0
             }
@@ -3772,29 +3708,21 @@
             }
           ]
         ]
-      },
-      "Video Still Processing?": {
-        "main": [
-          [
-            {
-              "node": "Wait4",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "Invia Email Errore",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
       }
     },
     "authors": "Emanule Serra",
-    "name": null,
-    "description": null,
-    "autosaved": false
+    "name": "Version 022620c9",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-27T18:36:02.901Z",
+        "id": 705,
+        "workflowId": "oRYSQ9tk63yPJaqt",
+        "versionId": "022620c9-2401-4f45-93ee-1c39d02f05ed",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
   }
 }
