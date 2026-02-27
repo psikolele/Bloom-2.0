@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-27T19:01:27.938Z",
+  "updatedAt": "2026-02-27T22:01:33.304Z",
   "createdAt": "2026-01-24T14:57:05.530Z",
   "id": "oRYSQ9tk63yPJaqt",
   "name": "Caption Flow V.2",
@@ -49,8 +49,8 @@
       "name": "2. Prepare Input Variables (Topic, Audience, etc.)",
       "type": "n8n-nodes-base.set",
       "position": [
-        -432,
-        880
+        -336,
+        864
       ],
       "typeVersion": 3.4
     },
@@ -430,7 +430,7 @@
       "parameters": {
         "content": "# 02. Image Prompt Elaboration & Options\n\n**Purpose:** Takes the generated content concept and expands on it to create **two distinct, detailed image generation prompts**. These prompts are optimized for the target platform and suitable for AI image generators like Replicate Flux.\n\n**Input (from Nodes '2. Prepare Input Variables' & '3a. Generate Content Concept'):**\n*   `ChosenIdea` (string: Concept from step 3a)\n*   `OriginalTopic` (string)\n*   `TargetAudience` (string)\n*   `BrandVoice` (string)\n*   `Platform` (string: 'Instagram')\n\n**Output (JSON):**\n*   `{\"expanded_post_concept\": \"Elaborated concept description...\", \"prompt_options\": [{\"option_description\": \"Option 1: ...\", \"prompts\": [\"Detailed prompt 1...\"]}, {\"option_description\": \"Option 2: ...\", \"prompts\": [\"Detailed prompt 2...\"]}]}`\n",
         "height": 740,
-        "width": 740,
+        "width": 868,
         "color": 2
       },
       "id": "4a32312f-935f-49c9-bb6a-bc149c40411a",
@@ -501,8 +501,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        -928,
-        880
+        -832,
+        864
       ],
       "id": "99906da2-e7f2-4680-a256-c9fb1e00a305",
       "webhookId": "9b0d093c-19f2-4179-8440-c4497df022e0"
@@ -736,8 +736,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -656,
-        640
+        -560,
+        624
       ]
     },
     {
@@ -846,8 +846,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -368,
-        640
+        -272,
+        624
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -933,8 +933,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        736,
-        80
+        688,
+        -256
       ],
       "id": "4d325876-e548-40d8-9381-140416cdc5e3",
       "name": "Video Prompt3"
@@ -953,8 +953,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1296,
-        96
+        1264,
+        -256
       ],
       "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
       "name": "Text to Video2",
@@ -973,8 +973,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1760,
-        80
+        1728,
+        112
       ],
       "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
       "name": "Wait4",
@@ -999,8 +999,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1984,
-        0
+        880,
+        96
       ],
       "id": "d78ffbe8-7951-4473-b982-4eedc2a7d253",
       "name": "Get Video4",
@@ -1043,8 +1043,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2208,
-        80
+        1168,
+        16
       ],
       "id": "cc056014-afc3-4cc4-b130-c503d50ca935",
       "name": "If4"
@@ -1066,8 +1066,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2432,
-        80
+        1392,
+        -96
       ],
       "id": "f12b53c8-b24f-4f57-8378-fce26b492770",
       "name": "Video URL4"
@@ -1083,8 +1083,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        960,
-        80
+        912,
+        -256
       ],
       "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
       "name": "AI Agent"
@@ -1101,8 +1101,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1024,
-        304
+        976,
+        -32
       ],
       "id": "73741eaa-2f09-4d8c-8888-03bf3ab5c67c",
       "name": "OpenAI Chat Model",
@@ -1266,7 +1266,7 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "loose",
+            "typeValidation": "strict",
             "version": 2
           },
           "conditions": [
@@ -1289,7 +1289,7 @@
       "typeVersion": 2.2,
       "position": [
         1488,
-        32
+        -288
       ],
       "id": "check-task-created-node",
       "name": "Check Task Created"
@@ -1305,28 +1305,54 @@
           },
           "conditions": [
             {
-              "id": "video-still-processing-001",
-              "leftValue": "={{ ($json.data?.state === 'waiting' || $json.data?.state === 'processing') && (Date.now() - new Date($('CaptionFlow Webhook').first().json.body?.timestamp).getTime()) < 600000 }}",
-              "rightValue": true,
+              "id": "video-state-waiting",
+              "leftValue": "={{ $json.data?.state }}",
+              "rightValue": "waiting",
               "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "video-state-processing",
+              "leftValue": "={{ $json.data?.state }}",
+              "rightValue": "processing",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
               }
             }
           ],
-          "combinator": "and"
+          "combinator": "or"
         },
         "options": {}
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1984,
-        280
+        1392,
+        112
       ],
       "id": "video-still-processing-node",
       "name": "Video Still Processing?"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const staticData = $getWorkflowStaticData('node');\nstaticData.retries = (staticData.retries || 0) + 1;\n\nif (staticData.retries > 60) {\n  throw new Error('Video generation timeout: ' + staticData.retries + ' retries (~10 min). Last state: ' + $input.first().json.data?.state);\n}\n\nreturn $input.all();",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        112
+      ],
+      "id": "loop-guard-node",
+      "name": "Loop Guard",
+      "onError": "continueErrorOutput"
     }
   ],
   "connections": {
@@ -1840,6 +1866,24 @@
       "main": [
         [
           {
+            "node": "Loop Guard",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invia Email Errore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Guard": {
+      "main": [
+        [
+          {
             "node": "Wait4",
             "type": "main",
             "index": 0
@@ -1920,9 +1964,9 @@
       }
     ]
   },
-  "versionId": "1be50d1e-083e-40ed-a1cd-a692e11d4914",
-  "activeVersionId": "1be50d1e-083e-40ed-a1cd-a692e11d4914",
-  "versionCounter": 347,
+  "versionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
+  "activeVersionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
+  "versionCounter": 364,
   "triggerCount": 1,
   "tags": [
     {
@@ -1939,9 +1983,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-02-27T19:01:27.940Z",
-    "createdAt": "2026-02-27T19:01:27.940Z",
-    "versionId": "1be50d1e-083e-40ed-a1cd-a692e11d4914",
+    "updatedAt": "2026-02-27T22:01:33.305Z",
+    "createdAt": "2026-02-27T22:01:33.305Z",
+    "versionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
     "workflowId": "oRYSQ9tk63yPJaqt",
     "nodes": [
       {
@@ -1986,8 +2030,8 @@
         "name": "2. Prepare Input Variables (Topic, Audience, etc.)",
         "type": "n8n-nodes-base.set",
         "position": [
-          -432,
-          880
+          -336,
+          864
         ],
         "typeVersion": 3.4
       },
@@ -2367,7 +2411,7 @@
         "parameters": {
           "content": "# 02. Image Prompt Elaboration & Options\n\n**Purpose:** Takes the generated content concept and expands on it to create **two distinct, detailed image generation prompts**. These prompts are optimized for the target platform and suitable for AI image generators like Replicate Flux.\n\n**Input (from Nodes '2. Prepare Input Variables' & '3a. Generate Content Concept'):**\n*   `ChosenIdea` (string: Concept from step 3a)\n*   `OriginalTopic` (string)\n*   `TargetAudience` (string)\n*   `BrandVoice` (string)\n*   `Platform` (string: 'Instagram')\n\n**Output (JSON):**\n*   `{\"expanded_post_concept\": \"Elaborated concept description...\", \"prompt_options\": [{\"option_description\": \"Option 1: ...\", \"prompts\": [\"Detailed prompt 1...\"]}, {\"option_description\": \"Option 2: ...\", \"prompts\": [\"Detailed prompt 2...\"]}]}`\n",
           "height": 740,
-          "width": 740,
+          "width": 868,
           "color": 2
         },
         "id": "4a32312f-935f-49c9-bb6a-bc149c40411a",
@@ -2438,8 +2482,8 @@
         "type": "n8n-nodes-base.webhook",
         "typeVersion": 1,
         "position": [
-          -928,
-          880
+          -832,
+          864
         ],
         "id": "99906da2-e7f2-4680-a256-c9fb1e00a305",
         "webhookId": "9b0d093c-19f2-4179-8440-c4497df022e0"
@@ -2673,8 +2717,8 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          -656,
-          640
+          -560,
+          624
         ]
       },
       {
@@ -2783,8 +2827,8 @@
         "type": "n8n-nodes-base.googleSheets",
         "typeVersion": 4.7,
         "position": [
-          -368,
-          640
+          -272,
+          624
         ],
         "credentials": {
           "googleSheetsOAuth2Api": {
@@ -2870,8 +2914,8 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          736,
-          80
+          688,
+          -256
         ],
         "id": "4d325876-e548-40d8-9381-140416cdc5e3",
         "name": "Video Prompt3"
@@ -2890,8 +2934,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1296,
-          96
+          1264,
+          -256
         ],
         "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
         "name": "Text to Video2",
@@ -2910,8 +2954,8 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          1760,
-          80
+          1728,
+          112
         ],
         "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
         "name": "Wait4",
@@ -2936,8 +2980,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1984,
-          0
+          880,
+          96
         ],
         "id": "d78ffbe8-7951-4473-b982-4eedc2a7d253",
         "name": "Get Video4",
@@ -2980,8 +3024,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          2208,
-          80
+          1168,
+          16
         ],
         "id": "cc056014-afc3-4cc4-b130-c503d50ca935",
         "name": "If4"
@@ -3003,8 +3047,8 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          2432,
-          80
+          1392,
+          -96
         ],
         "id": "f12b53c8-b24f-4f57-8378-fce26b492770",
         "name": "Video URL4"
@@ -3020,8 +3064,8 @@
         "type": "@n8n/n8n-nodes-langchain.agent",
         "typeVersion": 2.2,
         "position": [
-          960,
-          80
+          912,
+          -256
         ],
         "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
         "name": "AI Agent"
@@ -3038,8 +3082,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
         "typeVersion": 1.2,
         "position": [
-          1024,
-          304
+          976,
+          -32
         ],
         "id": "73741eaa-2f09-4d8c-8888-03bf3ab5c67c",
         "name": "OpenAI Chat Model",
@@ -3203,7 +3247,7 @@
             "options": {
               "caseSensitive": true,
               "leftValue": "",
-              "typeValidation": "loose",
+              "typeValidation": "strict",
               "version": 2
             },
             "conditions": [
@@ -3226,7 +3270,7 @@
         "typeVersion": 2.2,
         "position": [
           1488,
-          32
+          -288
         ],
         "id": "check-task-created-node",
         "name": "Check Task Created"
@@ -3242,28 +3286,54 @@
             },
             "conditions": [
               {
-                "id": "video-still-processing-001",
-                "leftValue": "={{ ($json.data?.state === 'waiting' || $json.data?.state === 'processing') && (Date.now() - new Date($('CaptionFlow Webhook').first().json.body?.timestamp).getTime()) < 600000 }}",
-                "rightValue": true,
+                "id": "video-state-waiting",
+                "leftValue": "={{ $json.data?.state }}",
+                "rightValue": "waiting",
                 "operator": {
-                  "type": "boolean",
-                  "operation": "true",
-                  "singleValue": true
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              },
+              {
+                "id": "video-state-processing",
+                "leftValue": "={{ $json.data?.state }}",
+                "rightValue": "processing",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
                 }
               }
             ],
-            "combinator": "and"
+            "combinator": "or"
           },
           "options": {}
         },
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1984,
-          280
+          1392,
+          112
         ],
         "id": "video-still-processing-node",
         "name": "Video Still Processing?"
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "jsCode": "const staticData = $getWorkflowStaticData('node');\nstaticData.retries = (staticData.retries || 0) + 1;\n\nif (staticData.retries > 60) {\n  throw new Error('Video generation timeout: ' + staticData.retries + ' retries (~10 min). Last state: ' + $input.first().json.data?.state);\n}\n\nreturn $input.all();",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1560,
+          112
+        ],
+        "id": "loop-guard-node",
+        "name": "Loop Guard",
+        "onError": "continueErrorOutput"
       }
     ],
     "connections": {
@@ -3774,6 +3844,24 @@
         ]
       },
       "Video Still Processing?": {
+        "main": [
+          [
+            {
+              "node": "Loop Guard",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Invia Email Errore",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Guard": {
         "main": [
           [
             {
