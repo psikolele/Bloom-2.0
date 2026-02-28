@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-28T07:14:14.472Z",
+  "updatedAt": "2026-02-28T06:56:34.225Z",
   "createdAt": "2026-01-24T14:57:05.530Z",
   "id": "oRYSQ9tk63yPJaqt",
   "name": "Caption Flow V.2",
@@ -236,21 +236,15 @@
           "assignments": [
             {
               "id": "8a4260ba-3bde-4444-8f42-8a8abd51ff0c",
-              "name": "MediaURL",
+              "name": "ImageURL",
               "type": "string",
-              "value": "={{ $if($('Video URL4').isExecuted, $('Video URL4').item.json.video_url, JSON.parse($json['data']['resultJson']).resultUrls[0]) }}"
+              "value": "={{ JSON.parse($json['data']['resultJson']).resultUrls[0] }}"
             },
             {
               "id": "1953ae03-6a86-4847-8686-5a928637be1d",
               "name": "Caption",
               "type": "string",
-              "value": "={{ $if($('3c. Generate Post Caption (Gemini)').isExecuted, $('3c. Generate Post Caption (Gemini)').item.json.output.Caption, $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic) }}"
-            },
-            {
-              "id": "media-type-field",
-              "name": "MediaType",
-              "type": "string",
-              "value": "={{ $if($('Video URL4').isExecuted, 'video', 'image') }}"
+              "value": "={{ $('3c. Generate Post Caption (Gemini)').item.json.output.Caption }}"
             }
           ]
         },
@@ -589,14 +583,14 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.cloudinary.com/v1_1/dzudfzmx3/auto/upload",
+        "url": "https://api.cloudinary.com/v1_1/dzudfzmx3/image/upload",
         "sendBody": true,
         "contentType": "multipart-form-data",
         "bodyParameters": {
           "parameters": [
             {
               "name": "file",
-              "value": "={{ $('5. Prepare Data for Instagram API').item.json.MediaURL }}"
+              "value": "={{ $json.ImageURL }}"
             },
             {
               "name": "upload_preset",
@@ -651,11 +645,7 @@
             },
             {
               "name": "photos[]",
-              "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'image', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
-            },
-            {
-              "name": "=videos[]",
-              "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'video', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
+              "value": "={{ $('Upload Image to Cloudinary').item.json.secure_url }}"
             }
           ]
         },
@@ -903,7 +893,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"media_url\": $('Upload Image to Cloudinary').item.json.secure_url,\n    \"media_type\": $('5. Prepare Data for Instagram API').item.json.MediaType\n  }\n} }}",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"image_url\": $('Upload Image to Cloudinary').item.json.secure_url\n  }\n} }}",
         "options": {}
       },
       "id": "4cceefdd-4659-47d4-88ff-ea5d3f8634dc",
@@ -2010,10 +2000,32 @@
       }
     ]
   },
-  "versionId": "5dc536b5-721d-48cb-a5cd-12ea45b2c1f1",
-  "activeVersionId": "5dc536b5-721d-48cb-a5cd-12ea45b2c1f1",
-  "versionCounter": 375,
+  "versionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
+  "activeVersionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
+  "versionCounter": 374,
   "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-25T14:43:43.896Z",
+      "createdAt": "2026-01-25T14:43:43.896Z",
+      "role": "workflow:owner",
+      "workflowId": "oRYSQ9tk63yPJaqt",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null
+      }
+    }
+  ],
   "tags": [
     {
       "updatedAt": "2025-12-13T21:46:23.115Z",
@@ -2029,9 +2041,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-02-28T07:14:14.473Z",
-    "createdAt": "2026-02-28T07:14:14.473Z",
-    "versionId": "5dc536b5-721d-48cb-a5cd-12ea45b2c1f1",
+    "updatedAt": "2026-02-28T06:56:34.227Z",
+    "createdAt": "2026-02-28T06:56:34.227Z",
+    "versionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
     "workflowId": "oRYSQ9tk63yPJaqt",
     "nodes": [
       {
@@ -2263,21 +2275,15 @@
             "assignments": [
               {
                 "id": "8a4260ba-3bde-4444-8f42-8a8abd51ff0c",
-                "name": "MediaURL",
+                "name": "ImageURL",
                 "type": "string",
-                "value": "={{ $if($('Video URL4').isExecuted, $('Video URL4').item.json.video_url, JSON.parse($json['data']['resultJson']).resultUrls[0]) }}"
+                "value": "={{ JSON.parse($json['data']['resultJson']).resultUrls[0] }}"
               },
               {
                 "id": "1953ae03-6a86-4847-8686-5a928637be1d",
                 "name": "Caption",
                 "type": "string",
-                "value": "={{ $if($('3c. Generate Post Caption (Gemini)').isExecuted, $('3c. Generate Post Caption (Gemini)').item.json.output.Caption, $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic) }}"
-              },
-              {
-                "id": "media-type-field",
-                "name": "MediaType",
-                "type": "string",
-                "value": "={{ $if($('Video URL4').isExecuted, 'video', 'image') }}"
+                "value": "={{ $('3c. Generate Post Caption (Gemini)').item.json.output.Caption }}"
               }
             ]
           },
@@ -2616,14 +2622,14 @@
       {
         "parameters": {
           "method": "POST",
-          "url": "https://api.cloudinary.com/v1_1/dzudfzmx3/auto/upload",
+          "url": "https://api.cloudinary.com/v1_1/dzudfzmx3/image/upload",
           "sendBody": true,
           "contentType": "multipart-form-data",
           "bodyParameters": {
             "parameters": [
               {
                 "name": "file",
-                "value": "={{ $('5. Prepare Data for Instagram API').item.json.MediaURL }}"
+                "value": "={{ $json.ImageURL }}"
               },
               {
                 "name": "upload_preset",
@@ -2678,11 +2684,7 @@
               },
               {
                 "name": "photos[]",
-                "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'image', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
-              },
-              {
-                "name": "=videos[]",
-                "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'video', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
+                "value": "={{ $('Upload Image to Cloudinary').item.json.secure_url }}"
               }
             ]
           },
@@ -2930,7 +2932,7 @@
       {
         "parameters": {
           "respondWith": "json",
-          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"media_url\": $('Upload Image to Cloudinary').item.json.secure_url,\n    \"media_type\": $('5. Prepare Data for Instagram API').item.json.MediaType\n  }\n} }}",
+          "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Post generato con successo! Controlla la tua email per approvare.\",\n  \"data\": {\n    \"caption\": $('5. Prepare Data for Instagram API').item.json.Caption,\n    \"image_url\": $('Upload Image to Cloudinary').item.json.secure_url\n  }\n} }}",
           "options": {}
         },
         "id": "4cceefdd-4659-47d4-88ff-ea5d3f8634dc",
@@ -3971,6 +3973,24 @@
     "authors": "Emanule Serra",
     "name": null,
     "description": null,
-    "autosaved": false
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-28T06:56:34.522Z",
+        "id": 711,
+        "workflowId": "oRYSQ9tk63yPJaqt",
+        "versionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      },
+      {
+        "createdAt": "2026-02-28T06:56:34.401Z",
+        "id": 710,
+        "workflowId": "oRYSQ9tk63yPJaqt",
+        "versionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
+        "event": "deactivated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
   }
 }
