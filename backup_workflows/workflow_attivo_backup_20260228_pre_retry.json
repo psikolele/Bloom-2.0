@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-28T06:56:34.225Z",
+  "updatedAt": "2026-02-27T22:17:29.239Z",
   "createdAt": "2026-01-24T14:57:05.530Z",
   "id": "oRYSQ9tk63yPJaqt",
   "name": "Caption Flow V.2",
@@ -1340,7 +1340,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.pollCount = (staticData.pollCount || 0) + 1;\n\nif (staticData.pollCount > 60) {\n  throw new Error('Video polling timeout after ' + staticData.pollCount + ' checks (~10 min). Last state: ' + ($input.first().json.data?.state || 'unknown'));\n}\n\nreturn $input.all();"
+        "jsCode": "const staticData = $getWorkflowStaticData('node');\nstaticData.retries = (staticData.retries || 0) + 1;\n\nif (staticData.retries > 60) {\n  throw new Error('Video generation timeout: ' + staticData.retries + ' retries (~10 min). Last state: ' + $input.first().json.data?.state);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1350,22 +1350,6 @@
       ],
       "id": "loop-guard-node",
       "name": "Loop Guard",
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.taskRetries = (staticData.taskRetries || 0) + 1;\nstaticData.pollCount = 0; // Reset polling counter for new task\n\nconst failMsg = $input.first().json.data?.failMsg || 'unknown error';\nconst failCode = $input.first().json.data?.failCode || 'N/A';\nconst attempt = staticData.taskRetries;\n\nif (attempt > 3) {\n  throw new Error('Video generation failed after ' + attempt + ' attempts. Last error: [' + failCode + '] ' + failMsg);\n}\n\n// Log retry attempt\nconsole.log('Video task retry #' + attempt + '/3 - Previous failure: [' + failCode + '] ' + failMsg);\n\nreturn $input.all();",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1562,
-        164
-      ],
-      "id": "task-retry-node",
-      "name": "Task Retry",
       "onError": "continueErrorOutput"
     }
   ],
@@ -1887,7 +1871,7 @@
         ],
         [
           {
-            "node": "Task Retry",
+            "node": "Invia Email Errore",
             "type": "main",
             "index": 0
           }
@@ -1899,24 +1883,6 @@
         [
           {
             "node": "Wait4",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Task Retry",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Task Retry": {
-      "main": [
-        [
-          {
-            "node": "Text to Video2",
             "type": "main",
             "index": 0
           }
@@ -1996,10 +1962,32 @@
       }
     ]
   },
-  "versionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
-  "activeVersionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
-  "versionCounter": 371,
+  "versionId": "99262be6-b6ec-4b19-b531-0a03b6a8c61e",
+  "activeVersionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
+  "versionCounter": 370,
   "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-01-25T14:43:43.896Z",
+      "createdAt": "2026-01-25T14:43:43.896Z",
+      "role": "workflow:owner",
+      "workflowId": "oRYSQ9tk63yPJaqt",
+      "projectId": "7JnMVxQZVo4xtdpO",
+      "project": {
+        "updatedAt": "2025-11-19T15:56:02.000Z",
+        "createdAt": "2025-09-13T13:45:08.985Z",
+        "id": "7JnMVxQZVo4xtdpO",
+        "name": "Progetti",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "circle-user-round"
+        },
+        "description": "",
+        "creatorId": null
+      }
+    }
+  ],
   "tags": [
     {
       "updatedAt": "2025-12-13T21:46:23.115Z",
@@ -2015,9 +2003,9 @@
     }
   ],
   "activeVersion": {
-    "updatedAt": "2026-02-28T06:56:34.227Z",
-    "createdAt": "2026-02-28T06:56:34.227Z",
-    "versionId": "2e2250bf-2fe2-4945-815d-2e42df5ed76f",
+    "updatedAt": "2026-02-27T22:01:33.305Z",
+    "createdAt": "2026-02-27T22:01:33.305Z",
+    "versionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
     "workflowId": "oRYSQ9tk63yPJaqt",
     "nodes": [
       {
@@ -2443,7 +2431,7 @@
         "parameters": {
           "content": "# 02. Image Prompt Elaboration & Options\n\n**Purpose:** Takes the generated content concept and expands on it to create **two distinct, detailed image generation prompts**. These prompts are optimized for the target platform and suitable for AI image generators like Replicate Flux.\n\n**Input (from Nodes '2. Prepare Input Variables' & '3a. Generate Content Concept'):**\n*   `ChosenIdea` (string: Concept from step 3a)\n*   `OriginalTopic` (string)\n*   `TargetAudience` (string)\n*   `BrandVoice` (string)\n*   `Platform` (string: 'Instagram')\n\n**Output (JSON):**\n*   `{\"expanded_post_concept\": \"Elaborated concept description...\", \"prompt_options\": [{\"option_description\": \"Option 1: ...\", \"prompts\": [\"Detailed prompt 1...\"]}, {\"option_description\": \"Option 2: ...\", \"prompts\": [\"Detailed prompt 2...\"]}]}`\n",
           "height": 740,
-          "width": 1236,
+          "width": 868,
           "color": 2
         },
         "id": "4a32312f-935f-49c9-bb6a-bc149c40411a",
@@ -2946,8 +2934,8 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          608,
-          -304
+          688,
+          -256
         ],
         "id": "4d325876-e548-40d8-9381-140416cdc5e3",
         "name": "Video Prompt3"
@@ -2966,8 +2954,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1184,
-          -304
+          1264,
+          -256
         ],
         "id": "f989d671-0e76-4d50-beb6-ddfb31820368",
         "name": "Text to Video2",
@@ -2986,8 +2974,8 @@
         "type": "n8n-nodes-base.wait",
         "typeVersion": 1.1,
         "position": [
-          1664,
-          80
+          1728,
+          112
         ],
         "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
         "name": "Wait4",
@@ -3012,8 +3000,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          800,
-          48
+          880,
+          96
         ],
         "id": "d78ffbe8-7951-4473-b982-4eedc2a7d253",
         "name": "Get Video4",
@@ -3056,8 +3044,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1088,
-          -32
+          1168,
+          16
         ],
         "id": "cc056014-afc3-4cc4-b130-c503d50ca935",
         "name": "If4"
@@ -3079,8 +3067,8 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          1312,
-          -144
+          1392,
+          -96
         ],
         "id": "f12b53c8-b24f-4f57-8378-fce26b492770",
         "name": "Video URL4"
@@ -3096,8 +3084,8 @@
         "type": "@n8n/n8n-nodes-langchain.agent",
         "typeVersion": 2.2,
         "position": [
-          832,
-          -304
+          912,
+          -256
         ],
         "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
         "name": "AI Agent"
@@ -3114,8 +3102,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
         "typeVersion": 1.2,
         "position": [
-          896,
-          -80
+          976,
+          -32
         ],
         "id": "73741eaa-2f09-4d8c-8888-03bf3ab5c67c",
         "name": "OpenAI Chat Model",
@@ -3301,8 +3289,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1408,
-          -336
+          1488,
+          -288
         ],
         "id": "check-task-created-node",
         "name": "Check Task Created"
@@ -3345,40 +3333,26 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1312,
-          64
+          1392,
+          112
         ],
         "id": "video-still-processing-node",
         "name": "Video Still Processing?"
       },
       {
         "parameters": {
-          "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.pollCount = (staticData.pollCount || 0) + 1;\n\nif (staticData.pollCount > 60) {\n  throw new Error('Video polling timeout after ' + staticData.pollCount + ' checks (~10 min). Last state: ' + ($input.first().json.data?.state || 'unknown'));\n}\n\nreturn $input.all();"
-        },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          1488,
-          16
-        ],
-        "id": "loop-guard-node",
-        "name": "Loop Guard",
-        "onError": "continueErrorOutput"
-      },
-      {
-        "parameters": {
           "mode": "runOnceForAllItems",
-          "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.taskRetries = (staticData.taskRetries || 0) + 1;\nstaticData.pollCount = 0; // Reset polling counter for new task\n\nconst failMsg = $input.first().json.data?.failMsg || 'unknown error';\nconst failCode = $input.first().json.data?.failCode || 'N/A';\nconst attempt = staticData.taskRetries;\n\nif (attempt > 3) {\n  throw new Error('Video generation failed after ' + attempt + ' attempts. Last error: [' + failCode + '] ' + failMsg);\n}\n\n// Log retry attempt\nconsole.log('Video task retry #' + attempt + '/3 - Previous failure: [' + failCode + '] ' + failMsg);\n\nreturn $input.all();",
+          "jsCode": "const staticData = $getWorkflowStaticData('node');\nstaticData.retries = (staticData.retries || 0) + 1;\n\nif (staticData.retries > 60) {\n  throw new Error('Video generation timeout: ' + staticData.retries + ' retries (~10 min). Last state: ' + $input.first().json.data?.state);\n}\n\nreturn $input.all();",
           "options": {}
         },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          1562,
-          164
+          1560,
+          112
         ],
-        "id": "task-retry-node",
-        "name": "Task Retry",
+        "id": "loop-guard-node",
+        "name": "Loop Guard",
         "onError": "continueErrorOutput"
       }
     ],
@@ -3900,7 +3874,7 @@
           ],
           [
             {
-              "node": "Task Retry",
+              "node": "Invia Email Errore",
               "type": "main",
               "index": 0
             }
@@ -3918,24 +3892,6 @@
           ],
           [
             {
-              "node": "Task Retry",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Task Retry": {
-        "main": [
-          [
-            {
-              "node": "Text to Video2",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
               "node": "Invia Email Errore",
               "type": "main",
               "index": 0
@@ -3947,6 +3903,24 @@
     "authors": "Emanule Serra",
     "name": null,
     "description": null,
-    "autosaved": false
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-27T22:01:33.562Z",
+        "id": 709,
+        "workflowId": "oRYSQ9tk63yPJaqt",
+        "versionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
+        "event": "activated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      },
+      {
+        "createdAt": "2026-02-27T22:01:33.438Z",
+        "id": 708,
+        "workflowId": "oRYSQ9tk63yPJaqt",
+        "versionId": "6ad9fb9d-c3e2-4969-841b-cb7fca0d0117",
+        "event": "deactivated",
+        "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+      }
+    ]
   }
 }
