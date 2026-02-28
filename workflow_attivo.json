@@ -654,7 +654,7 @@
               "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'image', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
             },
             {
-              "name": "=videos[]",
+              "name": "videos[]",
               "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'video', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
             }
           ]
@@ -2681,7 +2681,7 @@
                 "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'image', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
               },
               {
-                "name": "=videos[]",
+                "name": "videos[]",
                 "value": "={{ $if($('5. Prepare Data for Instagram API').item.json.MediaType === 'video', $('Upload Image to Cloudinary').item.json.secure_url, '') }}"
               }
             ]
