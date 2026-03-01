@@ -947,7 +947,7 @@
                 "genericAuthType": "httpHeaderAuth",
                 "sendBody": true,
                 "specifyBody": "json",
-                "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ $json.output.replace(/\"/g, '').replace(/\\r?\\n|\\r/g, ' ') }}\",\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n}",
+                "jsonBody": "={\n  \"model\": \"sora-2-text-to-video\",\n  \"input\": {\n    \"prompt\": \"{{ (typeof $json.output === 'string' ? $json.output : ($json.output?.text || $json.output?.response || JSON.stringify($json.output) || '')).replace(/\"/g, '').replace(/\\r?\\n|\\r/g, ' ') }}\",\n    \"aspect_ratio\": \"portrait\",\n    \"n_frames\": \"10\",\n    \"remove_watermark\": true\n  }\n}",
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequest",
