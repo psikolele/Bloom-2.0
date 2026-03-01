@@ -1409,7 +1409,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.upload-post.com/api/upload_photos",
+        "url": "https://api.upload-post.com/api/upload",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -1436,7 +1436,7 @@
               "value": "instagram"
             },
             {
-              "name": "videos[]",
+              "name": "video",
               "value": "={{ $('Upload Image to Cloudinary').item.json.secure_url }}"
             }
           ]
@@ -3547,7 +3547,7 @@
       {
         "parameters": {
           "method": "POST",
-          "url": "https://api.upload-post.com/api/upload_photos",
+          "url": "https://api.upload-post.com/api/upload",
           "sendHeaders": true,
           "headerParameters": {
             "parameters": [
@@ -3574,7 +3574,7 @@
                 "value": "instagram"
               },
               {
-                "name": "videos[]",
+                "name": "video",
                 "value": "={{ $('Upload Image to Cloudinary').item.json.secure_url }}"
               }
             ]
