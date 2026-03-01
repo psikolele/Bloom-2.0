@@ -1237,8 +1237,8 @@
     },
     {
       "parameters": {
-        "content": "## 📋 Changelog — Caption Flow V3\n\n**Ultimo deploy:** 2026-02-26 16:29\n\n**File sorgente:** `Caption_Flow_V3_VIDEO_MOD.json`\n\n---\n\n### Ultimi commit\n- 2026-02-26 fix(deploy): apply missing settings allowlist fix to push_workflow_video.py\n- 2026-02-26 Merge pull request #22 from psikolele/claude/deploy-n8n-workflow-hVu70\n- 2026-02-26 feat: deploy n8n workflow script, fix dashboard UI, fix tool_use IDs\n- 2026-02-26 Merge pull request #21 from psikolele/claude/debug-n8n-workflow-jOzYf\n- 2026-02-26 feat(caption-flow-v3): add error email handler, Javier CC for webstoreplus, FORMATO dropdown\n- 2026-02-25 fix(caption-flow-v3): add error guard after Kie task creation to break infinite loop\n- 2026-02-25 fix(caption-flow-v3): fix infinite loop and email not arriving in executions #7993/#7992\n- 2026-02-25 Merge pull request #20 from psikolele/claude/fix-api-prefill-error-4BXvq",
-        "height": 460,
+        "content": "## 📋 Changelog — Caption Flow V.2\n\n**Ultimo deploy:** 2026-03-01 08:00\n**File sorgente:** `workflow_attivo.json`\n\n---\n\n### 2026-03-01 — Fix Upload Video Instagram\n- **fix:** Split nodo \"Upload to Instagram\" in due nodi separati:\n  - `Upload Image to IG` → `POST /api/upload_photos` (param: `photos[]`)\n  - `Upload Video to IG` → `POST /api/upload` (param: `video`)\n- **fix:** Aggiunto nodo IF \"Is Video?\" per routing per tipo media\n- **motivo:** L'API upload-post.com ha endpoint separati per foto e video. Mandare `photos[]` vuoto con i video causava errore `\"Error downloading photo from URL: \"`\n- **fix:** Rimosso prefisso `=` erroneo dal parametro `videos[]` (ora obsoleto)\n- **test:** Verificato con curl + URL Cloudinary da exec 8290 → video pubblicato su IG\n\n### 2026-02-28 — Fix Video Path & Retry\n- **fix:** Corretto percorso video: Prepare Data → Cloudinary `auto/upload` → Instagram video\n- **feat:** Aggiunto retry automatico per fallimenti generazione video Kie.ai (max 3 tentativi)\n- **fix:** Corretto polling loop video: rimosso check timestamp rotto, aggiunto contatore retry\n- **feat:** Aggiunto Loop Guard con protezione timeout (60 check ≈ 10 min)\n- **fix:** Corretto connessione Video Prompt3 → AI Agent e aggiunto taskId guard\n\n### 2026-02-26 — Deploy Script & V3\n- **feat:** Script deploy n8n workflow (`scripts/deploy_workflow.sh`)\n- **fix:** Dashboard UI fix, fix tool_use IDs\n- **feat:** Settings allowlist fix in `push_workflow_video.py`\n\n### Pre-2026-02-26 — Caption Flow V.2\n- Migrazione da Google GenAI a OpenRouter (Gemini 2.0 Flash)\n- Integrazione Kie.ai per generazione video (Sora 2)\n- AI Agent per elaborazione prompt video cinematografici\n- Workflow completo: Webhook → AI Content → Image/Video Gen → Cloudinary → Email Approval → Instagram Post",
+        "height": 920,
         "width": 580,
         "color": 4
       },
@@ -1452,6 +1452,21 @@
         1776
       ],
       "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "# 03c. Video Generation (AI Agent → Kie.ai)\n\n**Purpose:** Quando il format richiesto è \"Video\", questo blocco genera un video a partire dal concept. Un AI Agent (GPT-4o-mini) elabora un prompt cinematografico dettagliato, che viene inviato all'API Kie.ai (modello Sora 2) per la generazione text-to-video.\n\n---\n\n### Flusso\n1. **Video Prompt3** — Prepara il concept per l'AI Agent\n2. **AI Agent** (GPT-4o-mini) — Scrive un prompt visivo dettagliato (soggetto, ambientazione, movimento, illuminazione, palette colori)\n3. **Text to Video2** — Invia il prompt a Kie.ai (`POST /api/task/openapi/create`), modello `sora-2-text-to-video`\n4. **Check Task Created** — Verifica che il task sia stato creato (code 200)\n5. **Wait4** (10s) → **Get Video4** — Polling dello stato del task\n6. **If4** — Controlla se `state === 'success'`\n   - ✅ `success` → **Video URL4** (estrae `resultUrl`)\n   - ❌ altrimenti → **Video Still Processing?**\n7. **Video Still Processing?** — Controlla se `state === 'fail'`\n   - `fail` → **Task Retry**\n   - ancora in attesa → **Loop Guard** (max 60 check ≈ 10 min)\n8. **Task Retry** — Max 3 tentativi, resetta il polling counter, rimanda a Text to Video2\n\n---\n\n### Output\n- `video_url` (string) — URL del video generato su Kie.ai\n\n### Parametri Kie.ai\n- Modello: `sora-2-text-to-video`\n- Aspect ratio: `landscape`\n- Frames: 10\n- Watermark: rimosso\n\n### Protezioni\n- **Loop Guard:** max 60 poll (~10 min timeout)\n- **Task Retry:** max 3 tentativi con reset counter\n- Errori → **Invia Email Errore**",
+        "width": 680,
+        "height": 880
+      },
+      "id": "sticky-video-section",
+      "name": "Sticky Note Video",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -560
+      ]
     }
   ],
   "connections": {
@@ -3375,8 +3390,8 @@
       },
       {
         "parameters": {
-          "content": "## 📋 Changelog — Caption Flow V3\n\n**Ultimo deploy:** 2026-02-26 16:29\n\n**File sorgente:** `Caption_Flow_V3_VIDEO_MOD.json`\n\n---\n\n### Ultimi commit\n- 2026-02-26 fix(deploy): apply missing settings allowlist fix to push_workflow_video.py\n- 2026-02-26 Merge pull request #22 from psikolele/claude/deploy-n8n-workflow-hVu70\n- 2026-02-26 feat: deploy n8n workflow script, fix dashboard UI, fix tool_use IDs\n- 2026-02-26 Merge pull request #21 from psikolele/claude/debug-n8n-workflow-jOzYf\n- 2026-02-26 feat(caption-flow-v3): add error email handler, Javier CC for webstoreplus, FORMATO dropdown\n- 2026-02-25 fix(caption-flow-v3): add error guard after Kie task creation to break infinite loop\n- 2026-02-25 fix(caption-flow-v3): fix infinite loop and email not arriving in executions #7993/#7992\n- 2026-02-25 Merge pull request #20 from psikolele/claude/fix-api-prefill-error-4BXvq",
-          "height": 460,
+          "content": "## 📋 Changelog — Caption Flow V.2\n\n**Ultimo deploy:** 2026-03-01 08:00\n**File sorgente:** `workflow_attivo.json`\n\n---\n\n### 2026-03-01 — Fix Upload Video Instagram\n- **fix:** Split nodo \"Upload to Instagram\" in due nodi separati:\n  - `Upload Image to IG` → `POST /api/upload_photos` (param: `photos[]`)\n  - `Upload Video to IG` → `POST /api/upload` (param: `video`)\n- **fix:** Aggiunto nodo IF \"Is Video?\" per routing per tipo media\n- **motivo:** L'API upload-post.com ha endpoint separati per foto e video. Mandare `photos[]` vuoto con i video causava errore `\"Error downloading photo from URL: \"`\n- **fix:** Rimosso prefisso `=` erroneo dal parametro `videos[]` (ora obsoleto)\n- **test:** Verificato con curl + URL Cloudinary da exec 8290 → video pubblicato su IG\n\n### 2026-02-28 — Fix Video Path & Retry\n- **fix:** Corretto percorso video: Prepare Data → Cloudinary `auto/upload` → Instagram video\n- **feat:** Aggiunto retry automatico per fallimenti generazione video Kie.ai (max 3 tentativi)\n- **fix:** Corretto polling loop video: rimosso check timestamp rotto, aggiunto contatore retry\n- **feat:** Aggiunto Loop Guard con protezione timeout (60 check ≈ 10 min)\n- **fix:** Corretto connessione Video Prompt3 → AI Agent e aggiunto taskId guard\n\n### 2026-02-26 — Deploy Script & V3\n- **feat:** Script deploy n8n workflow (`scripts/deploy_workflow.sh`)\n- **fix:** Dashboard UI fix, fix tool_use IDs\n- **feat:** Settings allowlist fix in `push_workflow_video.py`\n\n### Pre-2026-02-26 — Caption Flow V.2\n- Migrazione da Google GenAI a OpenRouter (Gemini 2.0 Flash)\n- Integrazione Kie.ai per generazione video (Sora 2)\n- AI Agent per elaborazione prompt video cinematografici\n- Workflow completo: Webhook → AI Content → Image/Video Gen → Cloudinary → Email Approval → Instagram Post",
+          "height": 920,
           "width": 580,
           "color": 4
         },
@@ -3590,6 +3605,21 @@
           1776
         ],
         "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "content": "# 03c. Video Generation (AI Agent → Kie.ai)\n\n**Purpose:** Quando il format richiesto è \"Video\", questo blocco genera un video a partire dal concept. Un AI Agent (GPT-4o-mini) elabora un prompt cinematografico dettagliato, che viene inviato all'API Kie.ai (modello Sora 2) per la generazione text-to-video.\n\n---\n\n### Flusso\n1. **Video Prompt3** — Prepara il concept per l'AI Agent\n2. **AI Agent** (GPT-4o-mini) — Scrive un prompt visivo dettagliato (soggetto, ambientazione, movimento, illuminazione, palette colori)\n3. **Text to Video2** — Invia il prompt a Kie.ai (`POST /api/task/openapi/create`), modello `sora-2-text-to-video`\n4. **Check Task Created** — Verifica che il task sia stato creato (code 200)\n5. **Wait4** (10s) → **Get Video4** — Polling dello stato del task\n6. **If4** — Controlla se `state === 'success'`\n   - ✅ `success` → **Video URL4** (estrae `resultUrl`)\n   - ❌ altrimenti → **Video Still Processing?**\n7. **Video Still Processing?** — Controlla se `state === 'fail'`\n   - `fail` → **Task Retry**\n   - ancora in attesa → **Loop Guard** (max 60 check ≈ 10 min)\n8. **Task Retry** — Max 3 tentativi, resetta il polling counter, rimanda a Text to Video2\n\n---\n\n### Output\n- `video_url` (string) — URL del video generato su Kie.ai\n\n### Parametri Kie.ai\n- Modello: `sora-2-text-to-video`\n- Aspect ratio: `landscape`\n- Frames: 10\n- Watermark: rimosso\n\n### Protezioni\n- **Loop Guard:** max 60 poll (~10 min timeout)\n- **Task Retry:** max 3 tentativi con reset counter\n- Errori → **Invia Email Errore**",
+          "width": 680,
+          "height": 880
+        },
+        "id": "sticky-video-section",
+        "name": "Sticky Note Video",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          528,
+          -560
+        ]
       }
     ],
     "connections": {
