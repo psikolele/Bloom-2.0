@@ -1479,7 +1479,7 @@ body {
   position: absolute;
   top: 4px;
   left: 4px;
-  width: calc(50% - 4px);
+  width: calc(50% - 6px);
   height: calc(100% - 8px);
   background: var(--accent-gradient);
   border-radius: calc(var(--radius-md) - 4px);
@@ -1487,13 +1487,13 @@ body {
     0 0 20px rgba(255, 107, 53, 0.3),
     0 0 40px rgba(255, 107, 53, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 0.35s ease;
   z-index: 1;
 }
 
 .format-toggle.video-active .format-toggle__slider {
-  transform: translateX(calc(100% + 4px));
+  left: calc(50% + 2px);
 }
 
 .format-toggle:hover {
