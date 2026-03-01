@@ -50,7 +50,8 @@ const elements = {
   // Progress Elements
   progressSteps: document.querySelectorAll('.progress-step'),
   progressLines: document.querySelectorAll('.progress-line'),
-  formatSelect: document.getElementById('formatSelect')
+  formatSelect: document.getElementById('formatSelect'),
+  formatToggle: document.getElementById('formatToggle')
 };
 
 // ============================================
@@ -633,6 +634,14 @@ function resetForm() {
   elements.toneSelect.value = '';
   elements.audienceSelect.value = '';
   if (elements.formatSelect) elements.formatSelect.value = 'image'; // Reset to Image
+  // Reset format toggle UI
+  if (elements.formatToggle) {
+    elements.formatToggle.classList.remove('video-active');
+    const toggleBtns = elements.formatToggle.querySelectorAll('.format-toggle__btn');
+    toggleBtns.forEach(b => {
+      b.classList.toggle('active', b.dataset.value === 'image');
+    });
+  }
   showState('form');
   elements.ideaInput.focus();
 }
@@ -856,6 +865,23 @@ function init() {
   // Bloom Return Listener
   if (elements.returnBtn) {
     elements.returnBtn.addEventListener('click', handleReturnToBloom);
+  }
+
+  // Initialize Format Toggle
+  if (elements.formatToggle) {
+    const toggleBtns = elements.formatToggle.querySelectorAll('.format-toggle__btn');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        // Update hidden input
+        if (elements.formatSelect) elements.formatSelect.value = value;
+        // Update active state
+        toggleBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Move slider
+        elements.formatToggle.classList.toggle('video-active', value === 'video');
+      });
+    });
   }
 
   // Initialize Snake game
