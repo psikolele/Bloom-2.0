@@ -1074,7 +1074,7 @@
                 "promptType": "define",
                 "text": "=Input: {{ $json.video_prompt }}",
                 "options": {
-                    "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito è prendere un concetto grezzo in ingresso (come un’idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall’aspetto naturale** che corrisponda all’intento iniziale. Concentrati sull’ottimizzazione della qualità visiva, del realismo della camera, dell’illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, età, genere, espressione e movimento.\n   * L’ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l’emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\ntutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
+                    "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito è prendere un concetto grezzo in ingresso (come un’idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall’aspetto naturale** che corrisponda all’intento iniziale. Concentrati sull’ottimizzazione della qualità visiva, del realismo della camera, dell’illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, età, genere, espressione e movimento.\n   * L’ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l’emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\ntutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n\n---\n\n## Contesto Aziendale (RAG)\n\nPRIMA di generare il prompt video, usa SEMPRE il tool di ricerca RAG per recuperare informazioni sul brand del cliente (tone of voice, prodotti, valori, stile visivo, colori, target audience).\n\nIntegra queste informazioni nella scena video in modo naturale e coerente:\n- Adatta l'atmosfera e il tono visivo al brand\n- Includi riferimenti ai prodotti/servizi se rilevanti\n- Rispetta lo stile comunicativo e i valori aziendali\n- Se il RAG non restituisce risultati utili, procedi comunque con il prompt basandoti solo sull'input fornito\n"
                 }
             },
             "type": "@n8n/n8n-nodes-langchain.agent",
@@ -1472,6 +1472,55 @@
                 592,
                 -944
             ]
+        },
+        {
+            "parameters": {
+                "model": "text-embedding-3-small",
+                "options": {
+                    "dimensions": 1536
+                }
+            },
+            "id": "b9cc8e2f-5483-49a3-866a-b2c094eec61d",
+            "name": "Caption RAG Embeddings",
+            "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+            "typeVersion": 1.2,
+            "position": [
+                720,
+                -80
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "kjETjzJF05kUBRFk",
+                    "name": "OpenRouter_Auto_Fixed"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "mode": "retrieve-as-tool",
+                "toolDescription": "Usa questo tool per recuperare informazioni sull'azienda cliente: tone of voice, prodotti, servizi, brand guidelines, valori e identità visiva. Chiamalo SEMPRE prima di generare il prompt video, per personalizzare la scena in base al brand del cliente.",
+                "pineconeIndex": {
+                    "__rl": true,
+                    "value": "rag-blc-db",
+                    "mode": "list",
+                    "cachedResultName": "rag-blc-db"
+                },
+                "options": {}
+            },
+            "id": "4b2e261a-ac79-4ae5-864e-874c34ee0ed3",
+            "name": "Caption RAG Pinecone",
+            "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+            "typeVersion": 1.3,
+            "position": [
+                720,
+                -200
+            ],
+            "credentials": {
+                "pineconeApi": {
+                    "id": "pg8MVmRWeGRWKAH9",
+                    "name": "PineconeApi account Didattica BLC"
+                }
+            }
         }
     ],
     "connections": {
@@ -2066,6 +2115,28 @@
                     {
                         "node": "Invia Email Errore",
                         "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Caption RAG Embeddings": {
+            "ai_embedding": [
+                [
+                    {
+                        "node": "Caption RAG Pinecone",
+                        "type": "ai_embedding",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Caption RAG Pinecone": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_tool",
                         "index": 0
                     }
                 ]

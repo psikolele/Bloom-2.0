@@ -1,5 +1,5 @@
 {
-    "updatedAt": "2026-03-02T11:18:52.752Z",
+    "updatedAt": "2026-03-02T20:07:09.957Z",
     "createdAt": "2026-01-24T14:57:05.530Z",
     "id": "oRYSQ9tk63yPJaqt",
     "name": "Caption Flow V.2",
@@ -68,7 +68,7 @@
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**,`Reference Link`  genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Più visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalità:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.Platform }}</param>\n        <param name=\" Reference Link\">{{ $json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
+                            "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**,`Reference Link`  genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Pi\u00f9 visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalit\u00e0:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.Platform }}</param>\n        <param name=\" Reference Link\">{{ $json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
                         }
                     ]
                 }
@@ -127,7 +127,7 @@
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilità con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire varietà significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}</param>\n        <param name=\"Reference Link\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
+                            "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilit\u00e0 con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire variet\u00e0 significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}</param>\n        <param name=\"Reference Link\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
                         }
                     ]
                 }
@@ -186,7 +186,7 @@
                 "messages": {
                     "messageValues": [
                         {
-                            "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo è OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}\n- Audience: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}\n- Voice: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
+                            "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo \u00e8 OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}\n- Audience: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}\n- Voice: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
                         }
                     ]
                 }
@@ -411,13 +411,13 @@
             "parameters": {
                 "content": "# 01. Content Concept Generation\n\n**Purpose:** This step uses Google Gemini to generate **one unique content concept** tailored for the specified platform (Instagram/LinkedIn), based on the input topic, audience, and brand voice. The format is fixed to \"Single Image\".\n\n**Input (from Node '2. Prepare Input Variables'):**\n*   `Topic` (string)\n*   `TargetAudience` (string)\n*   `BrandVoice` (string)\n*   `Platform` (string: 'Instagram' )\n\n**Output (JSON):**\n*   `{\"ideas\": [{\"concept\": \"Generated concept text...\", \"suggested_format\": \"Single Image\"}]}`",
                 "height": 820,
-                "width": 460
+                "width": 1500
             },
             "id": "df8cfda5-33bb-46a6-918c-fab47cc59362",
             "name": "Sticky Note",
             "type": "n8n-nodes-base.stickyNote",
             "position": [
-                -48,
+                -1088,
                 368
             ],
             "typeVersion": 1
@@ -663,8 +663,8 @@
                 "operation": "sendAndWait",
                 "fromEmail": "serra.emanuele09@gmail.com",
                 "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first().json.body.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
-                "subject": "=✅ Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
-                "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">⏰</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verrà pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">♡</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">○</td>\n          <td style=\"font-size: 26px; line-height: 1;\">⊳</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post • Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">📌 Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>ℹ️ Come funziona:</strong><br>\n      • <strong>PUBBLICA</strong> → Post online immediatamente<br>\n      • <strong>RIFIUTA</strong> → Post NON verrà mai pubblicato<br>\n      • <strong>Nessuna azione</strong> → Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
+                "subject": "=\u2705 Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+                "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">\u23f0</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verr\u00e0 pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">\u2661</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">\u25cb</td>\n          <td style=\"font-size: 26px; line-height: 1;\">\u22b3</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post \u2022 Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">\ud83d\udccc Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>\u2139\ufe0f Come funziona:</strong><br>\n      \u2022 <strong>PUBBLICA</strong> \u2192 Post online immediatamente<br>\n      \u2022 <strong>RIFIUTA</strong> \u2192 Post NON verr\u00e0 mai pubblicato<br>\n      \u2022 <strong>Nessuna azione</strong> \u2192 Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
                 "approvalOptions": {
                     "values": {
                         "approvalType": "double",
@@ -930,8 +930,8 @@
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
             "position": [
-                608,
-                -304
+                640,
+                -288
             ],
             "id": "4d325876-e548-40d8-9381-140416cdc5e3",
             "name": "Video Prompt3"
@@ -970,8 +970,8 @@
             "type": "n8n-nodes-base.wait",
             "typeVersion": 1.1,
             "position": [
-                1664,
-                80
+                1824,
+                16
             ],
             "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
             "name": "Wait4",
@@ -1074,14 +1074,14 @@
                 "promptType": "define",
                 "text": "=Input: {{ $json.video_prompt }}",
                 "options": {
-                    "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito è prendere un concetto grezzo in ingresso (come un’idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall’aspetto naturale** che corrisponda all’intento iniziale. Concentrati sull’ottimizzazione della qualità visiva, del realismo della camera, dell’illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, età, genere, espressione e movimento.\n   * L’ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l’emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\ntutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
+                    "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito \u00e8 prendere un concetto grezzo in ingresso (come un\u2019idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall\u2019aspetto naturale** che corrisponda all\u2019intento iniziale. Concentrati sull\u2019ottimizzazione della qualit\u00e0 visiva, del realismo della camera, dell\u2019illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, et\u00e0, genere, espressione e movimento.\n   * L\u2019ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l\u2019emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\ntutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
                 }
             },
             "type": "@n8n/n8n-nodes-langchain.agent",
             "typeVersion": 2.2,
             "position": [
-                832,
-                -304
+                864,
+                -288
             ],
             "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
             "name": "AI Agent"
@@ -1199,7 +1199,7 @@
             "parameters": {
                 "fromEmail": "serra.emanuele09@gmail.com",
                 "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first()?.json?.body?.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
-                "subject": "=❌ Errore Caption Flow – {{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }} – {{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}",
+                "subject": "=\u274c Errore Caption Flow \u2013 {{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }} \u2013 {{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}",
                 "options": {}
             },
             "type": "n8n-nodes-base.emailSend",
@@ -1222,7 +1222,7 @@
             "parameters": {
                 "fromEmail": "serra.emanuele09@gmail.com",
                 "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first()?.json?.body?.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
-                "subject": "=❌ Kie API Error (code: {{ $json.code }}) – Caption Flow",
+                "subject": "=\u274c Kie API Error (code: {{ $json.code }}) \u2013 Caption Flow",
                 "options": {}
             },
             "type": "n8n-nodes-base.emailSend",
@@ -1243,18 +1243,18 @@
         },
         {
             "parameters": {
-                "content": "## 📋 Changelog — Caption Flow V.2\n\n**Ultimo deploy:** 2026-03-01 08:00\n**File sorgente:** `workflow_attivo.json`\n\n---\n\n### 2026-03-01 — Fix Upload Video Instagram\n- **fix:** Split nodo \"Upload to Instagram\" in due nodi separati:\n  - `Upload Image to IG` → `POST /api/upload_photos` (param: `photos[]`)\n  - `Upload Video to IG` → `POST /api/upload` (param: `video`)\n- **fix:** Aggiunto nodo IF \"Is Video?\" per routing per tipo media\n- **motivo:** L'API upload-post.com ha endpoint separati per foto e video. Mandare `photos[]` vuoto con i video causava errore `\"Error downloading photo from URL: \"`\n- **fix:** Rimosso prefisso `=` erroneo dal parametro `videos[]` (ora obsoleto)\n- **test:** Verificato con curl + URL Cloudinary da exec 8290 → video pubblicato su IG\n\n### 2026-02-28 — Fix Video Path & Retry\n- **fix:** Corretto percorso video: Prepare Data → Cloudinary `auto/upload` → Instagram video\n- **feat:** Aggiunto retry automatico per fallimenti generazione video Kie.ai (max 3 tentativi)\n- **fix:** Corretto polling loop video: rimosso check timestamp rotto, aggiunto contatore retry\n- **feat:** Aggiunto Loop Guard con protezione timeout (60 check ≈ 10 min)\n- **fix:** Corretto connessione Video Prompt3 → AI Agent e aggiunto taskId guard\n\n### 2026-02-26 — Deploy Script & V3\n- **feat:** Script deploy n8n workflow (`scripts/deploy_workflow.sh`)\n- **fix:** Dashboard UI fix, fix tool_use IDs\n- **feat:** Settings allowlist fix in `push_workflow_video.py`\n\n### Pre-2026-02-26 — Caption Flow V.2\n- Migrazione da Google GenAI a OpenRouter (Gemini 2.0 Flash)\n- Integrazione Kie.ai per generazione video (Sora 2)\n- AI Agent per elaborazione prompt video cinematografici\n- Workflow completo: Webhook → AI Content → Image/Video Gen → Cloudinary → Email Approval → Instagram Post",
+                "content": "## \ud83d\udccb Changelog \u2014 Caption Flow V.2\n\n**Ultimo deploy:** 2026-03-01 08:00\n**File sorgente:** `workflow_attivo.json`\n\n---\n\n### 2026-03-01 \u2014 Fix Upload Video Instagram\n- **fix:** Split nodo \"Upload to Instagram\" in due nodi separati:\n  - `Upload Image to IG` \u2192 `POST /api/upload_photos` (param: `photos[]`)\n  - `Upload Video to IG` \u2192 `POST /api/upload` (param: `video`)\n- **fix:** Aggiunto nodo IF \"Is Video?\" per routing per tipo media\n- **motivo:** L'API upload-post.com ha endpoint separati per foto e video. Mandare `photos[]` vuoto con i video causava errore `\"Error downloading photo from URL: \"`\n- **fix:** Rimosso prefisso `=` erroneo dal parametro `videos[]` (ora obsoleto)\n- **test:** Verificato con curl + URL Cloudinary da exec 8290 \u2192 video pubblicato su IG\n\n### 2026-02-28 \u2014 Fix Video Path & Retry\n- **fix:** Corretto percorso video: Prepare Data \u2192 Cloudinary `auto/upload` \u2192 Instagram video\n- **feat:** Aggiunto retry automatico per fallimenti generazione video Kie.ai (max 3 tentativi)\n- **fix:** Corretto polling loop video: rimosso check timestamp rotto, aggiunto contatore retry\n- **feat:** Aggiunto Loop Guard con protezione timeout (60 check \u2248 10 min)\n- **fix:** Corretto connessione Video Prompt3 \u2192 AI Agent e aggiunto taskId guard\n\n### 2026-02-26 \u2014 Deploy Script & V3\n- **feat:** Script deploy n8n workflow (`scripts/deploy_workflow.sh`)\n- **fix:** Dashboard UI fix, fix tool_use IDs\n- **feat:** Settings allowlist fix in `push_workflow_video.py`\n\n### Pre-2026-02-26 \u2014 Caption Flow V.2\n- Migrazione da Google GenAI a OpenRouter (Gemini 2.0 Flash)\n- Integrazione Kie.ai per generazione video (Sora 2)\n- AI Agent per elaborazione prompt video cinematografici\n- Workflow completo: Webhook \u2192 AI Content \u2192 Image/Video Gen \u2192 Cloudinary \u2192 Email Approval \u2192 Instagram Post",
                 "height": 920,
                 "width": 1508,
                 "color": 4
             },
             "id": "23ffdcaf-9b3c-4a20-bbc8-7a7035816b0b",
-            "name": "📋 CHANGELOG",
+            "name": "\ud83d\udccb CHANGELOG",
             "type": "n8n-nodes-base.stickyNote",
             "typeVersion": 1,
             "position": [
-                -1264,
-                -528
+                -1408,
+                -992
             ]
         },
         {
@@ -1337,18 +1337,17 @@
         },
         {
             "parameters": {
-                "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst execId = $execution.id;\n\n// Reset counter for each new execution (bug fix: was accumulating across runs)\nif (staticData.lastExecId !== execId) {\n  staticData.lastExecId = execId;\n  staticData.pollCount = 0;\n}\n\nstaticData.pollCount = (staticData.pollCount || 0) + 1;\nconst count = staticData.pollCount;\n\n// Timeout after 20 polls (~200s). Instead of throwing, bypass with mock data\nif (count > 20) {\n  console.log('[Loop Guard] Video timeout after ' + count + ' polls. Bypassing with mock URL.');\n  const mockItem = {\n    json: {\n      code: 200,\n      msg: 'timeout_bypass',\n      _timeoutBypass: true,\n      _pollCount: count,\n      data: {\n        taskId: $input.first().json.data?.taskId || 'mock_task',\n        state: 'timeout',\n        resultJson: JSON.stringify({\n          resultUrls: ['https://res.cloudinary.com/demo/video/upload/dog.mp4']\n        })\n      }\n    }\n  };\n  return [[], [mockItem]]; // output[0]=empty (stop loop), output[1]=bypass to Video URL4\n}\n\nreturn [$input.all(), []]; // output[0]=continue polling, output[1]=empty",
+                "jsCode": "const MAX_POLLS = 20;\n\n// $runIndex: variabile nativa N8N, si resetta ad ogni nuova esecuzione\n// Parte da 0, quindi count = $runIndex + 1 (1, 2, 3...)\nconst count = $runIndex + 1;\n\nif (count > MAX_POLLS) {\n  console.log('[Loop Guard] Timeout dopo ' + count + ' poll. Bypass con mock URL.');\n  const taskId = $input.first()?.json?.data?.taskId ?? 'mock_task';\n  const mockItem = {\n    json: {\n      code: 200,\n      msg: 'timeout_bypass',\n      _timeoutBypass: true,\n      _pollCount: count,\n      data: {\n        taskId,\n        state: 'timeout',\n        resultJson: JSON.stringify({\n          resultUrls: ['https://res.cloudinary.com/demo/video/upload/dog.mp4']\n        })\n      }\n    }\n  };\n  // output[0]=vuoto (stop loop), output[1]=bypass verso Video URL4\n  return [[], [mockItem]];\n}\n\n// output[0]=continua polling, output[1]=vuoto\nreturn [$input.all(), []];",
                 "numberOfOutputs": 2
             },
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1488,
+                1536,
                 16
             ],
             "id": "loop-guard-node",
-            "name": "Loop Guard",
-            "onError": "continueErrorOutput"
+            "name": "Loop Guard"
         },
         {
             "parameters": {
@@ -1357,8 +1356,8 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1568,
-                176
+                1616,
+                224
             ],
             "id": "task-retry-node",
             "name": "Task Retry",
@@ -1460,8 +1459,8 @@
         },
         {
             "parameters": {
-                "content": "# 03c. Video Generation (AI Agent → Kie.ai)\n\n**Purpose:** Quando il format richiesto è \"Video\", questo blocco genera un video a partire dal concept. Un AI Agent (GPT-4o-mini) elabora un prompt cinematografico dettagliato, che viene inviato all'API Kie.ai (modello Sora 2) per la generazione text-to-video.\n\n---\n\n### Flusso\n1. **Video Prompt3** — Prepara il concept per l'AI Agent\n2. **AI Agent** (GPT-4o-mini) — Scrive un prompt visivo dettagliato (soggetto, ambientazione, movimento, illuminazione, palette colori)\n3. **Text to Video2** — Invia il prompt a Kie.ai (`POST /api/task/openapi/create`), modello `sora-2-text-to-video`\n4. **Check Task Created** — Verifica che il task sia stato creato (code 200)\n5. **Wait4** (10s) → **Get Video4** — Polling dello stato del task\n6. **If4** — Controlla se `state === 'success'`\n   - ✅ `success` → **Video URL4** (estrae `resultUrl`)\n   - ❌ altrimenti → **Video Still Processing?**\n7. **Video Still Processing?** — Controlla se `state === 'fail'`\n   - `fail` → **Task Retry**\n   - ancora in attesa → **Loop Guard** (max 60 check ≈ 10 min)\n8. **Task Retry** — Max 3 tentativi, resetta il polling counter, rimanda a Text to Video2\n\n---\n\n### Output\n- `video_url` (string) — URL del video generato su Kie.ai\n\n### Parametri Kie.ai\n- Modello: `sora-2-text-to-video`\n- Aspect ratio: `landscape`\n- Frames: 10\n- Watermark: rimosso\n\n### Protezioni\n- **Loop Guard:** max 60 poll (~10 min timeout)\n- **Task Retry:** max 3 tentativi con reset counter\n- Errori → **Invia Email Errore**",
-                "height": 1312,
+                "content": "# 03c. Video Generation (AI Agent \u2192 Kie.ai)\n\n**Purpose:** Quando il format richiesto \u00e8 \"Video\", questo blocco genera un video a partire dal concept. Un AI Agent (GPT-4o-mini) elabora un prompt cinematografico dettagliato, che viene inviato all'API Kie.ai (modello Sora 2) per la generazione text-to-video.\n\n---\n\n### Flusso\n1. **Video Prompt3** \u2014 Prepara il concept per l'AI Agent\n2. **AI Agent** (GPT-4o-mini) \u2014 Scrive un prompt visivo dettagliato (soggetto, ambientazione, movimento, illuminazione, palette colori)\n3. **Text to Video2** \u2014 Invia il prompt a Kie.ai (`POST /api/task/openapi/create`), modello `sora-2-text-to-video`\n4. **Check Task Created** \u2014 Verifica che il task sia stato creato (code 200)\n5. **Wait4** (10s) \u2192 **Get Video4** \u2014 Polling dello stato del task\n6. **If4** \u2014 Controlla se `state === 'success'`\n   - \u2705 `success` \u2192 **Video URL4** (estrae `resultUrl`)\n   - \u274c altrimenti \u2192 **Video Still Processing?**\n7. **Video Still Processing?** \u2014 Controlla se `state === 'fail'`\n   - `fail` \u2192 **Task Retry**\n   - ancora in attesa \u2192 **Loop Guard** (max 60 check \u2248 10 min)\n8. **Task Retry** \u2014 Max 3 tentativi, resetta il polling counter, rimanda a Text to Video2\n\n---\n\n### Output\n- `video_url` (string) \u2014 URL del video generato su Kie.ai\n\n### Parametri Kie.ai\n- Modello: `sora-2-text-to-video`\n- Aspect ratio: `landscape`\n- Frames: 10\n- Watermark: rimosso\n\n### Protezioni\n- **Loop Guard:** max 60 poll (~10 min timeout)\n- **Task Retry:** max 3 tentativi con reset counter\n- Errori \u2192 **Invia Email Errore**",
+                "height": 1584,
                 "width": 1496
             },
             "id": "sticky-video-section",
@@ -1470,7 +1469,7 @@
             "typeVersion": 1,
             "position": [
                 592,
-                -944
+                -1216
             ]
         }
     ],
@@ -2147,9 +2146,9 @@
             }
         ]
     },
-    "versionId": "8373bcdc-c0f1-4582-bda2-eb71d28b2ccf",
-    "activeVersionId": "8373bcdc-c0f1-4582-bda2-eb71d28b2ccf",
-    "versionCounter": 504,
+    "versionId": "0e134960-6579-4d40-a58e-f0096f1b33f9",
+    "activeVersionId": "0e134960-6579-4d40-a58e-f0096f1b33f9",
+    "versionCounter": 524,
     "triggerCount": 1,
     "shared": [
         {
@@ -2188,9 +2187,9 @@
         }
     ],
     "activeVersion": {
-        "updatedAt": "2026-03-02T10:27:28.000Z",
-        "createdAt": "2026-03-02T10:27:24.337Z",
-        "versionId": "8373bcdc-c0f1-4582-bda2-eb71d28b2ccf",
+        "updatedAt": "2026-03-02T20:07:09.958Z",
+        "createdAt": "2026-03-02T20:07:09.958Z",
+        "versionId": "0e134960-6579-4d40-a58e-f0096f1b33f9",
         "workflowId": "oRYSQ9tk63yPJaqt",
         "nodes": [
             {
@@ -2254,7 +2253,7 @@
                     "messages": {
                         "messageValues": [
                             {
-                                "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**,`Reference Link`  genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Più visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalità:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.Platform }}</param>\n        <param name=\" Reference Link\">{{ $json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
+                                "message": "=<prompt>\n    <role>\n        Sei un **Social Media Strategist altamente creativo** specializzato nella generazione di **CONCEPT di contenuti unici e adatti alla piattaforma** per **Instagram e LinkedIn**. Pensi oltre i formati base e consideri l'engagement del pubblico.\n    </role>\n    \n    <language>\n        **IMPORTANTE: TUTTE le risposte devono essere in ITALIANO.**\n    </language>\n\n    <task>\n        Basandoti *esclusivamente* su `Topic`, `Target Audience`, `Brand Voice` e **`Platform` target ('Instagram' o 'LinkedIn')**,`Reference Link`  genera **esattamente 1 CONCEPT creativo di contenuto**. Concentrati sul **messaggio centrale, angolo o hook**. Il formato suggerito **DEVE essere \"Single Image\"**.\n        1.  **Ottimizzazione Platform:** **Adatta esplicitamente** il *tipo* e *angolo* del concept alla `Platform` specificata.\n            * **Instagram:** Pi\u00f9 visuale, storytelling, personale, community-focused.\n            * **LinkedIn:** Immagini d'impatto per dati, takeaway chiave, visual professionali.\n        2.  **Originalit\u00e0:** Evita luoghi comuni. Esplora angoli diversi: rappresentazioni visive di dati, immagini metaforiche, domande provocatorie.\n        3.  **Formato:** Il formato **DEVE essere \"Single Image\"**.\n    </task>\n\n    <input_context>\n        <param name=\"Topic\">{{ $json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $json.Platform }}</param>\n        <param name=\" Reference Link\">{{ $json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON valido con una chiave: `ideas`.\n        Il valore di `ideas` DEVE essere un array contenente esattamente 1 oggetto.\n        L'oggetto DEVE avere due chiavi: `concept` (stringa: il testo del concept IN ITALIANO) e `suggested_format` (stringa: **DEVE essere \"Single Image\"**).\n        Esempio: `{\"ideas\": [{\"concept\": \"Testo del concept in italiano...\", \"suggested_format\": \"Single Image\"}]}`\n        NON includere altro testo al di fuori della struttura JSON.\n    </output_instructions>\n</prompt>"
                             }
                         ]
                     }
@@ -2313,7 +2312,7 @@
                     "messages": {
                         "messageValues": [
                             {
-                                "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilità con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire varietà significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}</param>\n        <param name=\"Reference Link\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
+                                "message": "=<prompt>\n    <role>\n        Sei un **Esperto Instagram/LinkedIn Content Strategist e AI Image Prompt Engineer**. Sei eccellente nell'elaborare concept e creare prompt dettagliati per la generazione di immagini.\n    </role>\n\n    <language>\n        **IMPORTANTE: I concept devono essere in ITALIANO. I prompt per le immagini possono essere in inglese per migliore compatibilit\u00e0 con i generatori AI.**\n    </language>\n\n    <task>\n        1.  **Analizza** la `Chosen Idea` e la `Platform` target per elaborare un `expanded_post_concept` pratico IN ITALIANO.\n        2.  Genera **DUE OPZIONI DISTINTE** di prompt immagine basate sul concept espanso.\n        3.  **Distinzione:** Le due opzioni devono offrire variet\u00e0 significativa (stile, composizione, focus).\n        4.  **Dettaglio:** I prompt devono essere altamente dettagliati per generatori AI avanzati (soggetto, azione, ambientazione, stile, mood, composizione, illuminazione, palette colori).\n    </task>\n\n    <input_context>\n        <param name=\"ChosenIdea\">{{ $json.output.ideas[0].concept }}</param>\n        <param name=\"OriginalTopic\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</param>\n        <param name=\"TargetAudience\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}</param>\n        <param name=\"BrandVoice\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}</param>\n        <param name=\"Platform\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}</param>\n        <param name=\"Reference Link\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json['Reference Link'] }}</param>\n    </input_context>\n\n    <output_instructions>\n        La risposta DEVE essere un singolo oggetto JSON con due chiavi: `expanded_post_concept` e `prompt_options`.\n        - `expanded_post_concept` (stringa IN ITALIANO): Il concept visuale elaborato.\n        - `prompt_options` (array): DEVE contenere esattamente DUE oggetti.\n            - Ogni oggetto DEVE avere:\n                - `option_description` (stringa): Descrizione breve dell'opzione.\n                - `prompts` (array di stringhe): Contiene UNA stringa con il prompt dettagliato per l'immagine.\n        NON includere testo al di fuori del JSON. NON generare caption qui.\n    </output_instructions>\n</prompt>"
                             }
                         ]
                     }
@@ -2372,7 +2371,7 @@
                     "messages": {
                         "messageValues": [
                             {
-                                "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo è OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}\n- Audience: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}\n- Voice: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
+                                "message": "=Sei un AI Caption Writer per Instagram/LinkedIn.\n\n**LINGUA: DEVI scrivere ESCLUSIVAMENTE in ITALIANO. Questo \u00e8 OBBLIGATORIO.**\n\nTASK:\nScrivi una caption breve ed efficace per social media, adatta per {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Platform }}.\n\nDETTAGLI:\n- Concept: {{ $('3a. Generate Content Concept (Gemini)').item.json.output.ideas[0].concept }}\n- Topic: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}\n- Audience: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.TargetAudience }}\n- Voice: {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.BrandVoice }}\n\nLINEE GUIDA PLATFORM:\n- Instagram: Conversazionale, emoji, 3-7 hashtag in italiano.\n- LinkedIn: Professionale, conciso, 1-3 hashtag.\n\n**IMPORTANTE: La caption DEVE essere scritta interamente in ITALIANO.**\n\nOUTPUT:\nRestituisci SOLO un oggetto JSON con una chiave 'Caption'.\nEsempio: { \"Caption\": \"La tua caption in italiano... #hashtag\" }"
                             }
                         ]
                     }
@@ -2597,13 +2596,13 @@
                 "parameters": {
                     "content": "# 01. Content Concept Generation\n\n**Purpose:** This step uses Google Gemini to generate **one unique content concept** tailored for the specified platform (Instagram/LinkedIn), based on the input topic, audience, and brand voice. The format is fixed to \"Single Image\".\n\n**Input (from Node '2. Prepare Input Variables'):**\n*   `Topic` (string)\n*   `TargetAudience` (string)\n*   `BrandVoice` (string)\n*   `Platform` (string: 'Instagram' )\n\n**Output (JSON):**\n*   `{\"ideas\": [{\"concept\": \"Generated concept text...\", \"suggested_format\": \"Single Image\"}]}`",
                     "height": 820,
-                    "width": 460
+                    "width": 1500
                 },
                 "id": "df8cfda5-33bb-46a6-918c-fab47cc59362",
                 "name": "Sticky Note",
                 "type": "n8n-nodes-base.stickyNote",
                 "position": [
-                    -48,
+                    -1088,
                     368
                 ],
                 "typeVersion": 1
@@ -2849,8 +2848,8 @@
                     "operation": "sendAndWait",
                     "fromEmail": "serra.emanuele09@gmail.com",
                     "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first().json.body.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
-                    "subject": "=✅ Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
-                    "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">⏰</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verrà pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">♡</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">○</td>\n          <td style=\"font-size: 26px; line-height: 1;\">⊳</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post • Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">📌 Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>ℹ️ Come funziona:</strong><br>\n      • <strong>PUBBLICA</strong> → Post online immediatamente<br>\n      • <strong>RIFIUTA</strong> → Post NON verrà mai pubblicato<br>\n      • <strong>Nessuna azione</strong> → Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
+                    "subject": "=\u2705 Approva Post Instagram - {{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}",
+                    "message": "=<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff;\">\n  \n  <!-- ALERT BANNER -->\n  <div style=\"background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 0; text-align: center;\">\n    <div style=\"font-size: 40px; margin-bottom: 8px;\">\u23f0</div>\n    <h3 style=\"margin: 0 0 8px 0; color: white; font-size: 18px; font-weight: 600;\">Pubblicazione Automatica tra 24 ore</h3>\n    <p style=\"margin: 0; font-size: 13px; opacity: 0.95; line-height: 1.4;\">\n      Se non approvi o rifiuti entro <strong>domani alle 09:00</strong>,<br>\n      questo post verr\u00e0 pubblicato automaticamente.\n    </p>\n  </div>\n\n  <!-- INSTAGRAM POST STYLE -->\n  <div style=\"background: #fff; border: 1px solid #dbdbdb;\">\n    \n    <!-- Header (user info) -->\n    <div style=\"padding: 14px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width: 100%;\">\n        <tr>\n          <td style=\"width: 32px; padding-right: 12px; vertical-align: middle;\">\n            <div style=\"width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); display: table; text-align: center;\">\n              <div style=\"display: table-cell; vertical-align: middle; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff;\">\n                <span style=\"font-size: 12px; font-weight: 600; color: #fff;\">BLC</span>\n              </div>\n            </div>\n          </td>\n          <td style=\"vertical-align: middle;\">\n            <div style=\"font-weight: 600; font-size: 14px; color: #262626;\">blc_formazione</div>\n            <div style=\"font-size: 12px; color: #8e8e8e;\">Sponsored</div>\n          </td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Image -->\n    <div style=\"width: 100%; background: #000;\">\n      <img src=\"{{ $json.secure_url }}\" style=\"width: 100%; height: auto; display: block; max-height: 600px;\" alt=\"Instagram Post\">\n    </div>\n\n    <!-- Action buttons (emoji outline style) -->\n    <div style=\"padding: 12px 16px; border-bottom: 1px solid #efefef;\">\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n        <tr>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">\u2661</td>\n          <td style=\"padding-right: 18px; font-size: 26px; line-height: 1;\">\u25cb</td>\n          <td style=\"font-size: 26px; line-height: 1;\">\u22b3</td>\n        </tr>\n      </table>\n    </div>\n\n    <!-- Caption -->\n    <div style=\"padding: 8px 16px;\">\n      <div style=\"font-size: 14px; color: #262626; line-height: 1.5;\">\n        <span style=\"font-weight: 600; margin-right: 4px;\">blc_formazione</span>\n        <span style=\"white-space: pre-wrap;\">{{ $('5. Prepare Data for Instagram API').item.json.Caption }}</span>\n      </div>\n      <div style=\"color: #8e8e8e; font-size: 12px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px;\">\n        Anteprima Post \u2022 Non pubblicato\n      </div>\n    </div>\n\n    <!-- Pain Point Info -->\n    <div style=\"padding: 12px 16px; background: #fafafa; border-top: 1px solid #efefef;\">\n      <div style=\"font-size: 12px; color: #8e8e8e; margin-bottom: 4px;\">\ud83d\udccc Pain Point</div>\n      <div style=\"font-size: 13px; color: #262626; font-weight: 500;\">{{ $('2. Prepare Input Variables (Topic, Audience, etc.)').item.json.Topic }}</div>\n    </div>\n\n  </div>\n\n  <!-- INFO BOX -->\n  <div style=\"background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;\">\n    <div style=\"font-size: 14px; color: #856404; line-height: 1.6;\">\n      <strong>\u2139\ufe0f Come funziona:</strong><br>\n      \u2022 <strong>PUBBLICA</strong> \u2192 Post online immediatamente<br>\n      \u2022 <strong>RIFIUTA</strong> \u2192 Post NON verr\u00e0 mai pubblicato<br>\n      \u2022 <strong>Nessuna azione</strong> \u2192 Pubblicazione automatica domani mattina\n    </div>\n  </div>\n\n</div>",
                     "approvalOptions": {
                         "values": {
                             "approvalType": "double",
@@ -3116,8 +3115,8 @@
                 "type": "n8n-nodes-base.set",
                 "typeVersion": 3.4,
                 "position": [
-                    608,
-                    -304
+                    640,
+                    -288
                 ],
                 "id": "4d325876-e548-40d8-9381-140416cdc5e3",
                 "name": "Video Prompt3"
@@ -3156,8 +3155,8 @@
                 "type": "n8n-nodes-base.wait",
                 "typeVersion": 1.1,
                 "position": [
-                    1664,
-                    80
+                    1824,
+                    16
                 ],
                 "id": "6ef0a28b-62b2-40e0-9729-d1af2c001469",
                 "name": "Wait4",
@@ -3260,14 +3259,14 @@
                     "promptType": "define",
                     "text": "=Input: {{ $json.video_prompt }}",
                     "options": {
-                        "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito è prendere un concetto grezzo in ingresso (come un’idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall’aspetto naturale** che corrisponda all’intento iniziale. Concentrati sull’ottimizzazione della qualità visiva, del realismo della camera, dell’illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, età, genere, espressione e movimento.\n   * L’ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l’emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\ntutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
+                        "systemMessage": "=# Panoramica\n\nSei un esperto ingegnere di prompt video AI, formato per progettare prompt ottimizzati per la generazione video con Sora 2. Il tuo compito \u00e8 prendere un concetto grezzo in ingresso (come un\u2019idea breve, una descrizione di scena o un tipo di video) e trasformarlo in un prompt video altamente dettagliato, visivamente ricco e cinematografico.\n\nIl tuo output deve descrivere un **video realistico e dall\u2019aspetto naturale** che corrisponda all\u2019intento iniziale. Concentrati sull\u2019ottimizzazione della qualit\u00e0 visiva, del realismo della camera, dell\u2019illuminazione, del movimento dei soggetti e della coerenza ambientale.\n\nSegui queste regole per ogni prompt:\n\n1. Descrivi sempre:\n\n   * I soggetti principali: aspetto, abbigliamento, et\u00e0, genere, espressione e movimento.\n   * L\u2019ambientazione: luogo, sfondo, illuminazione, ora del giorno e atmosfera.\n   * Lo stile della camera: angolazione, tipo di lente, inquadratura e movimento (es. a mano, carrello, aerea).\n   * Il tono o l\u2019emozione della scena (es. cinematografico, documentaristico, energico, drammatico).\n   * Gli effetti ambientali e di illuminazione realistici (es. luce solare morbida, riflessi, motion blur).\n\n2. Il prompt deve sembrare la descrizione di una scena fatta da un direttore della fotografia professionista a un team di effetti visivi.\n\n3. Evita frasi generiche o ripetitive: ogni frase deve aggiungere un dettaglio visivo o contestuale.\n\n4. Mantieni un tono naturale e descrittivo, non tecnico o meccanico.\n\n5. Assicurati che il prompt scorra in modo fluido e trasmetta una visione coesa e unitaria.\n\n---\n\n#Nota Finale\n\ntutti i video devono essere **sempre in lingua italiana**, sia nei dialoghi che negli elementi testuali visibili sullo schermo.\n"
                     }
                 },
                 "type": "@n8n/n8n-nodes-langchain.agent",
                 "typeVersion": 2.2,
                 "position": [
-                    832,
-                    -304
+                    864,
+                    -288
                 ],
                 "id": "b35756cb-ce42-4f11-b5e7-fc86008080e5",
                 "name": "AI Agent"
@@ -3385,7 +3384,7 @@
                 "parameters": {
                     "fromEmail": "serra.emanuele09@gmail.com",
                     "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first()?.json?.body?.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
-                    "subject": "=❌ Errore Caption Flow – {{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }} – {{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}",
+                    "subject": "=\u274c Errore Caption Flow \u2013 {{ $('CaptionFlow Webhook').first()?.json?.body?.Account || 'N/A' }} \u2013 {{ $('CaptionFlow Webhook').first()?.json?.body?.Topic || 'N/A' }}",
                     "options": {}
                 },
                 "type": "n8n-nodes-base.emailSend",
@@ -3408,7 +3407,7 @@
                 "parameters": {
                     "fromEmail": "serra.emanuele09@gmail.com",
                     "toEmail": "={{ ['Foot_Easy','walmoss_interior_design'].includes($('CaptionFlow Webhook').first()?.json?.body?.Account) ? 'serra.emanuele09@gmail.com,javier@webstoreplus.ch' : 'serra.emanuele09@gmail.com' }}",
-                    "subject": "=❌ Kie API Error (code: {{ $json.code }}) – Caption Flow",
+                    "subject": "=\u274c Kie API Error (code: {{ $json.code }}) \u2013 Caption Flow",
                     "options": {}
                 },
                 "type": "n8n-nodes-base.emailSend",
@@ -3429,18 +3428,18 @@
             },
             {
                 "parameters": {
-                    "content": "## 📋 Changelog — Caption Flow V.2\n\n**Ultimo deploy:** 2026-03-01 08:00\n**File sorgente:** `workflow_attivo.json`\n\n---\n\n### 2026-03-01 — Fix Upload Video Instagram\n- **fix:** Split nodo \"Upload to Instagram\" in due nodi separati:\n  - `Upload Image to IG` → `POST /api/upload_photos` (param: `photos[]`)\n  - `Upload Video to IG` → `POST /api/upload` (param: `video`)\n- **fix:** Aggiunto nodo IF \"Is Video?\" per routing per tipo media\n- **motivo:** L'API upload-post.com ha endpoint separati per foto e video. Mandare `photos[]` vuoto con i video causava errore `\"Error downloading photo from URL: \"`\n- **fix:** Rimosso prefisso `=` erroneo dal parametro `videos[]` (ora obsoleto)\n- **test:** Verificato con curl + URL Cloudinary da exec 8290 → video pubblicato su IG\n\n### 2026-02-28 — Fix Video Path & Retry\n- **fix:** Corretto percorso video: Prepare Data → Cloudinary `auto/upload` → Instagram video\n- **feat:** Aggiunto retry automatico per fallimenti generazione video Kie.ai (max 3 tentativi)\n- **fix:** Corretto polling loop video: rimosso check timestamp rotto, aggiunto contatore retry\n- **feat:** Aggiunto Loop Guard con protezione timeout (60 check ≈ 10 min)\n- **fix:** Corretto connessione Video Prompt3 → AI Agent e aggiunto taskId guard\n\n### 2026-02-26 — Deploy Script & V3\n- **feat:** Script deploy n8n workflow (`scripts/deploy_workflow.sh`)\n- **fix:** Dashboard UI fix, fix tool_use IDs\n- **feat:** Settings allowlist fix in `push_workflow_video.py`\n\n### Pre-2026-02-26 — Caption Flow V.2\n- Migrazione da Google GenAI a OpenRouter (Gemini 2.0 Flash)\n- Integrazione Kie.ai per generazione video (Sora 2)\n- AI Agent per elaborazione prompt video cinematografici\n- Workflow completo: Webhook → AI Content → Image/Video Gen → Cloudinary → Email Approval → Instagram Post",
+                    "content": "## \ud83d\udccb Changelog \u2014 Caption Flow V.2\n\n**Ultimo deploy:** 2026-03-01 08:00\n**File sorgente:** `workflow_attivo.json`\n\n---\n\n### 2026-03-01 \u2014 Fix Upload Video Instagram\n- **fix:** Split nodo \"Upload to Instagram\" in due nodi separati:\n  - `Upload Image to IG` \u2192 `POST /api/upload_photos` (param: `photos[]`)\n  - `Upload Video to IG` \u2192 `POST /api/upload` (param: `video`)\n- **fix:** Aggiunto nodo IF \"Is Video?\" per routing per tipo media\n- **motivo:** L'API upload-post.com ha endpoint separati per foto e video. Mandare `photos[]` vuoto con i video causava errore `\"Error downloading photo from URL: \"`\n- **fix:** Rimosso prefisso `=` erroneo dal parametro `videos[]` (ora obsoleto)\n- **test:** Verificato con curl + URL Cloudinary da exec 8290 \u2192 video pubblicato su IG\n\n### 2026-02-28 \u2014 Fix Video Path & Retry\n- **fix:** Corretto percorso video: Prepare Data \u2192 Cloudinary `auto/upload` \u2192 Instagram video\n- **feat:** Aggiunto retry automatico per fallimenti generazione video Kie.ai (max 3 tentativi)\n- **fix:** Corretto polling loop video: rimosso check timestamp rotto, aggiunto contatore retry\n- **feat:** Aggiunto Loop Guard con protezione timeout (60 check \u2248 10 min)\n- **fix:** Corretto connessione Video Prompt3 \u2192 AI Agent e aggiunto taskId guard\n\n### 2026-02-26 \u2014 Deploy Script & V3\n- **feat:** Script deploy n8n workflow (`scripts/deploy_workflow.sh`)\n- **fix:** Dashboard UI fix, fix tool_use IDs\n- **feat:** Settings allowlist fix in `push_workflow_video.py`\n\n### Pre-2026-02-26 \u2014 Caption Flow V.2\n- Migrazione da Google GenAI a OpenRouter (Gemini 2.0 Flash)\n- Integrazione Kie.ai per generazione video (Sora 2)\n- AI Agent per elaborazione prompt video cinematografici\n- Workflow completo: Webhook \u2192 AI Content \u2192 Image/Video Gen \u2192 Cloudinary \u2192 Email Approval \u2192 Instagram Post",
                     "height": 920,
                     "width": 1508,
                     "color": 4
                 },
                 "id": "23ffdcaf-9b3c-4a20-bbc8-7a7035816b0b",
-                "name": "📋 CHANGELOG",
+                "name": "\ud83d\udccb CHANGELOG",
                 "type": "n8n-nodes-base.stickyNote",
                 "typeVersion": 1,
                 "position": [
-                    -1264,
-                    -528
+                    -1408,
+                    -992
                 ]
             },
             {
@@ -3523,18 +3522,17 @@
             },
             {
                 "parameters": {
-                    "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst execId = $execution.id;\n\n// Reset counter for each new execution (bug fix: was accumulating across runs)\nif (staticData.lastExecId !== execId) {\n  staticData.lastExecId = execId;\n  staticData.pollCount = 0;\n}\n\nstaticData.pollCount = (staticData.pollCount || 0) + 1;\nconst count = staticData.pollCount;\n\n// Timeout after 20 polls (~200s). Instead of throwing, bypass with mock data\nif (count > 20) {\n  console.log('[Loop Guard] Video timeout after ' + count + ' polls. Bypassing with mock URL.');\n  const mockItem = {\n    json: {\n      code: 200,\n      msg: 'timeout_bypass',\n      _timeoutBypass: true,\n      _pollCount: count,\n      data: {\n        taskId: $input.first().json.data?.taskId || 'mock_task',\n        state: 'timeout',\n        resultJson: JSON.stringify({\n          resultUrls: ['https://res.cloudinary.com/demo/video/upload/dog.mp4']\n        })\n      }\n    }\n  };\n  return [[], [mockItem]]; // output[0]=empty (stop loop), output[1]=bypass to Video URL4\n}\n\nreturn [$input.all(), []]; // output[0]=continue polling, output[1]=empty",
+                    "jsCode": "const MAX_POLLS = 20;\n\n// $runIndex: variabile nativa N8N, si resetta ad ogni nuova esecuzione\n// Parte da 0, quindi count = $runIndex + 1 (1, 2, 3...)\nconst count = $runIndex + 1;\n\nif (count > MAX_POLLS) {\n  console.log('[Loop Guard] Timeout dopo ' + count + ' poll. Bypass con mock URL.');\n  const taskId = $input.first()?.json?.data?.taskId ?? 'mock_task';\n  const mockItem = {\n    json: {\n      code: 200,\n      msg: 'timeout_bypass',\n      _timeoutBypass: true,\n      _pollCount: count,\n      data: {\n        taskId,\n        state: 'timeout',\n        resultJson: JSON.stringify({\n          resultUrls: ['https://res.cloudinary.com/demo/video/upload/dog.mp4']\n        })\n      }\n    }\n  };\n  // output[0]=vuoto (stop loop), output[1]=bypass verso Video URL4\n  return [[], [mockItem]];\n}\n\n// output[0]=continua polling, output[1]=vuoto\nreturn [$input.all(), []];",
                     "numberOfOutputs": 2
                 },
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 2,
                 "position": [
-                    1488,
+                    1536,
                     16
                 ],
                 "id": "loop-guard-node",
-                "name": "Loop Guard",
-                "onError": "continueErrorOutput"
+                "name": "Loop Guard"
             },
             {
                 "parameters": {
@@ -3543,8 +3541,8 @@
                 "type": "n8n-nodes-base.code",
                 "typeVersion": 2,
                 "position": [
-                    1568,
-                    176
+                    1616,
+                    224
                 ],
                 "id": "task-retry-node",
                 "name": "Task Retry",
@@ -3646,8 +3644,8 @@
             },
             {
                 "parameters": {
-                    "content": "# 03c. Video Generation (AI Agent → Kie.ai)\n\n**Purpose:** Quando il format richiesto è \"Video\", questo blocco genera un video a partire dal concept. Un AI Agent (GPT-4o-mini) elabora un prompt cinematografico dettagliato, che viene inviato all'API Kie.ai (modello Sora 2) per la generazione text-to-video.\n\n---\n\n### Flusso\n1. **Video Prompt3** — Prepara il concept per l'AI Agent\n2. **AI Agent** (GPT-4o-mini) — Scrive un prompt visivo dettagliato (soggetto, ambientazione, movimento, illuminazione, palette colori)\n3. **Text to Video2** — Invia il prompt a Kie.ai (`POST /api/task/openapi/create`), modello `sora-2-text-to-video`\n4. **Check Task Created** — Verifica che il task sia stato creato (code 200)\n5. **Wait4** (10s) → **Get Video4** — Polling dello stato del task\n6. **If4** — Controlla se `state === 'success'`\n   - ✅ `success` → **Video URL4** (estrae `resultUrl`)\n   - ❌ altrimenti → **Video Still Processing?**\n7. **Video Still Processing?** — Controlla se `state === 'fail'`\n   - `fail` → **Task Retry**\n   - ancora in attesa → **Loop Guard** (max 60 check ≈ 10 min)\n8. **Task Retry** — Max 3 tentativi, resetta il polling counter, rimanda a Text to Video2\n\n---\n\n### Output\n- `video_url` (string) — URL del video generato su Kie.ai\n\n### Parametri Kie.ai\n- Modello: `sora-2-text-to-video`\n- Aspect ratio: `landscape`\n- Frames: 10\n- Watermark: rimosso\n\n### Protezioni\n- **Loop Guard:** max 60 poll (~10 min timeout)\n- **Task Retry:** max 3 tentativi con reset counter\n- Errori → **Invia Email Errore**",
-                    "height": 1312,
+                    "content": "# 03c. Video Generation (AI Agent \u2192 Kie.ai)\n\n**Purpose:** Quando il format richiesto \u00e8 \"Video\", questo blocco genera un video a partire dal concept. Un AI Agent (GPT-4o-mini) elabora un prompt cinematografico dettagliato, che viene inviato all'API Kie.ai (modello Sora 2) per la generazione text-to-video.\n\n---\n\n### Flusso\n1. **Video Prompt3** \u2014 Prepara il concept per l'AI Agent\n2. **AI Agent** (GPT-4o-mini) \u2014 Scrive un prompt visivo dettagliato (soggetto, ambientazione, movimento, illuminazione, palette colori)\n3. **Text to Video2** \u2014 Invia il prompt a Kie.ai (`POST /api/task/openapi/create`), modello `sora-2-text-to-video`\n4. **Check Task Created** \u2014 Verifica che il task sia stato creato (code 200)\n5. **Wait4** (10s) \u2192 **Get Video4** \u2014 Polling dello stato del task\n6. **If4** \u2014 Controlla se `state === 'success'`\n   - \u2705 `success` \u2192 **Video URL4** (estrae `resultUrl`)\n   - \u274c altrimenti \u2192 **Video Still Processing?**\n7. **Video Still Processing?** \u2014 Controlla se `state === 'fail'`\n   - `fail` \u2192 **Task Retry**\n   - ancora in attesa \u2192 **Loop Guard** (max 60 check \u2248 10 min)\n8. **Task Retry** \u2014 Max 3 tentativi, resetta il polling counter, rimanda a Text to Video2\n\n---\n\n### Output\n- `video_url` (string) \u2014 URL del video generato su Kie.ai\n\n### Parametri Kie.ai\n- Modello: `sora-2-text-to-video`\n- Aspect ratio: `landscape`\n- Frames: 10\n- Watermark: rimosso\n\n### Protezioni\n- **Loop Guard:** max 60 poll (~10 min timeout)\n- **Task Retry:** max 3 tentativi con reset counter\n- Errori \u2192 **Invia Email Errore**",
+                    "height": 1584,
                     "width": 1496
                 },
                 "id": "sticky-video-section",
@@ -3656,7 +3654,7 @@
                 "typeVersion": 1,
                 "position": [
                     592,
-                    -944
+                    -1216
                 ]
             }
         ],
@@ -4259,16 +4257,24 @@
             }
         },
         "authors": "Emanule Serra",
-        "name": "Version 8373bcdc",
-        "description": "",
-        "autosaved": true,
+        "name": null,
+        "description": null,
+        "autosaved": false,
         "workflowPublishHistory": [
             {
-                "createdAt": "2026-03-02T10:27:28.163Z",
-                "id": 746,
+                "createdAt": "2026-03-02T20:07:10.214Z",
+                "id": 754,
                 "workflowId": "oRYSQ9tk63yPJaqt",
-                "versionId": "8373bcdc-c0f1-4582-bda2-eb71d28b2ccf",
+                "versionId": "0e134960-6579-4d40-a58e-f0096f1b33f9",
                 "event": "activated",
+                "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
+            },
+            {
+                "createdAt": "2026-03-02T20:07:10.100Z",
+                "id": 753,
+                "workflowId": "oRYSQ9tk63yPJaqt",
+                "versionId": "0e134960-6579-4d40-a58e-f0096f1b33f9",
+                "event": "deactivated",
                 "userId": "02df7494-a65c-4c90-9190-46eb9b88898b"
             }
         ]

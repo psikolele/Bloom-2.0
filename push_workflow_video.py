@@ -88,7 +88,15 @@ def build_payload(workflow_data: dict) -> dict:
     Extracts nodes, connections, settings, and name. Merges sensible
     defaults into settings.
     """
-    settings = workflow_data.get("settings", {})
+    raw_settings = workflow_data.get("settings", {})
+
+    # Only keep settings accepted by the n8n API (strip cloud-only props)
+    allowed_keys = {
+        "executionOrder", "saveDataErrorExecution", "saveDataSuccessExecution",
+        "saveExecutionProgress", "saveManualExecutions", "timezone",
+        "errorWorkflow",
+    }
+    settings = {k: v for k, v in raw_settings.items() if k in allowed_keys}
 
     # Merge defaults (don't overwrite what the file already has)
     setting_defaults = {
@@ -106,7 +114,6 @@ def build_payload(workflow_data: dict) -> dict:
         "nodes": workflow_data.get("nodes", []),
         "connections": workflow_data.get("connections", {}),
         "settings": settings,
-        "staticData": workflow_data.get("staticData", None),
     }
 
 
