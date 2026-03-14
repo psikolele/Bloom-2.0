@@ -229,8 +229,8 @@ body {
   z-index: 1;
   max-width: 800px;
   margin: 0 auto;
-  padding: 120px var(--spacing-lg) var(--spacing-2xl);
-  min-height: calc(100vh - 60px);
+  padding: 40px var(--spacing-lg) var(--spacing-2xl);
+  min-height: 100vh;
 }
 
 /* -------------------- Hero Section -------------------- */
@@ -628,7 +628,7 @@ body {
   }
 
   .main {
-    padding: 100px var(--spacing-md) var(--spacing-xl);
+    padding: 20px var(--spacing-md) var(--spacing-xl);
   }
 
   .glass-panel {
@@ -852,7 +852,7 @@ body {
 .instagram-image {
   width: 100%;
   height: auto;
-  display: block;
+  display: none; /* Hidden by default; JS shows it when loaded */
   max-height: 500px;
   object-fit: cover;
 }
@@ -1362,7 +1362,7 @@ body {
 }
 
 .popup-content .instagram-image-container {
-  height: 200px;
+  min-height: 50px; /* Small minimum; grows with content */
 }
 
 /* Mobile adjustments for popup */
@@ -1418,93 +1418,91 @@ body {
   background-position: right 12px center;
   background-size: 18px;
 }
-
-/* -------------------- Toggle Switch -------------------- */
-.toggle-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--spacing-md);
-  width: 100%;
-}
-
-.toggle-switch {
+/* ==================== FORMAT TOGGLE ==================== */
+.format-toggle {
   position: relative;
-  display: inline-block;
-  width: 140px;
-  height: 36px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-full);
-  padding: 3px;
-  cursor: pointer;
-  border: 1px solid var(--border-subtle);
-  transition: all var(--transition-fast);
-}
-
-.toggle-switch:hover {
-  border-color: var(--border-hover);
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.toggle-input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  right: 3px;
-  bottom: 3px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+  overflow: hidden;
 }
 
-.toggle-label {
+.format-toggle__btn {
   flex: 1;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-md) - 4px);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  position: relative;
   z-index: 2;
-  transition: color var(--transition-medium);
+  transition: color 0.35s ease;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.toggle-slider::before {
-  content: "";
+.format-toggle__btn svg {
+  transition: transform 0.35s ease, filter 0.35s ease;
+  flex-shrink: 0;
+}
+
+.format-toggle__btn:hover:not(.active) {
+  color: var(--text-secondary);
+}
+
+.format-toggle__btn:hover:not(.active) svg {
+  transform: scale(1.1);
+}
+
+.format-toggle__btn.active {
+  color: #fff;
+}
+
+.format-toggle__btn.active svg {
+  filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.6));
+}
+
+.format-toggle__slider {
   position: absolute;
-  height: 100%;
-  width: 50%;
-  left: 0;
-  bottom: 0;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-full);
-  transition: transform var(--transition-medium);
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 6px);
+  height: calc(100% - 8px);
+  background: var(--accent-gradient);
+  border-radius: calc(var(--radius-md) - 4px);
+  box-shadow:
+    0 0 20px rgba(255, 107, 53, 0.3),
+    0 0 40px rgba(255, 107, 53, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.35s ease;
   z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.toggle-input:not(:checked)+.toggle-slider .toggle-label.image {
-  color: #fff;
+.format-toggle.video-active .format-toggle__slider {
+  left: calc(50% + 2px);
 }
 
-.toggle-input:checked+.toggle-slider .toggle-label.video {
-  color: #fff;
+.format-toggle:hover {
+  border-color: var(--border-hover);
 }
 
-.toggle-input:checked+.toggle-slider::before {
-  transform: translateX(100%);
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+.format-toggle:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 /* -------------------- Video Preview -------------------- */

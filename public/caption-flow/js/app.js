@@ -40,6 +40,10 @@ const elements = {
   postPreview: document.getElementById('postPreview'),
   previewImage: document.getElementById('previewImage'),
   previewCaptionText: document.getElementById('previewCaptionText'),
+  previewUsername: document.getElementById('previewUsername'),
+  previewLocation: document.getElementById('previewLocation'),
+  previewAvatar: document.getElementById('previewAvatar'),
+  previewCaptionUsername: document.getElementById('previewCaptionUsername'),
   // Bloom Return Elements
   returnBtn: document.getElementById('returnToBloomBtn'),
   bloomLoader: document.getElementById('bloomLoader'),
@@ -50,6 +54,7 @@ const elements = {
   // Progress Elements
   progressSteps: document.querySelectorAll('.progress-step'),
   progressLines: document.querySelectorAll('.progress-line'),
+  formatSelect: document.getElementById('formatSelect'),
   formatToggle: document.getElementById('formatToggle')
 };
 
@@ -461,7 +466,7 @@ function showState(stateName, data = null) {
       elements.submitBtn.disabled = true;
 
       // Check format and update message accordingly
-      const isVideoFormat = elements.formatToggle && elements.formatToggle.checked;
+      const isVideoFormat = elements.formatSelect?.value === 'video';
       updateLoadingMessage(isVideoFormat);
 
       // Start Snake game and progress
@@ -485,7 +490,7 @@ function showState(stateName, data = null) {
 
       // Render preview if data is available
       if (data && data.data) {
-        renderPreview(data.data);
+        renderPreview(data.data, data.payload);
       } else {
         // Hide preview card if no data (e.g. in timeout fallback)
         elements.postPreview?.classList.add('hidden');
@@ -514,11 +519,45 @@ function showState(stateName, data = null) {
 /**
  * Renders the post preview
  * @param {Object} data - The preview data (caption, image_url, video_url)
+ * @param {Object} payload - The original request payload
  */
-function renderPreview(data) {
+function renderPreview(data, payload) {
   if (!data) return;
 
+  // Set Profile info
+  if (payload && payload.Account) {
+    let displayName = payload.Account;
+    // Format the display name (e.g., foot_easy -> Foot Easy)
+    if (displayName === 'Foot_Easy') displayName = 'Foot Easy';
+    if (displayName === 'walmoss_interior_design') displayName = 'Walmoss Interior Design';
+    if (displayName === 'istituto_pessina') displayName = 'Istituto Pessina';
+
+    if (elements.previewUsername) elements.previewUsername.textContent = displayName;
+    if (elements.previewCaptionUsername) elements.previewCaptionUsername.textContent = displayName;
+    
+    // Attempt to set a custom avatar background if applicable
+    if (elements.previewAvatar) {
+       elements.previewAvatar.style.background = 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)';
+    }
+  }
+
+  // Set Location based on Platform
+  if (payload && payload.Platform && elements.previewLocation) {
+    const platformNames = {
+      'instagram': 'Instagram AI Studio',
+      'facebook': 'Facebook AI Studio',
+      'linkedin': 'LinkedIn AI Studio',
+      'tiktok': 'TikTok AI Studio',
+      'twitter': 'X AI Studio'
+    };
+    elements.previewLocation.textContent = platformNames[payload.Platform] || 'AI Studio';
+  }
+
   const imageContainer = elements.previewImage?.parentElement;
+
+  // Remove any existing placeholder div
+  const existingPlaceholder = imageContainer?.querySelector('.preview-placeholder');
+  if (existingPlaceholder) existingPlaceholder.remove();
 
   // Reset visibility
   if (elements.previewImage) elements.previewImage.style.display = 'none';
@@ -547,9 +586,47 @@ function renderPreview(data) {
     elements.previewVideo.style.display = 'block';
   }
   // Handle Image
-  else if (data.image_url && elements.previewImage) {
-    elements.previewImage.src = data.image_url;
-    elements.previewImage.style.display = 'block';
+  else if (elements.previewImage) {
+    if (data.image_url) {
+      // Show image only when loaded to avoid broken state
+      elements.previewImage.style.display = 'none';
+      elements.previewImage.onload = function() {
+        elements.previewImage.style.display = 'block';
+        // Remove placeholder if it appeared
+        const ph = imageContainer?.querySelector('.preview-placeholder');
+        if (ph) ph.remove();
+      };
+      elements.previewImage.onerror = function() {
+        // Show a styled placeholder on error
+        elements.previewImage.style.display = 'none';
+        if (imageContainer && !imageContainer.querySelector('.preview-placeholder')) {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'preview-placeholder';
+          placeholder.style.cssText = 'width:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2c2c3e);color:#888;font-family:Arial,sans-serif;font-size:14px;text-align:center;padding:20px;';
+          placeholder.textContent = 'Immagine in elaborazione...';
+          imageContainer.appendChild(placeholder);
+        }
+      };
+      elements.previewImage.src = data.image_url;
+      // Show placeholder while loading
+      if (imageContainer) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'preview-placeholder';
+        placeholder.style.cssText = 'width:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2c2c3e);color:#888;font-family:Arial,sans-serif;font-size:14px;text-align:center;padding:20px;';
+        placeholder.textContent = '⏳ Caricamento immagine...';
+        imageContainer.insertBefore(placeholder, elements.previewImage);
+      }
+    } else {
+      // No image URL: show a styled placeholder div
+      elements.previewImage.style.display = 'none';
+      if (imageContainer) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'preview-placeholder';
+        placeholder.style.cssText = 'width:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2c2c3e);color:#888;font-family:Arial,sans-serif;font-size:14px;text-align:center;padding:20px;';
+        placeholder.textContent = '🖼️ Immagine in elaborazione o non trovata';
+        imageContainer.appendChild(placeholder);
+      }
+    }
   }
 
   if (data.caption && elements.previewCaptionText) {
@@ -632,7 +709,15 @@ function resetForm() {
   elements.socialSelect.value = '';
   elements.toneSelect.value = '';
   elements.audienceSelect.value = '';
-  if (elements.formatToggle) elements.formatToggle.checked = false; // Reset to Image
+  if (elements.formatSelect) elements.formatSelect.value = 'image'; // Reset to Image
+  // Reset format toggle UI
+  if (elements.formatToggle) {
+    elements.formatToggle.classList.remove('video-active');
+    const toggleBtns = elements.formatToggle.querySelectorAll('.format-toggle__btn');
+    toggleBtns.forEach(b => {
+      b.classList.toggle('active', b.dataset.value === 'image');
+    });
+  }
   showState('form');
   elements.ideaInput.focus();
 }
@@ -704,15 +789,47 @@ async function handleSubmit(event) {
   showState('loading');
 
   // Prepare data
+
+  // Determine account BEFORE building the payload:
+  // - Non-admin users (e.g. job_courier): account is already known from login → read loginName from session
+  // - Admin users: account depends on the dropdown selection made on the form → read from accountSelect
+  let accountValue = null;
+  try {
+    const userJson = localStorage.getItem('bloom_user');
+    if (userJson) {
+      const user = JSON.parse(userJson);
+      const loginName = (user.loginName || '').toLowerCase().trim();
+      const username = (user.username || '').toLowerCase().trim();
+      const email = (user.email || '').toLowerCase().trim();
+      const isAdmin = loginName === 'admin'
+        || email.endsWith('@blc-sa.ch')
+        || username === 'admin'
+        || username === 'admin user'
+        || username === 'adminuser';
+
+      const isLimitedAdmin = loginName === 'webstoreplus' || username === 'webstoreplus';
+
+      if (isAdmin || isLimitedAdmin) {
+        // Admin/limited-admin chooses the account from the dropdown (set after page load)
+        accountValue = elements.accountSelect?.value || null;
+      } else {
+        // Non-admin: account name is the login identifier (loginName), known before payload
+        accountValue = loginName || username || null;
+      }
+    }
+  } catch (e) {
+    console.error('[CaptionFlow] Error determining account:', e);
+  }
+
   const referenceLink = elements.linkInput ? elements.linkInput.value.trim() : '';
   const data = {
     Topic: elements.ideaInput.value.trim(),
     Platform: elements.socialSelect.value,
     Audience: elements.audienceSelect.value,
     Voice: elements.toneSelect.value,
-    Account: (elements.accountSelectContainer && !elements.accountSelectContainer.classList.contains('hidden')) ? elements.accountSelect.value : null,
+    Account: accountValue,
     ReferenceLink: referenceLink || null,
-    format: elements.formatToggle && elements.formatToggle.checked ? 'video' : 'image',
+    format: elements.formatSelect?.value || 'image',
     timestamp: new Date().toISOString(),
     source: 'CaptionFlow Web App'
   };
@@ -722,7 +839,7 @@ async function handleSubmit(event) {
     const response = await sendToWebhook(data);
 
     // Show success state with response data
-    showState('success', response);
+    showState('success', { ...response, payload: data });
 
     // Save last used platform to localStorage
     localStorage.setItem('captionflow_last_platform', data.Platform);
@@ -826,6 +943,23 @@ function init() {
     elements.returnBtn.addEventListener('click', handleReturnToBloom);
   }
 
+  // Initialize Format Toggle
+  if (elements.formatToggle) {
+    const toggleBtns = elements.formatToggle.querySelectorAll('.format-toggle__btn');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        // Update hidden input
+        if (elements.formatSelect) elements.formatSelect.value = value;
+        // Update active state
+        toggleBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Move slider
+        elements.formatToggle.classList.toggle('video-active', value === 'video');
+      });
+    });
+  }
+
   // Initialize Snake game
   snakeGame.init();
 
@@ -857,6 +991,19 @@ function init() {
       if (isAdmin) {
         elements.accountSelectContainer?.classList.remove('hidden');
         console.log('Admin detected — Account Selection enabled');
+      } else if (loginName === 'webstoreplus' || username === 'webstoreplus') {
+        // Filtra il dropdown: mostra solo Foot_Easy e Walmoss Interior Design
+        const allowedValues = ['Foot_Easy', 'walmoss_interior_design'];
+        const selectEl = elements.accountSelect;
+        if (selectEl) {
+          Array.from(selectEl.options).forEach(opt => {
+            if (opt.value && !allowedValues.includes(opt.value)) {
+              selectEl.removeChild(opt);
+            }
+          });
+        }
+        elements.accountSelectContainer?.classList.remove('hidden');
+        console.log('WebstorePlus detected — Limited Account Selection enabled (Foot_Easy + Walmoss)');
       }
     }
   } catch (e) {
