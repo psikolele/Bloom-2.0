@@ -231,19 +231,43 @@ export default function App() {
 
     // Admin Check
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isWebstorePlus, setIsWebstorePlus] = useState(false);
     useEffect(() => {
         const userStr = localStorage.getItem('bloom_user');
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
                 const username = (user.username || '').toLowerCase();
+                const loginName = (user.loginName || '').toLowerCase();
                 // Simple admin check based on known users or 'admin' prefix
                 if (username === 'admin' || username === 'emanuele' || username.startsWith('admin_')) {
                     setIsAdmin(true);
                 }
+                if (username === 'webstoreplus' || loginName === 'webstoreplus') {
+                    setIsWebstorePlus(true);
+                }
             } catch (e) { console.error("Error parsing user", e); }
         }
     }, []);
+
+    // Webstore Plus: fetch client accounts from RAG folders
+    const [clientAccounts, setClientAccounts] = useState<{ id: string; name: string }[]>([]);
+    const [selectedAccount, setSelectedAccount] = useState<string>('');
+    useEffect(() => {
+        if (!isWebstorePlus) return;
+        fetch('https://emanueleserra.app.n8n.cloud/webhook/rag-folders?username=admin')
+            .then(r => r.json())
+            .then(data => {
+                const items: any[] = Array.isArray(data) ? data : (data?.documents || []);
+                const accounts = items.map((f: any) => ({ id: f.id || f.name, name: f.name }));
+                setClientAccounts(accounts);
+                if (accounts.length > 0) setSelectedAccount(accounts[0].name);
+            })
+            .catch(() => {});
+    }, [isWebstorePlus]);
+
+    // Competitor flag (all users)
+    const [isCompetitor, setIsCompetitor] = useState(false);
 
     // Core inputs/outputs
     const [websiteUrl, setWebsiteUrl] = useState("");
@@ -320,7 +344,9 @@ export default function App() {
                 ...profileData,
                 website: websiteUrl,
                 username: username,
-                user_email: userEmail
+                user_email: userEmail,
+                is_competitor: isCompetitor,
+                target_account: isWebstorePlus ? selectedAccount : username
             };
 
             console.log(`📤 Sending payload to ${targetType} endpoint:`, targetUrl);
@@ -470,29 +496,69 @@ export default function App() {
                     <div className="flex flex-col gap-6 relative min-h-[400px]">
 
                         {/* INPUT SECTION */}
-                        <div className="flex flex-col md:flex-row gap-4 items-end">
-                            <div className="flex-1 space-y-2 w-full">
-                                <label className="text-xs font-bold text-accent uppercase tracking-widest font-mono pl-1">01. Source Input</label>
-                                <div className="relative group">
-                                    <Icons.Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-accent transition-colors" width={18} height={18} />
-                                    <input
-                                        type="text"
-                                        value={websiteUrl}
-                                        onChange={e => setWebsiteUrl(e.target.value)}
-                                        placeholder="Costruisci il tuo brand profile partendo dal sito web (es. https://...)"
-                                        className="w-full tech-input rounded-xl py-4 pl-12 pr-4 text-sm font-mono placeholder:text-gray-600"
-                                        onKeyDown={e => e.key === 'Enter' && handleGenerate()}
-                                    />
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col md:flex-row gap-4 items-end">
+                                <div className="flex-1 space-y-2 w-full">
+                                    <label className="text-xs font-bold text-accent uppercase tracking-widest font-mono pl-1">01. Source Input</label>
+                                    <div className="relative group">
+                                        <Icons.Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-accent transition-colors" width={18} height={18} />
+                                        <input
+                                            type="text"
+                                            value={websiteUrl}
+                                            onChange={e => setWebsiteUrl(e.target.value)}
+                                            placeholder="Costruisci il tuo brand profile partendo dal sito web (es. https://...)"
+                                            className="w-full tech-input rounded-xl py-4 pl-12 pr-4 text-sm font-mono placeholder:text-gray-600"
+                                            onKeyDown={e => e.key === 'Enter' && handleGenerate()}
+                                        />
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={handleGenerate}
+                                    disabled={status === 'generating' || !websiteUrl}
+                                    className="w-full md:w-auto h-[54px] px-8 rounded-xl bg-surface border border-white/10 text-white hover:bg-accent hover:text-white transition-all font-mono font-bold uppercase text-sm tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <Icons.Wand width={18} height={18} />
+                                    Generate
+                                </button>
                             </div>
-                            <button
-                                onClick={handleGenerate}
-                                disabled={status === 'generating' || !websiteUrl}
-                                className="w-full md:w-auto h-[54px] px-8 rounded-xl bg-surface border border-white/10 text-white hover:bg-accent hover:text-white transition-all font-mono font-bold uppercase text-sm tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <Icons.Wand width={18} height={18} />
-                                Generate
-                            </button>
+
+                            {/* TARGET ACCOUNT DROPDOWN — webstoreplus only */}
+                            {isWebstorePlus && (
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-accent uppercase tracking-widest font-mono pl-1">02. Target Account</label>
+                                    <select
+                                        value={selectedAccount}
+                                        onChange={e => setSelectedAccount(e.target.value)}
+                                        className="w-full tech-input px-4 py-3 rounded-xl text-sm font-mono bg-[#0a0a0a] text-white"
+                                    >
+                                        {clientAccounts.length === 0 ? (
+                                            <option value="">Caricamento account...</option>
+                                        ) : (
+                                            clientAccounts.map((acc) => (
+                                                <option key={acc.id} value={acc.name}>{acc.name}</option>
+                                            ))
+                                        )}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* COMPETITOR CHECKBOX — all users */}
+                            <div className="flex items-center gap-3 px-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCompetitor(v => !v)}
+                                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all shrink-0 ${
+                                        isCompetitor
+                                            ? 'bg-amber-500 border-amber-500'
+                                            : 'bg-transparent border-white/30 hover:border-white/60'
+                                    }`}
+                                >
+                                    {isCompetitor && <Icons.Check width={12} height={12} className="text-black" />}
+                                </button>
+                                <span className="text-xs font-mono text-gray-400">
+                                    Sito competitor <span className="text-amber-400 font-bold">(analisi competitiva)</span>
+                                </span>
+                            </div>
                         </div>
 
                         {/* CONTENT AREA */}
