@@ -74,58 +74,100 @@ const BloomRedirectLoader = () => (
     </div>
 );
 
-const ThinkingBot = () => (
-    <div className="flex flex-col items-center justify-center py-12 animate-reveal">
-        <div className="relative w-24 h-24 mb-6 animate-float">
-            {/* Glow behind */}
-            <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl bot-glow"></div>
+const ThinkingBot = () => {
+    const [phase, setPhase] = useState(0);
 
-            <svg viewBox="0 0 100 100" className="w-full h-full relative z-10 drop-shadow-2xl">
-                {/* Head */}
-                <rect x="20" y="20" width="60" height="50" rx="10" fill="#111" stroke="#333" strokeWidth="2" />
-                <rect x="20" y="20" width="60" height="50" rx="10" fill="url(#metalGradient)" opacity="0.5" />
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setPhase((p) => (p + 1) % 3);
+        }, 3500); 
+        return () => clearInterval(interval);
+    }, []);
 
-                {/* Antenna */}
-                <line x1="50" y1="20" x2="50" y2="10" stroke="#555" strokeWidth="3" />
-                <circle cx="50" cy="10" r="4" fill="#FF6B35" className="animate-pulse" />
+    const phases = [
+        {
+            title: "Data Intelligence",
+            desc: "SCANNING BRAND DNA...",
+            icon: (
+                <svg viewBox="0 0 100 100" className="w-full h-full relative z-10 drop-shadow-2xl">
+                    <rect x="25" y="25" width="50" height="42" rx="12" fill="#111" stroke="#333" strokeWidth="2" />
+                    <rect x="33" y="33" width="34" height="20" rx="4" fill="#050505" />
+                    <g className="animate-pulse">
+                        <circle cx="43" cy="43" r="4" fill="#FF6B35" />
+                        <circle cx="57" cy="43" r="4" fill="#FF6B35" />
+                    </g>
+                    <line x1="40" y1="62" x2="60" y2="62" stroke="#555" strokeWidth="2" strokeLinecap="round" />
+                    {/* Scanner Line */}
+                    <rect x="34" y="34" width="32" height="12" fill="url(#scanGradient)" className="animate-[scanner_1.5s_infinite]" />
+                    <defs>
+                        <linearGradient id="scanGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="transparent" />
+                            <stop offset="50%" stopColor="#FF6B35" stopOpacity="0.4" />
+                            <stop offset="100%" stopColor="transparent" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            ),
+            glow: "bg-accent/20"
+        },
+        {
+            title: "AI Synthesis",
+            desc: "MAPPING AUDIENCE INSIGHTS...",
+            icon: (
+                <div className="relative w-full h-full flex items-center justify-center">
+                    <div className="absolute inset-1 border-2 border-dashed border-purple-400/40 rounded-full animate-[spin_8s_linear_infinite]"></div>
+                    <div className="absolute inset-3 border border-dotted border-cyan-400/60 rounded-full animate-[spin_4s_linear_infinite_reverse]"></div>
+                    <div className="w-8 h-8 bg-gradient-to-tr from-purple-500 to-cyan-400 rounded-full shadow-[0_0_25px_rgba(179,73,193,0.6)] animate-pulse flex items-center justify-center">
+                        <div className="w-3 h-3 bg-white rounded-full blur-[2px] opacity-40"></div>
+                    </div>
+                </div>
+            ),
+            glow: "bg-purple-500/20"
+        },
+        {
+            title: "Strategy Crafting",
+            desc: "GENERATING POSITIONING...",
+            icon: (
+                <div className="relative w-full h-full flex items-center justify-center">
+                    <div className="absolute inset-2 bg-gradient-radial from-accent/30 to-transparent blur-md rounded-full animate-ping"></div>
+                    <Icons.Wand className="w-10 h-10 text-accent animate-[float_2s_ease-in-out_infinite]" />
+                    <div className="absolute top-1 right-3 animate-ping">✨</div>
+                </div>
+            ),
+            glow: "bg-accent/20"
+        }
+    ];
 
-                {/* Face Screen */}
-                <rect x="28" y="30" width="44" height="24" rx="4" fill="#050505" />
-
-                {/* Eyes */}
-                <g className="bot-eye">
-                    <circle cx="40" cy="42" r="5" fill="#FF6B35" />
-                    <circle cx="60" cy="42" r="5" fill="#FF6B35" />
-                </g>
-
-                {/* Mouth (Thinking dots) */}
-                <g transform="translate(38, 55)">
-                    <circle cx="0" cy="0" r="2" fill="#555">
-                        <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0s" />
-                    </circle>
-                    <circle cx="12" cy="0" r="2" fill="#555">
-                        <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0.2s" />
-                    </circle>
-                    <circle cx="24" cy="0" r="2" fill="#555">
-                        <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0.4s" />
-                    </circle>
-                </g>
-
-                <defs>
-                    <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#333" />
-                        <stop offset="50%" stopColor="#111" />
-                        <stop offset="100%" stopColor="#222" />
-                    </linearGradient>
-                </defs>
-            </svg>
+    return (
+        <div className="flex flex-col items-center justify-center py-12 animate-reveal">
+            <div className="relative w-24 h-24 mb-6">
+                {/* Dynamic Ambient Glow */}
+                <div className={`absolute inset-0 ${phases[phase].glow} rounded-full blur-xl transition-all duration-700`}></div>
+                
+                <div className="relative w-full h-full flex items-center justify-center animate-[float_3s_ease-in-out_infinite]">
+                    {phases[phase].icon}
+                </div>
+            </div>
+            <div className="space-y-2 text-center">
+                <h3 className="text-xl font-mono font-bold text-white transition-all duration-500">{phases[phase].title}</h3>
+                <p className="text-gray-400 text-xs font-mono tracking-wider animate-pulse transition-all duration-500">{phases[phase].desc}</p>
+                
+                {/* Progress Indicators */}
+                <div className="flex justify-center gap-1.5 mt-3">
+                    {phases.map((_, i) => (
+                        <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === phase ? 'w-5 bg-accent shadow-[0_0_8px_#FF6B35]' : 'w-1.5 bg-white/20'}`}></div>
+                    ))}
+                </div>
+            </div>
+            <style>{`
+                @keyframes scanner {
+                    0% { transform: translateY(-5px); }
+                    100% { transform: translateY(12px); }
+                }
+            `}</style>
         </div>
-        <div className="space-y-2 text-center">
-            <h3 className="text-xl font-mono font-bold text-white">AI Processing</h3>
-            <p className="text-gray-400 text-xs font-mono tracking-wider animate-pulse">ANALYZING BRAND DNA...</p>
-        </div>
-    </div>
-);
+    );
+};
 
 const EditToast = ({ show, onClose }: { show: boolean, onClose: () => void }) => {
     useEffect(() => {
