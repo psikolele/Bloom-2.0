@@ -222,6 +222,8 @@ const MetricCard = ({
 export default function App() {
     // State
     const [webhookUrl, setWebhookUrl] = useState(import.meta.env.VITE_N8N_WEBHOOK_URL || "https://emanueleserra.app.n8n.cloud/webhook/b5ca58d1-8bb6-4326-835e-bc26a612aa94");
+    const [webhookUrl2, setWebhookUrl2] = useState(import.meta.env.VITE_N8N_WEBHOOK_URL_2 || "");
+    const [publishingTarget, setPublishingTarget] = useState<"sheet" | "ai" | null>(null);
     const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].name);
     const [isConfigOpen, setIsConfigOpen] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -293,8 +295,11 @@ export default function App() {
         }
     };
 
-    const handlePublish = async () => {
+    const handlePublish = async (targetUrl: string, targetType: "sheet" | "ai") => {
         if (!profileData) return showError("Genera prima il profilo.");
+        if (!targetUrl) return showError(`Endpoint non configurato per: ${targetType === 'sheet' ? 'Google Sheet' : 'AI Training'}`);
+        
+        setPublishingTarget(targetType);
         setStatus("publishing");
         try {
             // Extract username from localStorage
@@ -318,10 +323,9 @@ export default function App() {
                 user_email: userEmail
             };
 
-            console.log("📤 Sending payload to N8N:", payload);
-            console.log("🔗 Webhook URL:", webhookUrl);
+            console.log(`📤 Sending payload to ${targetType} endpoint:`, targetUrl);
 
-            const res = await fetch(webhookUrl, {
+            const res = await fetch(targetUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -330,20 +334,15 @@ export default function App() {
             console.log("📥 Response status:", res.status);
 
             if (res.ok) {
-                const responseText = await res.text();
-                console.log("✅ Response body:", responseText);
                 setStatus("success");
             } else {
                 const errorText = await res.text();
-                console.error("❌ Error response:", errorText);
                 throw new Error(`HTTP ${res.status}: ${errorText || 'No error details'}`);
             }
         } catch (e: any) {
             console.error("❌ Full error:", e);
-
-            // Check if it's a network/CORS error
             if (e instanceof TypeError && e.message.includes('Failed to fetch')) {
-                showError("Errore di rete o CORS. Verifica che N8N accetti richieste dal browser.");
+                showError("Errore di rete o CORS.");
             } else {
                 showError(`Errore Invio: ${e.message || 'Errore sconosciuto'}`);
             }
@@ -432,8 +431,12 @@ export default function App() {
                                 <div className="grid md:grid-cols-2 gap-4">
                                     <div className="space-y-4">
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-gray-500 uppercase">Webhook Endpoint</label>
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase">G-Sheet Endpoint</label>
                                             <input type="text" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} className="w-full tech-input px-4 py-2.5 rounded-lg text-sm font-mono" />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase">AI Training Endpoint</label>
+                                            <input type="text" value={webhookUrl2} onChange={e => setWebhookUrl2(e.target.value)} className="w-full tech-input px-4 py-2.5 rounded-lg text-sm font-mono" placeholder="Incolla URL automation per addestramento" />
                                         </div>
                                     </div>
                                     <div className="space-y-4">
@@ -708,14 +711,25 @@ export default function App() {
                                 <button onClick={reset} className="mt-4 text-xs text-gray-400 hover:text-white underline font-mono">NEW PROFILE</button>
                             </div>
                         ) : (
-                            <button
-                                onClick={handlePublish}
-                                disabled={status === 'publishing'}
-                                className={`w-full py-4 rounded-xl font-bold font-mono tracking-widest uppercase text-white flex items-center justify-center gap-3 btn-primary ${status === 'publishing' ? 'opacity-80' : ''}`}
-                            >
-                                {status === 'publishing' ? 'Sending Data...' : 'Deploy to Automation'}
-                                {!status.includes('pub') && <Icons.Send width={16} height={16} />}
-                            </button>
+                            <div className="flex flex-col md:flex-row gap-4 w-full">
+                                <button
+                                    onClick={() => handlePublish(webhookUrl, 'sheet')}
+                                    disabled={status === 'publishing'}
+                                    className={`flex-1 py-4 rounded-xl font-bold font-mono tracking-widest uppercase text-white flex items-center justify-center gap-3 btn-primary ${status === 'publishing' ? 'opacity-80' : ''}`}
+                                >
+                                    {publishingTarget === 'sheet' && status === 'publishing' ? 'Sending...' : 'Send to Google Sheet'}
+                                    {(!publishingTarget || (publishingTarget === 'sheet' && !status.includes('pub'))) && <Icons.Send width={16} height={16} />}
+                                </button>
+                                
+                                <button
+                                    onClick={() => handlePublish(webhookUrl2, 'ai')}
+                                    disabled={status === 'publishing'}
+                                    className={`flex-1 py-4 rounded-xl font-bold font-mono tracking-widest uppercase text-white flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all hover:-translate-y-px ${status === 'publishing' ? 'opacity-80' : ''}`}
+                                >
+                                    {publishingTarget === 'ai' && status === 'publishing' ? 'Training...' : 'Supercharge Your AI'}
+                                    {(!publishingTarget || (publishingTarget === 'ai' && !status.includes('pub'))) && <Icons.Zap width={16} height={16} />}
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}

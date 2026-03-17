@@ -40,6 +40,10 @@ const elements = {
   postPreview: document.getElementById('postPreview'),
   previewImage: document.getElementById('previewImage'),
   previewCaptionText: document.getElementById('previewCaptionText'),
+  previewUsername: document.getElementById('previewUsername'),
+  previewLocation: document.getElementById('previewLocation'),
+  previewAvatar: document.getElementById('previewAvatar'),
+  previewCaptionUsername: document.getElementById('previewCaptionUsername'),
   // Bloom Return Elements
   returnBtn: document.getElementById('returnToBloomBtn'),
   bloomLoader: document.getElementById('bloomLoader'),
@@ -486,7 +490,7 @@ function showState(stateName, data = null) {
 
       // Render preview if data is available
       if (data && data.data) {
-        renderPreview(data.data);
+        renderPreview(data.data, data.payload);
       } else {
         // Hide preview card if no data (e.g. in timeout fallback)
         elements.postPreview?.classList.add('hidden');
@@ -515,11 +519,45 @@ function showState(stateName, data = null) {
 /**
  * Renders the post preview
  * @param {Object} data - The preview data (caption, image_url, video_url)
+ * @param {Object} payload - The original request payload
  */
-function renderPreview(data) {
+function renderPreview(data, payload) {
   if (!data) return;
 
+  // Set Profile info
+  if (payload && payload.Account) {
+    let displayName = payload.Account;
+    // Format the display name (e.g., foot_easy -> Foot Easy)
+    if (displayName === 'Foot_Easy') displayName = 'Foot Easy';
+    if (displayName === 'walmoss_interior_design') displayName = 'Walmoss Interior Design';
+    if (displayName === 'istituto_pessina') displayName = 'Istituto Pessina';
+
+    if (elements.previewUsername) elements.previewUsername.textContent = displayName;
+    if (elements.previewCaptionUsername) elements.previewCaptionUsername.textContent = displayName;
+    
+    // Attempt to set a custom avatar background if applicable
+    if (elements.previewAvatar) {
+       elements.previewAvatar.style.background = 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)';
+    }
+  }
+
+  // Set Location based on Platform
+  if (payload && payload.Platform && elements.previewLocation) {
+    const platformNames = {
+      'instagram': 'Instagram AI Studio',
+      'facebook': 'Facebook AI Studio',
+      'linkedin': 'LinkedIn AI Studio',
+      'tiktok': 'TikTok AI Studio',
+      'twitter': 'X AI Studio'
+    };
+    elements.previewLocation.textContent = platformNames[payload.Platform] || 'AI Studio';
+  }
+
   const imageContainer = elements.previewImage?.parentElement;
+
+  // Remove any existing placeholder div
+  const existingPlaceholder = imageContainer?.querySelector('.preview-placeholder');
+  if (existingPlaceholder) existingPlaceholder.remove();
 
   // Reset visibility
   if (elements.previewImage) elements.previewImage.style.display = 'none';
@@ -548,9 +586,47 @@ function renderPreview(data) {
     elements.previewVideo.style.display = 'block';
   }
   // Handle Image
-  else if (data.image_url && elements.previewImage) {
-    elements.previewImage.src = data.image_url;
-    elements.previewImage.style.display = 'block';
+  else if (elements.previewImage) {
+    if (data.image_url) {
+      // Show image only when loaded to avoid broken state
+      elements.previewImage.style.display = 'none';
+      elements.previewImage.onload = function() {
+        elements.previewImage.style.display = 'block';
+        // Remove placeholder if it appeared
+        const ph = imageContainer?.querySelector('.preview-placeholder');
+        if (ph) ph.remove();
+      };
+      elements.previewImage.onerror = function() {
+        // Show a styled placeholder on error
+        elements.previewImage.style.display = 'none';
+        if (imageContainer && !imageContainer.querySelector('.preview-placeholder')) {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'preview-placeholder';
+          placeholder.style.cssText = 'width:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2c2c3e);color:#888;font-family:Arial,sans-serif;font-size:14px;text-align:center;padding:20px;';
+          placeholder.textContent = 'Immagine in elaborazione...';
+          imageContainer.appendChild(placeholder);
+        }
+      };
+      elements.previewImage.src = data.image_url;
+      // Show placeholder while loading
+      if (imageContainer) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'preview-placeholder';
+        placeholder.style.cssText = 'width:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2c2c3e);color:#888;font-family:Arial,sans-serif;font-size:14px;text-align:center;padding:20px;';
+        placeholder.textContent = '⏳ Caricamento immagine...';
+        imageContainer.insertBefore(placeholder, elements.previewImage);
+      }
+    } else {
+      // No image URL: show a styled placeholder div
+      elements.previewImage.style.display = 'none';
+      if (imageContainer) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'preview-placeholder';
+        placeholder.style.cssText = 'width:100%;min-height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#2c2c3e);color:#888;font-family:Arial,sans-serif;font-size:14px;text-align:center;padding:20px;';
+        placeholder.textContent = '🖼️ Immagine in elaborazione o non trovata';
+        imageContainer.appendChild(placeholder);
+      }
+    }
   }
 
   if (data.caption && elements.previewCaptionText) {
@@ -763,7 +839,7 @@ async function handleSubmit(event) {
     const response = await sendToWebhook(data);
 
     // Show success state with response data
-    showState('success', response);
+    showState('success', { ...response, payload: data });
 
     // Save last used platform to localStorage
     localStorage.setItem('captionflow_last_platform', data.Platform);
