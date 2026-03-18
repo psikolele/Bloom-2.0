@@ -11,6 +11,12 @@ const AVAILABLE_MODELS = [
     { name: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro (Advanced Thinking)" },
 ];
 
+// Webstore Plus: client accounts available for target routing
+const WEBSTORE_ACCOUNTS = [
+    { id: 'walmoss', name: 'Walmoss' },
+    { id: 'foot-easy', name: 'Foot Easy' },
+];
+
 // --- COMPONENTS ---
 
 const AnimatedLoader = () => (
@@ -250,12 +256,8 @@ export default function App() {
         }
     }, []);
 
-    // Webstore Plus: available client accounts
-    const WEBSTORE_ACCOUNTS = [
-        { id: 'walmoss', name: 'Walmoss' },
-        { id: 'foot-easy', name: 'Foot Easy' },
-    ];
-    const [selectedAccount, setSelectedAccount] = useState<string>('Walmoss');
+    // Webstore Plus: selected account for target routing
+    const [selectedAccount, setSelectedAccount] = useState<string>(WEBSTORE_ACCOUNTS[0].name);
 
     // Competitor flag (all users)
     const [isCompetitor, setIsCompetitor] = useState(false);
