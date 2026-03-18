@@ -250,21 +250,12 @@ export default function App() {
         }
     }, []);
 
-    // Webstore Plus: fetch client accounts from RAG folders
-    const [clientAccounts, setClientAccounts] = useState<{ id: string; name: string }[]>([]);
-    const [selectedAccount, setSelectedAccount] = useState<string>('');
-    useEffect(() => {
-        if (!isWebstorePlus) return;
-        fetch('https://emanueleserra.app.n8n.cloud/webhook/rag-folders?username=admin')
-            .then(r => r.json())
-            .then(data => {
-                const items: any[] = Array.isArray(data) ? data : (data?.documents || []);
-                const accounts = items.map((f: any) => ({ id: f.id || f.name, name: f.name }));
-                setClientAccounts(accounts);
-                if (accounts.length > 0) setSelectedAccount(accounts[0].name);
-            })
-            .catch(() => {});
-    }, [isWebstorePlus]);
+    // Webstore Plus: available client accounts
+    const WEBSTORE_ACCOUNTS = [
+        { id: 'walmoss', name: 'Walmoss' },
+        { id: 'foot-easy', name: 'Foot Easy' },
+    ];
+    const [selectedAccount, setSelectedAccount] = useState<string>('Walmoss');
 
     // Competitor flag (all users)
     const [isCompetitor, setIsCompetitor] = useState(false);
@@ -319,9 +310,9 @@ export default function App() {
         }
     };
 
-    const handlePublish = async (targetUrl: string, targetType: "sheet" | "ai") => {
+    const handlePublish = async (targetType: "sheet" | "ai") => {
         if (!profileData) return showError("Genera prima il profilo.");
-        if (!targetUrl) return showError(`Endpoint non configurato per: ${targetType === 'sheet' ? 'Google Sheet' : 'AI Training'}`);
+        if (!webhookUrl) return showError("Endpoint N8N non configurato.");
         
         setPublishingTarget(targetType);
         setStatus("publishing");
@@ -346,12 +337,13 @@ export default function App() {
                 username: username,
                 user_email: userEmail,
                 is_competitor: isCompetitor,
-                target_account: isWebstorePlus ? selectedAccount : username
+                target_account: isWebstorePlus ? selectedAccount : username,
+                action_type: targetType,
             };
 
-            console.log(`📤 Sending payload to ${targetType} endpoint:`, targetUrl);
+            console.log(`📤 Sending payload (action_type: ${targetType}):`, webhookUrl);
 
-            const res = await fetch(targetUrl, {
+            const res = await fetch(webhookUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -529,15 +521,12 @@ export default function App() {
                                     <select
                                         value={selectedAccount}
                                         onChange={e => setSelectedAccount(e.target.value)}
-                                        className="w-full tech-input px-4 py-3 rounded-xl text-sm font-mono bg-[#0a0a0a] text-white"
+                                        className="w-full tech-input px-4 py-3 rounded-xl text-sm font-mono bg-[#0a0a0a] text-white border border-white/10"
+                                        style={{ colorScheme: 'dark' }}
                                     >
-                                        {clientAccounts.length === 0 ? (
-                                            <option value="">Caricamento account...</option>
-                                        ) : (
-                                            clientAccounts.map((acc) => (
-                                                <option key={acc.id} value={acc.name}>{acc.name}</option>
-                                            ))
-                                        )}
+                                        {WEBSTORE_ACCOUNTS.map((acc) => (
+                                            <option key={acc.id} value={acc.name}>{acc.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                             )}
@@ -779,16 +768,16 @@ export default function App() {
                         ) : (
                             <div className="flex flex-col md:flex-row gap-4 w-full">
                                 <button
-                                    onClick={() => handlePublish(webhookUrl, 'sheet')}
+                                    onClick={() => handlePublish('sheet')}
                                     disabled={status === 'publishing'}
                                     className={`flex-1 py-4 rounded-xl font-bold font-mono tracking-widest uppercase text-white flex items-center justify-center gap-3 btn-primary ${status === 'publishing' ? 'opacity-80' : ''}`}
                                 >
                                     {publishingTarget === 'sheet' && status === 'publishing' ? 'Sending...' : 'Send to Google Sheet'}
                                     {(!publishingTarget || (publishingTarget === 'sheet' && !status.includes('pub'))) && <Icons.Send width={16} height={16} />}
                                 </button>
-                                
+
                                 <button
-                                    onClick={() => handlePublish(webhookUrl2, 'ai')}
+                                    onClick={() => handlePublish('ai')}
                                     disabled={status === 'publishing'}
                                     className={`flex-1 py-4 rounded-xl font-bold font-mono tracking-widest uppercase text-white flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-500/20 shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all hover:-translate-y-px ${status === 'publishing' ? 'opacity-80' : ''}`}
                                 >
