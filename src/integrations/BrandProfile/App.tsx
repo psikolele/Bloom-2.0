@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Icons } from './components/Icons';
 import { SpotlightCard } from './components/SpotlightCard';
 import { generateBrandProfile, type BrandProfileData } from './services/gemini';
@@ -11,7 +11,13 @@ const AVAILABLE_MODELS = [
     { name: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro (Advanced Thinking)" },
 ];
 
-// Webstore Plus: client accounts available for target routing
+// All RAG client databases — admin can route to any of these
+const ALL_RAG_ACCOUNTS = [
+    { id: 'walmoss', name: 'Walmoss' },
+    { id: 'foot-easy', name: 'Foot Easy' },
+];
+
+// Webstore Plus sees only their own clients
 const WEBSTORE_ACCOUNTS = [
     { id: 'walmoss', name: 'Walmoss' },
     { id: 'foot-easy', name: 'Foot Easy' },
@@ -223,6 +229,65 @@ const MetricCard = ({
     );
 };
 
+// --- CUSTOM DROPDOWN ---
+const CustomDropdown = ({
+    options,
+    value,
+    onChange,
+}: {
+    options: { id: string; name: string }[];
+    value: string;
+    onChange: (val: string) => void;
+}) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleOutside = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener('mousedown', handleOutside);
+        return () => document.removeEventListener('mousedown', handleOutside);
+    }, []);
+
+    return (
+        <div ref={ref} className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen(v => !v)}
+                className="w-full tech-input px-4 py-3 rounded-xl text-sm font-mono text-white flex items-center justify-between gap-2 hover:border-accent/50 transition-colors"
+            >
+                <span className={value ? 'text-white' : 'text-gray-500'}>{value || 'Seleziona account…'}</span>
+                <svg
+                    width="16" height="16" viewBox="0 0 16 16" fill="none"
+                    className={`text-gray-400 transition-transform duration-200 shrink-0 ${open ? 'rotate-180' : ''}`}
+                >
+                    <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </button>
+
+            {open && (
+                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                    {options.map(opt => (
+                        <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => { onChange(opt.name); setOpen(false); }}
+                            className={`w-full text-left px-4 py-3 text-sm font-mono transition-colors
+                                ${value === opt.name
+                                    ? 'bg-accent/15 text-accent border-l-2 border-accent'
+                                    : 'text-gray-300 hover:bg-white/5 hover:text-white border-l-2 border-transparent'
+                                }`}
+                        >
+                            {opt.name}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // --- MAIN APP ---
 
 export default function App() {
@@ -339,7 +404,7 @@ export default function App() {
                 username: username,
                 user_email: userEmail,
                 is_competitor: isCompetitor,
-                target_account: isWebstorePlus ? selectedAccount : username,
+                target_account: (isAdmin || isWebstorePlus) ? selectedAccount : username,
                 action_type: targetType,
             };
 
@@ -516,20 +581,15 @@ export default function App() {
                                 </button>
                             </div>
 
-                            {/* TARGET ACCOUNT DROPDOWN — webstoreplus only */}
-                            {isWebstorePlus && (
+                            {/* TARGET ACCOUNT DROPDOWN — admin sees all RAG, webstoreplus sees own clients */}
+                            {(isAdmin || isWebstorePlus) && (
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-accent uppercase tracking-widest font-mono pl-1">02. Target Account</label>
-                                    <select
+                                    <CustomDropdown
+                                        options={isAdmin ? ALL_RAG_ACCOUNTS : WEBSTORE_ACCOUNTS}
                                         value={selectedAccount}
-                                        onChange={e => setSelectedAccount(e.target.value)}
-                                        className="w-full tech-input px-4 py-3 rounded-xl text-sm font-mono bg-[#0a0a0a] text-white border border-white/10"
-                                        style={{ colorScheme: 'dark' }}
-                                    >
-                                        {WEBSTORE_ACCOUNTS.map((acc) => (
-                                            <option key={acc.id} value={acc.name}>{acc.name}</option>
-                                        ))}
-                                    </select>
+                                        onChange={setSelectedAccount}
+                                    />
                                 </div>
                             )}
 
