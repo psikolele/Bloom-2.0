@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from './components/Icons';
 import { SpotlightCard } from './components/SpotlightCard';
+import CustomDropdown from '../../components/CustomDropdown';
 // import { Logo } from './components/Logo'; // Removed as replaced by image assets
 
 // --- CONFIG ---
@@ -507,18 +508,12 @@ export default function App() {
                                     <Icons.Send width={14} height={14} />
                                     03. Tipologia Comunicazione
                                 </label>
-                                <select
+                                <CustomDropdown
+                                    options={COMMUNICATION_TYPES.map(t => ({ value: t, label: t }))}
                                     value={formData.tipologia_comunicazione}
-                                    onChange={e => updateField('tipologia_comunicazione', e.target.value)}
-                                    className="w-full tech-input rounded-xl py-4 px-4 text-sm font-mono bg-[#0a0a0a] text-white"
-                                >
-                                    <option value="">Seleziona una tipologia...</option>
-                                    {COMMUNICATION_TYPES.map(type => (
-                                        <option key={type} value={type} className="bg-[#0a0a0a] text-white py-3">
-                                            {type}
-                                        </option>
-                                    ))}
-                                </select>
+                                    onChange={v => updateField('tipologia_comunicazione', v)}
+                                    placeholder="Seleziona una tipologia..."
+                                />
                             </div>
 
                             {/* SEZIONE 4: Scelta Social */}
