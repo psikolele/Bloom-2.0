@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, Folder, FileUp, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import CustomDropdown from './CustomDropdown';
 import './RAGUpload.css';
 
 export interface DriveFolder {
@@ -98,17 +99,15 @@ const RAGUpload: React.FC<RAGUploadProps> = ({ folders, selectedFolderId, setSel
                 {isAdmin ? (
                 <div className="rag-input-group">
                     <label><Folder size={14} /> Target</label>
-                    <select
+                    <CustomDropdown
+                        options={loadingFolders
+                            ? [{ value: '', label: 'Loading…' }]
+                            : folders.map(f => ({ value: f.id, label: f.name }))}
                         value={selectedFolderId}
-                        onChange={(e) => setSelectedFolderId(e.target.value)}
+                        onChange={setSelectedFolderId}
+                        placeholder="Select Folder"
                         disabled={loadingFolders || status === 'uploading'}
-                        className="rag-select"
-                    >
-                        <option value="" disabled>Select Folder</option>
-                        {loadingFolders ? <option>Loading...</option> : folders.map(f => (
-                            <option key={f.id} value={f.id}>{f.name}</option>
-                        ))}
-                    </select>
+                    />
                     {(folderError || debugError) && <p className="text-xs text-red-400 mt-1">Error: {folderError || debugError}</p>}
                 </div>
                 ) : (
