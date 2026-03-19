@@ -257,7 +257,7 @@ const CustomDropdown = ({
             </button>
 
             {open && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-y-auto max-h-60 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
                     {options.map(opt => (
                         <button
                             key={opt.id}
@@ -504,7 +504,7 @@ export default function App() {
                 </div>
 
                 {/* Added overflow-hidden to force containment of children */}
-                <SpotlightCard className="p-6 md:p-8 transition-all duration-700 animate-[reveal_1s_ease-out_0.2s_both] overflow-hidden flex flex-col h-auto">
+                <SpotlightCard className="p-6 md:p-8 transition-all duration-700 animate-[reveal_1s_ease-out_0.2s_both] flex flex-col h-auto">
                     <div className="flex justify-between items-start mb-6 px-2">
                         <div><h2 className="text-lg font-bold text-white font-mono">Strategy Studio</h2></div>
                         {isAdmin && (

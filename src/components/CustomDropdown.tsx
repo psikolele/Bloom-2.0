@@ -55,7 +55,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
             </button>
 
             {open && !disabled && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-y-auto max-h-60 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
                     {options.map(opt => (
                         <button
                             key={opt.value}
