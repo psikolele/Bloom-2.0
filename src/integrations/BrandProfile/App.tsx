@@ -11,17 +11,7 @@ const AVAILABLE_MODELS = [
     { name: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro (Advanced Thinking)" },
 ];
 
-// All RAG client databases — admin can route to any of these
-const ALL_RAG_ACCOUNTS = [
-    { id: 'walmoss', name: 'Walmoss' },
-    { id: 'foot-easy', name: 'Foot Easy' },
-];
-
-// Webstore Plus sees only their own clients
-const WEBSTORE_ACCOUNTS = [
-    { id: 'walmoss', name: 'Walmoss' },
-    { id: 'foot-easy', name: 'Foot Easy' },
-];
+const RAG_FOLDERS_WEBHOOK = 'https://emanueleserra.app.n8n.cloud/webhook/rag-folders';
 
 // --- COMPONENTS ---
 
@@ -267,7 +257,7 @@ const CustomDropdown = ({
             </button>
 
             {open && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#0d0d0d] border border-white/10 rounded-xl overflow-y-auto max-h-60 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
                     {options.map(opt => (
                         <button
                             key={opt.id}
@@ -303,26 +293,41 @@ export default function App() {
     // Admin Check
     const [isAdmin, setIsAdmin] = useState(false);
     const [isWebstorePlus, setIsWebstorePlus] = useState(false);
+    const [ragAccounts, setRagAccounts] = useState<{ id: string; name: string }[]>([]);
+    const [selectedAccount, setSelectedAccount] = useState<string>('');
+
     useEffect(() => {
         const userStr = localStorage.getItem('bloom_user');
-        if (userStr) {
-            try {
-                const user = JSON.parse(userStr);
-                const username = (user.username || '').toLowerCase();
-                const loginName = (user.loginName || '').toLowerCase();
-                // Simple admin check based on known users or 'admin' prefix
-                if (username === 'admin' || username === 'emanuele' || username.startsWith('admin_')) {
-                    setIsAdmin(true);
-                }
-                if (username === 'webstoreplus' || loginName === 'webstoreplus') {
-                    setIsWebstorePlus(true);
-                }
-            } catch (e) { console.error("Error parsing user", e); }
-        }
-    }, []);
+        if (!userStr) return;
+        try {
+            const user = JSON.parse(userStr);
+            const username = (user.username || '').toLowerCase();
+            const loginName = (user.loginName || '').toLowerCase();
 
-    // Webstore Plus: selected account for target routing
-    const [selectedAccount, setSelectedAccount] = useState<string>(WEBSTORE_ACCOUNTS[0].name);
+            const isSuperAdmin = username === 'admin' || username === 'emanuele' || username.startsWith('admin_');
+            const isWS = username === 'webstoreplus' || loginName === 'webstoreplus';
+
+            setIsAdmin(isSuperAdmin);
+            setIsWebstorePlus(isWS);
+
+            if (isSuperAdmin || isWS) {
+                const effectiveUser = isSuperAdmin ? 'admin' : username;
+                fetch(`${RAG_FOLDERS_WEBHOOK}?username=${encodeURIComponent(effectiveUser)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let items: { id: string; name: string }[] = [];
+                        if (Array.isArray(data)) items = data;
+                        else if (Array.isArray((data as any)?.documents)) items = (data as any).documents;
+                        else items = Object.values(data).find(v => Array.isArray(v)) as any[] || [];
+                        // Normalize: support {id,name} or {id,label}
+                        const normalized = items.map((f: any) => ({ id: f.id, name: f.name || f.label || f.id }));
+                        setRagAccounts(normalized);
+                        if (normalized.length > 0) setSelectedAccount(normalized[0].name);
+                    })
+                    .catch(err => console.error('[BrandProfile] Error fetching RAG folders:', err));
+            }
+        } catch (e) { console.error("Error parsing user", e); }
+    }, []);
 
     // Competitor flag (all users)
     const [isCompetitor, setIsCompetitor] = useState(false);
@@ -499,7 +504,7 @@ export default function App() {
                 </div>
 
                 {/* Added overflow-hidden to force containment of children */}
-                <SpotlightCard className="p-6 md:p-8 transition-all duration-700 animate-[reveal_1s_ease-out_0.2s_both] overflow-hidden flex flex-col h-auto">
+                <SpotlightCard className="p-6 md:p-8 transition-all duration-700 animate-[reveal_1s_ease-out_0.2s_both] flex flex-col h-auto">
                     <div className="flex justify-between items-start mb-6 px-2">
                         <div><h2 className="text-lg font-bold text-white font-mono">Strategy Studio</h2></div>
                         {isAdmin && (
@@ -586,7 +591,7 @@ export default function App() {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-accent uppercase tracking-widest font-mono pl-1">02. Target Account</label>
                                     <CustomDropdown
-                                        options={isAdmin ? ALL_RAG_ACCOUNTS : WEBSTORE_ACCOUNTS}
+                                        options={ragAccounts}
                                         value={selectedAccount}
                                         onChange={setSelectedAccount}
                                     />
